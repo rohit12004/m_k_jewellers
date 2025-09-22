@@ -1,15 +1,15 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Assistant } from "next/font/google";
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import "../lib/cron"
+import GlobalProvider from "@/components/Application/GlobalProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const assistantFont = Assistant({
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  display: "swap"
+})
 
 export const metadata = {
   title: "Create Next App",
@@ -20,9 +20,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${assistantFont.className} antialiased`}
       >
-        {children}
+        <GlobalProvider>
+          {children}
+          <ToastContainer />
+        </GlobalProvider>
       </body>
     </html>
   );
