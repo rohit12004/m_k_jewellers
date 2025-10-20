@@ -27,7 +27,7 @@ model User {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  @@map("user")  // map the model OTP to lowercase table `user`
+  @@map("user")
 }
 
 model OTP {
@@ -38,6 +38,29 @@ model OTP {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("otp")  // map the model OTP to lowercase table `otp`
+  @@map("otp")
 }
 
+/*
+  Media model converted from your Mongoose schema.
+  - required fields: asset_id, public_id, path, thumbnail, thumbnail_url
+  - optional fields: alt, title
+  - deletedAt is nullable and indexed
+*/
+model Media {
+  id            String    @id @default(uuid())
+  asset_id      String
+  public_id     String
+  path          String
+  thumbnail     String?
+  thumbnail_url String
+  secure_url    String
+  alt           String? 
+  title         String?
+  deletedAt     DateTime? @db.Timestamp(6)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("medias")
+  @@index([deletedAt], map: "idx_medias_deleted_at")
+}

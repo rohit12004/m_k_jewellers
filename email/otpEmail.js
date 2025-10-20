@@ -1,5 +1,5 @@
 export const otpEmail = (otp) => {
-  const html = `
+	const html = `
 <!DOCTYPE html>
 <html lang="en" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
@@ -125,7 +125,7 @@ export const otpEmail = (otp) => {
 																	style="line-height:10px">
 																	<div style="max-width: 250px;"><img
 																			alt="reset-password" height="auto"
-																			src="https://res.cloudinary.com/do7xdfl3y/image/upload/v1737487850/next-ecommerce/rb_27348_hfzgxd.png"
+																			src="https://res.cloudinary.com/dxh3hcxav/image/upload/v1760943554/mk_email_verification_j7sekd.webp"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="reset-password" width="250" /></div>
 																</div>
@@ -175,28 +175,17 @@ export const otpEmail = (otp) => {
 															</td>
 														</tr>
 													</table>
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="paragraph_block block-5" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:5px;padding-left:10px;padding-right:10px;padding-top:10px;">
-																<div
-																	style="color:#393d47;font-family:Tahoma,Verdana,Segoe,sans-serif;font-size:13px;line-height:150%;text-align:center;mso-line-height-alt:19.5px;">
-																	<p style="margin: 0;"><strong>Note:</strong> This
-																		OTP is valid for 10 minutes. Do not share it
-																		with anyone.</p>
-																	<p style="margin: 0;">If you did not request this,
-																		please ignore this message.</p>
-																	<p style="margin: 0;">Thank you,<br />
-                                                                     <a href="https://www.youtube.com/@developergoswami" target="_blank">Developer
-																		Goswami</a>
-                                                                    </p>
-																</div>
-															</td>
-														</tr>
-													</table>
+													<table border="0" cellpadding="10" cellspacing="0" role="presentation" width="100%">
+  <tr>
+    <td style="padding: 10px; text-align: center; font-family: Tahoma, Verdana, Segoe, sans-serif; font-size: 13px; color: #393d47; line-height: 18px;">
+      <p style="margin: 0;"><strong>Note:</strong> This OTP is valid for 10 minutes. Do not share it with anyone.</p>
+      <p style="margin: 0;">If you did not request this, please ignore this message.</p>
+      <p style="margin: 0;">Thank you,<br>
+        <a href="#" target="_blank" style="color: #7747FF; text-decoration: none;">M.K. Jewellers</a>
+      </p>
+    </td>
+  </tr>
+</table>
 												</td>
 											</tr>
 										</tbody>
@@ -214,5 +203,5 @@ export const otpEmail = (otp) => {
 
       `;
 
-  return html;
+	return html;
 };

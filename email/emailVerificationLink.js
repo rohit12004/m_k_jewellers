@@ -127,7 +127,7 @@ export const emailVerificationLink = (link) => {
                                                                     style="line-height:10px">
                                                                     <div style="max-width: 250px;"><img
                                                                             alt="reset-password" height="auto"
-                                                                            src="https://res.cloudinary.com/do7xdfl3y/image/upload/v1737487850/next-ecommerce/rb_27348_hfzgxd.png"
+                                                                            src="https://res.cloudinary.com/dxh3hcxav/image/upload/v1760943554/mk_email_verification_j7sekd.webp"
                                                                             style="display: block; height: auto; border: 0; width: 100%;"
                                                                             title="reset-password" width="250" /></div>
                                                                 </div>
@@ -207,9 +207,7 @@ export const emailVerificationLink = (link) => {
                                                                     <p style="margin: 10px;"><strong>Note:</strong> This link will expire in 1 hours. If you did not create an account, you can safely ignore this email.</p>
                                                                          
                                                                     <p style="margin: 0;">Thank you,<br />
-                                                                        <a href="https://www.youtube.com/@developergoswami"
-                                                                            target="_blank">Developer
-                                                                            Goswami</a>
+                                                                        <a href="" target="_blank">M.K.Jewellers</a>
                                                                     </p>
                                                                 </div>
                                                             </td>
