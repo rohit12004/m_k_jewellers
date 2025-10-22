@@ -64,3 +64,18 @@ model Media {
   @@map("medias")
   @@index([deletedAt], map: "idx_medias_deleted_at")
 }
+
+
+//categories model
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  slug      String   @unique
+  deletedAt DateTime? @db.Timestamp(6)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("categories") // table name
+  @@index([deletedAt], map: "idx_categories_deleted_at")
+}
