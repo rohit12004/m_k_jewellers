@@ -1,6 +1,7 @@
 import cloudinary from "@/lib/cloudinary";
-import { catchError, isAuthenticated, response } from "@/lib/helperFunction";
+import { catchError, response } from "@/lib/helperFunction";
 import { createManyMedia } from "@/lib/mediaUpload.service";
+import { isAuthenticated } from "@/lib/authentication"
 
 export async function POST(request) {
     const payload = await request.json()

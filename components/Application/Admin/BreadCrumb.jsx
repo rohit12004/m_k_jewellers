@@ -10,7 +10,7 @@ import {
 
 const BreadCrumb = ({breadcrumbData}) => {
     return (
-        <Breadcrumb>
+        <Breadcrumb className="m-2">
             <BreadcrumbList>
                 {breadcrumbData.length > 0 && breadcrumbData.map((data, index)=>{
                     return(

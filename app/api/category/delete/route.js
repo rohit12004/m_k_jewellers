@@ -1,6 +1,6 @@
-import { response } from "@/lib/helperFunction";
+import { catchError, response } from "@/lib/helperFunction";
 import { isAuthenticated } from "@/lib/authentication"
-import { deleteManyMedia, getMediaByIds, restoreMedia, softDeleteMedia } from "@/lib/mediaUpload.service";
+import { deleteManyCategory, getCategoryById, restoreCategory, softDeleteCategory } from "@/lib/categories.service";
 
 export async function PUT(request) {
     const payload = await request.json()
@@ -15,12 +15,12 @@ export async function PUT(request) {
         const deleteType = payload.deleteType;
 
         if (!Array.isArray(ids) || ids.length === 0) {
-            return response(false, 400, 'No media IDs provided');
+            return response(false, 400, 'No category IDs provided');
         }
 
-        const media = await getMediaByIds(ids);
-        if (!media.length) {
-            return response(false, 404, 'No media found for the provided IDs');
+        const category = await getCategoryById(ids);
+        if (!category.length) {
+            return response(false, 404, 'No category found for the provided IDs');
         }
 
         if (!['SD', 'RSD'].includes(deleteType)) {
@@ -28,11 +28,11 @@ export async function PUT(request) {
         }
 
         if (deleteType === 'SD') {
-            await softDeleteMedia(ids);
-            return response(true, 200, 'Media Moved Into Trash successfully');
+            await softDeleteCategory(ids);
+            return response(true, 200, 'Category Moved Into Trash successfully');
         } else {
-            await restoreMedia(ids);
-            return response(true, 200, 'Media Restored successfully');
+            await restoreCategory(ids);
+            return response(true, 200, 'Category Restored successfully');
         }
 
     } catch (error) {
@@ -54,7 +54,7 @@ export async function DELETE(request) {
     const deleteType = payload.deleteType;
 
     if (!Array.isArray(ids) || ids.length === 0) {
-      return response(false, 400, 'No media IDs provided');
+      return response(false, 400, 'No Category IDs provided');
     }
 
     if (deleteType !== 'PD') {
@@ -62,11 +62,11 @@ export async function DELETE(request) {
     }
 
     try {
-      const result = await deleteManyMedia(ids);
-      return response(true, 200, 'Media permanently deleted successfully', result);
+      const result = await deleteManyCategory(ids);
+      return response(true, 200, 'Category permanently deleted successfully', result);
     } catch (err) {
       // Transaction rolled back — so DB is safe
-      return response(false, 500, 'Failed to delete media. Transaction rolled back.');
+      return response(false, 500, 'Failed to delete Category. Transaction rolled back.');
     }
 
   } catch (error) {

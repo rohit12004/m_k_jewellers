@@ -1,6 +1,6 @@
 import { catchError, response } from "@/lib/helperFunction";
-import { getSingleMedia } from "@/lib/mediaUpload.service";
 import { isAuthenticated } from "@/lib/authentication"
+import { getSingleCategory } from "@/lib/categories.service";
 
 export async function GET(request, { params }) {
     try {
@@ -12,10 +12,9 @@ export async function GET(request, { params }) {
         const getParams = await params
         const id = getParams.id
 
-       
-        const getMedia = await getSingleMedia(id)
+        const getCategory = await getSingleCategory(id)
 
-        return getMedia
+        return getCategory
 
     } catch (error) {
         return catchError(error)

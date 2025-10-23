@@ -2,31 +2,43 @@
 import BreadCrumb from "@/components/Application/Admin/BreadCrumb"
 import DatatableWrapper from "@/components/Application/Admin/DatatableWrapper"
 import DeleteAction from "@/components/Application/Admin/DeleteAction"
-import EditAction from "@/components/Application/Admin/EditAction"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { DT_CATEGORY_COLUMN } from "@/lib/column"
 import { columnConfig } from "@/lib/helperFunction"
-import { ADMIN_CATEGORY_ADD, ADMIN_CATEGORY_EDIT, ADMIN_CATEGORY_SHOW, ADMIN_DASHBOARD, ADMIN_TRASH } from "@/routes/adminPanelRoutes"
-import Link from "next/link"
+import { ADMIN_CATEGORY_SHOW, ADMIN_DASHBOARD, ADMIN_TRASH } from "@/routes/adminPanelRoutes"
+import { useSearchParams } from "next/navigation"
 import { useCallback, useMemo } from "react"
-import { FiPlus } from "react-icons/fi"
 
 const breadcrumbData = [
     { href: ADMIN_DASHBOARD, label: 'Home' },
     { href: ADMIN_CATEGORY_SHOW, label: 'Category' },
+    { href: ADMIN_TRASH, label: 'Trash' },
 ]
-const ShowCategory = () => {
+
+const TRASH_CONFIG = {
+    category: {
+        title: 'Category Trash',
+        columns: DT_CATEGORY_COLUMN,
+        fetchUrl: '/api/category',
+        exportUrl: '/api/category/export',
+        deleteUrl: '/api/category/delete'
+    },
+
+}
+
+const Trash = () => {
+
+    const searchParams = useSearchParams()
+    const trashOf = searchParams.get('trashof')
+
+    const config = TRASH_CONFIG[trashOf]
 
     const columns = useMemo(() => {
-        return columnConfig(DT_CATEGORY_COLUMN)
+        return columnConfig(config.columns, false, false, true)
     }, [])
 
     const action = useCallback((row, deleteType, handleDelete) => {
-        let actionMenu = []
-        actionMenu.push(<EditAction key="edit" href={ADMIN_CATEGORY_EDIT(row.original.id)} />)
-        actionMenu.push(<DeleteAction key="delete" handleDelete={handleDelete} row={row} deleteType={deleteType} />)
-        return actionMenu
+        return [<DeleteAction key="delete" handleDelete={handleDelete} row={row} deleteType={deleteType} />]
     }, [])
 
     return (
@@ -36,24 +48,18 @@ const ShowCategory = () => {
             <Card className="py-0 rounded shadow-sm gap-0">
                 <CardHeader className="pt-3 px-3 border-b [.border-b]:pb-2">
                     <div className="flex justify-between items-center">
-                        <h4 className='text-xl font-semibold'>Show Category</h4>
-                        <Button>
-                            <FiPlus />
-                            <Link href={ADMIN_CATEGORY_ADD}>New Category</Link>
-                        </Button>
-
+                        <h4 className='text-xl font-semibold'>{config.title}</h4>
                     </div>
                 </CardHeader>
                 <CardContent className="px-0 pt-0">
                     <DatatableWrapper
-                        queryKey="category-data"
-                        fetchUrl="/api/category"
+                        queryKey={`${trashOf}-data-deleted`}
+                        fetchUrl={config.fetchUrl}
                         initialPageSize={10}
                         columnsConfig={columns}
-                        exportEndpoint="/api/category/export"
-                        deleteEndpoint="/api/category/delete"
-                        deleteType="SD"
-                        trashView={`${ADMIN_TRASH}?trashof=category`}
+                        exportEndpoint={config.exportUrl}
+                        deleteEndpoint={config.deleteUrl}
+                        deleteType="PD"
                         createAction={action}
                     />
                 </CardContent>
@@ -62,4 +68,4 @@ const ShowCategory = () => {
     )
 }
 
-export default ShowCategory
+export default Trash

@@ -1,7 +1,7 @@
 import { catchError, response } from "@/lib/helperFunction"
-import { getSingleMedia, updateMedia } from "@/lib/mediaUpload.service"
 import { zSchema } from "@/lib/zodSchema"
 import { isAuthenticated } from "@/lib/authentication"
+import { getSingleCategory, updateCategory } from "@/lib/categories.service"
 
 export async function PUT(request) {
     try {
@@ -14,22 +14,22 @@ export async function PUT(request) {
 
         const schema = zSchema.pick({
             id: true,
-            alt: true,
-            title: true
+            name:true,
+            slug:true,
         })
 
         const validate = schema.safeParse(payload)
+        
         if (!validate.success) {
             return response(false, 400, 'Invalid or missing field.', validate.error)
         }
 
-        const { id, alt, title } = validate.data
+        const { id, name, slug } = validate.data
 
-        const getMedia = await getSingleMedia(id)
-        if(!getMedia.success) {
-            return response(false, 404, 'Data not found.')
-        }
-        const updatedData = await updateMedia(id, { alt, title })
+        const getCategory = await getSingleCategory(id)
+
+
+        const updatedData = await updateCategory(id, { name, slug})
 
         return updatedData
 

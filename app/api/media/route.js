@@ -1,13 +1,14 @@
-import { catchError, isAuthenticated, response } from "@/lib/helperFunction";
+import { catchError, response } from "@/lib/helperFunction";
 import { getMedia } from "@/lib/mediaUpload.service";
 import { NextResponse } from "next/server";
+import { isAuthenticated } from "@/lib/authentication"
 
 export async function GET(request){
     try {
-        // const auth = await isAuthenticated('admin');
-        // if (!auth.isAuth) {
-        //     return response(false, 403, 'Unauthorized access');
-        // }
+        const auth = await isAuthenticated('admin');
+        if (!auth.isAuth) {
+            return response(false, 403, 'Unauthorized access');
+        }
 
         const searchParams = request.nextUrl.searchParams;
         const page = parseInt(searchParams.get('page'),10) || 0;

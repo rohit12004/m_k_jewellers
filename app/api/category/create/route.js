@@ -1,13 +1,14 @@
+import { isAuthenticated } from "@/lib/authentication"
 import { createCategory } from "@/lib/categories.service"
-import { catchError, isAuthenticated, response } from "@/lib/helperFunction"
+import { catchError, response } from "@/lib/helperFunction"
 import { zSchema } from "@/lib/zodSchema"
 
 export async function POST(request) {
     try {
-        // const auth = await isAuthenticated('admin')
-        // if (!auth.isAuth) {
-        //     return response(false, 403, 'Unauthorized.')
-        // }
+        const auth = await isAuthenticated('admin')
+        if (!auth.isAuth) {
+            return response(false, 403, 'Unauthorized.')
+        }
 
         const payload = await request.json()
 
