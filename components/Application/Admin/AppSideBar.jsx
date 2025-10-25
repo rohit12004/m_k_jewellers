@@ -26,7 +26,7 @@ const AppSideBar = () => {
         <Sidebar className="z-50">
             <SidebarHeader className="border-b-2 h-16">
                 <div className="flex justify-between items-center px-4">
-                    <Image src={mklogo.src} height={50} width={mklogo.width} alt="logo" className="h-[50px] w-auto rounded-full" />
+                    <Image src={mklogo.src} height={50} width={50} alt="logo" className="h-[50px] rounded-full" />
                     <p className="font-bold">M.K.Jewellers</p>
                     {/* give md:hidden */}
                     <Button onClick={toggleSidebar} type="button" size="icon" className="md:hidden">

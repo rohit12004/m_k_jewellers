@@ -3,25 +3,26 @@ import BreadCrumb from "@/components/Application/Admin/BreadCrumb"
 import DatatableWrapper from "@/components/Application/Admin/DatatableWrapper"
 import DeleteAction from "@/components/Application/Admin/DeleteAction"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { DT_CATEGORY_COLUMN } from "@/lib/column"
+import { DT_CATEGORY_COLUMN, DT_SUB_CATEGORY_COLUMN } from "@/lib/column"
 import { columnConfig } from "@/lib/helperFunction"
 import { ADMIN_CATEGORY_SHOW, ADMIN_DASHBOARD, ADMIN_TRASH } from "@/routes/adminPanelRoutes"
 import { useSearchParams } from "next/navigation"
 import { useCallback, useMemo } from "react"
 
-const breadcrumbData = [
-    { href: ADMIN_DASHBOARD, label: 'Home' },
-    { href: ADMIN_CATEGORY_SHOW, label: 'Category' },
-    { href: ADMIN_TRASH, label: 'Trash' },
-]
-
 const TRASH_CONFIG = {
-    category: {
+    category: { 
         title: 'Category Trash',
         columns: DT_CATEGORY_COLUMN,
         fetchUrl: '/api/category',
         exportUrl: '/api/category/export',
         deleteUrl: '/api/category/delete'
+    },
+    subcategory: {
+        title: 'Sub-Category Trash',
+        columns: DT_SUB_CATEGORY_COLUMN,
+        fetchUrl: '/api/subcategory',
+        exportUrl: '/api/subcategory/export',
+        deleteUrl: '/api/subcategory/delete'
     },
 
 }
@@ -30,8 +31,13 @@ const Trash = () => {
 
     const searchParams = useSearchParams()
     const trashOf = searchParams.get('trashof')
-
     const config = TRASH_CONFIG[trashOf]
+
+    const breadcrumbData = useMemo(() => [
+        { href: ADMIN_DASHBOARD, label: 'Home' },
+        { href: trashOf === 'category' ? ADMIN_CATEGORY_SHOW : '/admin/subcategory', label: trashOf === 'category' ? 'Category' : 'Sub-Category' },
+        { href: '', label: 'Trash' },
+    ], [trashOf])
 
     const columns = useMemo(() => {
         return columnConfig(config.columns, false, false, true)

@@ -12,5 +12,12 @@ export const ADMIN_CATEGORY_ADD = '/admin/category/add'
 export const ADMIN_CATEGORY_SHOW = '/admin/category'
 export const ADMIN_CATEGORY_EDIT = (id) => id ? `/admin/category/edit/${id}` : ''
 
+
+// sub  Category routes 
+
+export const ADMIN_SUB_CATEGORY_ADD = '/admin/subcategory/add'
+export const ADMIN_SUB_CATEGORY_SHOW = '/admin/subcategory'
+export const ADMIN_SUB_CATEGORY_EDIT = (id) => id ? `/admin/subcategory/edit/${id}` : ''
+
 //Trash Route
 export const ADMIN_TRASH = '/admin/trash'

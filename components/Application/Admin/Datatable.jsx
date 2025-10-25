@@ -43,7 +43,7 @@ const Datatable = ({
 
     // handle delete method  
     const deleteMutation = useDeleteMutation(queryKey, deleteEndpoint)
-    
+
     // delete method 
     const handleDelete = (ids, deleteType) => {
         let c
@@ -52,7 +52,7 @@ const Datatable = ({
         } else if (deleteType === 'RSD') {
             c = confirm('Are you sure you want to restore the data ?')
         }
-        else{
+        else {
             c = confirm('Are you sure you want to move the data to Trash?')
         }
 
@@ -93,6 +93,7 @@ const Datatable = ({
     // export method  
     const handleExport = async (selectedRows) => {
         setExportLoading(true)
+
         try {
             const csvConfig = mkConfig({
                 fieldSeparator: ',',
@@ -101,23 +102,28 @@ const Datatable = ({
                 filename: 'csv-data'
             })
 
-            let csv
+            let rowData
+
+            const flattenCategory = (row) => {
+                if (row.category) {
+                    const { category, ...rest } = row
+                    return { ...rest, categoryName: category?.name || '' }
+                }
+                return row // no category field, return as-is
+            }
 
             if (Object.keys(rowSelection).length > 0) {
                 // export only selected rows  
-                const rowData = selectedRows.map((row) => row.original)
-                csv = generateCsv(csvConfig)(rowData)
+                rowData = selectedRows.map((row) => flattenCategory(row.original))
             } else {
                 // export all data  
                 const { data: response } = await axios.get(exportEndpoint)
-                if (!response.success) {
-                    throw new Error(response.message)
-                }
+                if (!response.success) throw new Error(response.message)
 
-                const rowData = response.data
-                csv = generateCsv(csvConfig)(rowData)
+                rowData = response.data.map(flattenCategory)
             }
 
+            const csv = generateCsv(csvConfig)(rowData)
             download(csvConfig)(csv)
 
         } catch (error) {
@@ -127,6 +133,7 @@ const Datatable = ({
             setExportLoading(false)
         }
     }
+
 
     //init table
     const table = useMaterialReactTable({
@@ -191,11 +198,13 @@ const Datatable = ({
                 {deleteType === 'SD'
                     &&
                     <Tooltip title="Delete All" >
-                        <IconButton disabled={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
-                            onClick={() => handleDelete(Object.keys(rowSelection), deleteType)}
-                        >
-                            <DeleteIcon />
-                        </IconButton>
+                        <span>
+                            <IconButton disabled={!table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()}
+                                onClick={() => handleDelete(Object.keys(rowSelection), deleteType)}
+                            >
+                                <DeleteIcon />
+                            </IconButton>
+                        </span>
                     </Tooltip>
                 }
 
@@ -229,20 +238,22 @@ const Datatable = ({
 
         renderTopToolbarCustomActions: ({ table }) => (
             <Tooltip>
-                <ButtonLoading
-                    type="button"
-                    text={<><SaveAltIcon fontSize='25' /> Export</>}
-                    loading={exportLoading}
-                    onClick={() => handleExport(table.getSelectedRowModel().rows)}
-                    className="cursor-pointer"
-                />
+                <span>
+                    <ButtonLoading
+                        type="button"
+                        text={<><SaveAltIcon fontSize='25' /> Export</>}
+                        loading={exportLoading}
+                        onClick={() => handleExport(table.getSelectedRowModel().rows)}
+                        className="cursor-pointer"
+                    />
+                </span>
             </Tooltip>
         )
 
     })
 
     return (
-        <MaterialReactTable table={table}/>
+        <MaterialReactTable table={table} />
     )
 }
 
