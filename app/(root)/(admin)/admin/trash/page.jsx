@@ -3,14 +3,14 @@ import BreadCrumb from "@/components/Application/Admin/BreadCrumb"
 import DatatableWrapper from "@/components/Application/Admin/DatatableWrapper"
 import DeleteAction from "@/components/Application/Admin/DeleteAction"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { DT_CATEGORY_COLUMN, DT_SUB_CATEGORY_COLUMN } from "@/lib/column"
+import { DT_CATEGORY_COLUMN, DT_PRODUCT_COLUMN, DT_SUB_CATEGORY_COLUMN } from "@/lib/column"
 import { columnConfig } from "@/lib/helperFunction"
-import { ADMIN_CATEGORY_SHOW, ADMIN_DASHBOARD, ADMIN_TRASH } from "@/routes/adminPanelRoutes"
+import { ADMIN_CATEGORY_SHOW, ADMIN_DASHBOARD, ADMIN_PRODUCT_SHOW, ADMIN_TRASH } from "@/routes/adminPanelRoutes"
 import { useSearchParams } from "next/navigation"
 import { useCallback, useMemo } from "react"
 
 const TRASH_CONFIG = {
-    category: { 
+    category: {
         title: 'Category Trash',
         columns: DT_CATEGORY_COLUMN,
         fetchUrl: '/api/category',
@@ -24,6 +24,13 @@ const TRASH_CONFIG = {
         exportUrl: '/api/subcategory/export',
         deleteUrl: '/api/subcategory/delete'
     },
+    product: {
+        title: 'Product Trash',
+        columns: DT_PRODUCT_COLUMN,
+        fetchUrl: '/api/product',
+        exportUrl: '/api/product/export',
+        deleteUrl: '/api/product/delete'
+    }
 
 }
 
@@ -35,9 +42,21 @@ const Trash = () => {
 
     const breadcrumbData = useMemo(() => [
         { href: ADMIN_DASHBOARD, label: 'Home' },
-        { href: trashOf === 'category' ? ADMIN_CATEGORY_SHOW : '/admin/subcategory', label: trashOf === 'category' ? 'Category' : 'Sub-Category' },
+        {
+            href: trashOf === 'category'
+                ? ADMIN_CATEGORY_SHOW
+                : trashOf === 'product'
+                    ? ADMIN_PRODUCT_SHOW
+                    : '/admin/subcategory',
+            label: trashOf === 'category'
+                ? 'Category'
+                : trashOf === 'product'
+                    ? 'Products'
+                    : 'Sub-Category'
+        },
         { href: '', label: 'Trash' },
     ], [trashOf])
+
 
     const columns = useMemo(() => {
         return columnConfig(config.columns, false, false, true)

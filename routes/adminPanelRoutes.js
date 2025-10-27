@@ -21,3 +21,9 @@ export const ADMIN_SUB_CATEGORY_EDIT = (id) => id ? `/admin/subcategory/edit/${i
 
 //Trash Route
 export const ADMIN_TRASH = '/admin/trash'
+
+
+// Product routes 
+export const ADMIN_PRODUCT_ADD = '/admin/product/add'
+export const ADMIN_PRODUCT_SHOW = '/admin/product'
+export const ADMIN_PRODUCT_EDIT = (id) => id ? `/admin/product/edit/${id}` : ''

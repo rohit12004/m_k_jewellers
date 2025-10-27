@@ -63,7 +63,6 @@ const EditCategory = ({ params }) => {
         setLoading(true)
         try {
             const { data: response } = await axios.put('/api/category/update', values)
-            console.log(response)
             if (!response.success) {
                 throw new Error(response.message)
             }

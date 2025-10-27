@@ -1,6 +1,7 @@
 'use client'
 import BreadCrumb from '@/components/Application/Admin/BreadCrumb'
 import ButtonLoading from '@/components/Application/ButtonLoading'
+import Select from '@/components/Application/Select'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -80,12 +81,11 @@ const AddSubCategory = () => {
                     <FormItem>
                       <FormLabel>Category</FormLabel>
                       <FormControl>
-                        <select {...field} className="border rounded p-2 w-full">
-                          <option value="">Select Category</option>
-                          {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                          ))}
-                        </select>
+                        <Select
+                          options={categories.map(cat => ({ label: cat.name, value: cat.id }))}
+                          selected={field.value}
+                          setSelected={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

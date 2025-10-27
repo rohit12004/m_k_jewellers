@@ -37,8 +37,6 @@ const EditMedia = ({ params }) => {
   const { data: mediaData } = useFetch(`/api/media/get/${id}`)
   const [loading, setLoading] = useState(false)
 
-  console.log("mediaData", mediaData)
-
   const formSchema = zSchema.pick({
     id: true,
     alt: true,

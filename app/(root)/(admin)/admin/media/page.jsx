@@ -183,7 +183,7 @@ const MediaPage = () => {
               :
               <>
                 <div>
-                  {data.pages.flatMap(page => page.mediaData?.mediaData?  .map(media => media.id).length == 0 &&
+                  {data.pages.flatMap(page => page.mediaData?.mediaData?.map(media => media.id).length == 0 &&
                     <div className='text-center'>No media found</div>
                   )}
                 </div>

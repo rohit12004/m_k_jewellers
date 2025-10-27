@@ -47,6 +47,8 @@ model OTP {
   - optional fields: alt, title
   - deletedAt is nullable and indexed
 */
+
+
 model Media {
   id            String    @id @default(uuid())
   asset_id      String
@@ -57,13 +59,18 @@ model Media {
   secure_url    String
   alt           String? 
   title         String?
+  productId     String?          // ✅ product relation (nullable so existing media won't break)
+  product       Product?         @relation(fields: [productId], references: [id])
+
   deletedAt     DateTime? @db.Timestamp(6)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   @@map("medias")
   @@index([deletedAt], map: "idx_medias_deleted_at")
+  @@index([productId], map: "idx_medias_product_id") // ✅ optional index for faster queries
 }
+
 
 
 //categories model
@@ -104,23 +111,36 @@ model SubCategory {
   @@index([deletedAt], map: "idx_subcategories_deleted_at")
 }
 
+enum Gender {
+  MEN
+  WOMEN
+}
+
 
 model Product {
-  id             String       @id @default(uuid())
-  name           String
-  slug           String       @unique
-  subCategoryId  String
-  subCategory    SubCategory  @relation(fields: [subCategoryId], references: [id])
-  weight         Float
-  gst            Float
-  labourCharge   Float
-  purityFactor   Float       // new: purity of the metal (e.g., 22 for 22K)
-  hallmarkCharges Float      // new: hallmarking cost
-  deletedAt      DateTime?   @db.Timestamp(6)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id              String       @id @default(uuid())
+  name            String
+  slug            String       @unique
+  subCategoryId   String
+  subCategory     SubCategory  @relation(fields: [subCategoryId], references: [id])
+  weight          Float
+  gst             Float
+  labourCharge    Float
+  purityFactor    Float
+  hallmarkCharges Float
+  gender          Gender
+  description     String        // ✅ new field (required)
+  
+  // One Product has many Media
+  media           Media[]       // ✅ new relation
+
+  deletedAt       DateTime?     @db.Timestamp(6)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@map("products")
   @@index([subCategoryId], map: "idx_products_subcategory_id")
   @@index([deletedAt], map: "idx_products_deleted_at")
 }
+
+
