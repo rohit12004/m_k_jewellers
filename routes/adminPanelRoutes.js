@@ -27,3 +27,8 @@ export const ADMIN_TRASH = '/admin/trash'
 export const ADMIN_PRODUCT_ADD = '/admin/product/add'
 export const ADMIN_PRODUCT_SHOW = '/admin/product'
 export const ADMIN_PRODUCT_EDIT = (id) => id ? `/admin/product/edit/${id}` : ''
+
+
+
+// Customer route 
+export const ADMIN_CUSTOMERS_SHOW = '/admin/customers'
