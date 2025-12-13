@@ -1,9 +1,12 @@
 import React from 'react'
+import CountOverview from './CountOverview'
+import QuickAdd from './QuickAdd'
 
 const AdminDashboard = () => {
   return (
     <div>
-      Admin Dashboard
+      <CountOverview/>
+      <QuickAdd/>
     </div>
   )
 }
