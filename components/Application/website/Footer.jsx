@@ -14,8 +14,8 @@ import { FiTwitter } from "react-icons/fi";
 import { USER_DASHBOARD, WEBSITE_HOME, WEBSITE_LOGIN, WEBSITE_REGISTER, WEBSITE_SHOP } from '@/routes/websiteRoutes'
 const Footer = () => {
     return (
-        <footer className='bg-gray-50 border-t'>
-            <div className='grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-10 py-10 lg:px-32 px-4'>
+        <footer className='bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200'>
+            <div className='grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-10 py-16 lg:px-32 px-4'>
 
                 <div className='lg:col-span-1 md:col-span-2 col-span-1'>
                     <Image
@@ -23,106 +23,145 @@ const Footer = () => {
                         width={383}
                         height={146}
                         alt='logo'
-                        className='w-24 mb-2'
+                        className='w-28 mb-4'
                     />
-                    <p className='text-gray-500 text-sm'>
+                    <p className='text-gray-600 text-sm leading-relaxed'>
                         E-store is your trusted destination for quality and convenience. From fashion to essentials, we bring everything you need right to your doorstep. Shop smart, live better — only at E-store.
                     </p>
                 </div>
 
 
                 <div>
-                    <h4 className='text-lg font-bold uppercase mb-5'>Categories</h4>
-                    <ul>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={`${WEBSITE_SHOP}?category=t-shirts`}>Gold</Link>
+                    <h4 className='text-lg font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Categories</h4>
+                    <ul className='space-y-3'>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={`${WEBSITE_SHOP}?category=t-shirts`} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Gold
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={`${WEBSITE_SHOP}?category=hoodies`}>Silver</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={`${WEBSITE_SHOP}?category=hoodies`} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Silver
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={`${WEBSITE_SHOP}?category=oversized`}>Other</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={`${WEBSITE_SHOP}?category=oversized`} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Other
+                            </Link>
                         </li>
                     </ul>
                 </div>
                 <div>
-                    <h4 className='text-lg font-bold uppercase mb-5'>Userfull Links</h4>
-                    <ul>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={WEBSITE_HOME}>Home</Link>
+                    <h4 className='text-lg font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Userfull Links</h4>
+                    <ul className='space-y-3'>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={WEBSITE_HOME} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Home
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={WEBSITE_SHOP}>Shop</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={WEBSITE_SHOP} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Shop
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href="/about-us">About</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href="/about-us" className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                About
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={WEBSITE_REGISTER}>Register</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={WEBSITE_REGISTER} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Register
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={WEBSITE_LOGIN}>Login</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={WEBSITE_LOGIN} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Login
+                            </Link>
                         </li>
 
                     </ul>
                 </div>
                 <div>
-                    <h4 className='text-lg font-bold uppercase mb-5'>Help Center</h4>
-                    <ul>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={WEBSITE_REGISTER}>Register</Link>
+                    <h4 className='text-lg font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Help Center</h4>
+                    <ul className='space-y-3'>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={WEBSITE_REGISTER} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Register
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={WEBSITE_LOGIN}>Login</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={WEBSITE_LOGIN} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Login
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href={USER_DASHBOARD}>My Account</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href={USER_DASHBOARD} className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                My Account
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href="/privacy-policy">Privacy Policy</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href="/privacy-policy" className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Privacy Policy
+                            </Link>
                         </li>
-                        <li className='mb-2 text-gray-500'>
-                            <Link href="/terms-and-conditions">Terms & Conditions</Link>
+                        <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
+                            <Link href="/terms-and-conditions" className='flex items-center group'>
+                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
+                                Terms & Conditions
+                            </Link>
                         </li>
 
 
                     </ul>
                 </div>
                 <div>
-                    <h4 className='text-lg font-bold uppercase mb-5'>Contact Us </h4>
-                    <ul>
-                        <li className='mb-2 text-gray-500 flex gap-2'>
-                            <IoLocationOutline size={20} />
-                            <span className='text-sm'>E-store market Lucknow, India 256320</span>
+                    <h4 className='text-lg font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Contact Us </h4>
+                    <ul className='space-y-4'>
+                        <li className='text-gray-600 flex gap-3 items-start group'>
+                            <IoLocationOutline size={20} className='text-primary mt-0.5 flex-shrink-0' />
+                            <span className='text-sm leading-relaxed'>E-store market Lucknow, India 256320</span>
                         </li>
-                        <li className='mb-2 text-gray-500 flex gap-2'>
-                            <MdOutlinePhone size={20} />
-                            <Link href="tel:+91-8569874589" className='hover:text-primary text-sm'>+91-8569874589</Link>
+                        <li className='text-gray-600 flex gap-3 items-center group'>
+                            <MdOutlinePhone size={20} className='text-primary flex-shrink-0' />
+                            <Link href="tel:+91-8569874589" className='hover:text-primary transition-colors text-sm'>+91-8569874589</Link>
                         </li>
-                        <li className='mb-2 text-gray-500 flex gap-2'>
-                            <MdOutlineMail size={20} />
-                            <Link href="mailto:support@estore.com" className='hover:text-primary text-sm'>support@estore.com</Link>
+                        <li className='text-gray-600 flex gap-3 items-center group'>
+                            <MdOutlineMail size={20} className='text-primary flex-shrink-0' />
+                            <Link href="mailto:support@estore.com" className='hover:text-primary transition-colors text-sm'>support@estore.com</Link>
                         </li>
 
                     </ul>
 
 
-                    <div className='flex gap-5 mt-5'>
+                    <div className='flex gap-4 mt-8'>
 
-                        <Link href="">
-                            <AiOutlineYoutube className='text-primary' size={25} />
+                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                            <AiOutlineYoutube className='text-primary group-hover:text-white' size={22} />
                         </Link>
-                        <Link href="">
-                            <FaInstagram className='text-primary' size={25} />
+                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                            <FaInstagram className='text-primary group-hover:text-white' size={20} />
                         </Link>
-                        <Link href="">
-                            <FaWhatsapp className='text-primary' size={25} />
+                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                            <FaWhatsapp className='text-primary group-hover:text-white' size={20} />
                         </Link>
-                        <Link href="">
-                            <TiSocialFacebookCircular className='text-primary' size={25} />
+                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                            <TiSocialFacebookCircular className='text-primary group-hover:text-white' size={22} />
                         </Link>
-                        <Link href="">
-                            <FiTwitter className='text-primary' size={25} />
+                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                            <FiTwitter className='text-primary group-hover:text-white' size={20} />
                         </Link>
 
                     </div>
@@ -132,8 +171,8 @@ const Footer = () => {
             </div>
 
 
-            <div className='py-5 bg-gray-100' >
-                <p className='text-center'>© 2024 Estore. All Rights Reserved.</p>
+            <div className='py-6 bg-gray-800 border-t border-gray-700' >
+                <p className='text-center text-gray-300 text-sm'>© 2024 Estore. All Rights Reserved.</p>
             </div>
 
         </footer>

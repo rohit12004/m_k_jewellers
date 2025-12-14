@@ -12,6 +12,8 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import slugify from 'slugify'
+import MediaModal from '@/components/Application/Admin/MediaModal'
+import Image from 'next/image'
 
 const breadcrumbData = [
     { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -22,6 +24,9 @@ const breadcrumbData = [
 const AddCategory = () => {
 
     const [loading, setLoading] = useState(false)
+    const [open, setOpen] = useState(false)
+    const [selectedMedia, setSelectedMedia] = useState([])
+
     const formSchema = zSchema.pick({
         name: true, slug: true
     })
@@ -44,15 +49,22 @@ const AddCategory = () => {
     const onSubmit = async (values) => {
         setLoading(true)
         try {
+            // Add mediaId if media is selected
+            if (selectedMedia && selectedMedia.length > 0) {
+                values.mediaId = selectedMedia[0].id
+            }
+
             const { data: response } = await axios.post('/api/category/create', values)
             if (!response.success) {
                 throw new Error(response.message)
             }
 
             form.reset()
+            setSelectedMedia([])
             showToast('success', response.message)
         } catch (error) {
-            showToast('error', error.message)
+            const errorMessage = error.response?.data?.message || error.message || 'An error occurred'
+            showToast('error', errorMessage)
         } finally {
             setLoading(false)
         }
@@ -99,6 +111,34 @@ const AddCategory = () => {
                                         </FormItem>
                                     )}
                                 />
+                            </div>
+
+                            {/* Media Selection */}
+                            <div className='mb-5 border p-5 rounded text-center'>
+                                <MediaModal
+                                    open={open}
+                                    setOpen={setOpen}
+                                    selectedMedia={selectedMedia}
+                                    setSelectedMedia={setSelectedMedia}
+                                    isMultiple={false}
+                                />
+                                {selectedMedia && selectedMedia.length > 0 && (
+                                    <div className='flex justify-center my-3'>
+                                        <Image
+                                            src={selectedMedia[0].url}
+                                            height={120}
+                                            width={120}
+                                            className='object-cover rounded border'
+                                            alt={selectedMedia[0].alt || 'Category image'}
+                                        />
+                                    </div>
+                                )}
+                                <div
+                                    onClick={() => setOpen(true)}
+                                    className='cursor-pointer border p-3 rounded inline-block hover:bg-gray-50'
+                                >
+                                    {selectedMedia && selectedMedia.length > 0 ? 'Change Image' : 'Select Image (Optional)'}
+                                </div>
                             </div>
 
                             <div className='mb-3'>

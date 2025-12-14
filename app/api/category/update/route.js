@@ -14,22 +14,22 @@ export async function PUT(request) {
 
         const schema = zSchema.pick({
             id: true,
-            name:true,
-            slug:true,
+            name: true,
+            slug: true,
         })
 
         const validate = schema.safeParse(payload)
-        
+
         if (!validate.success) {
             return response(false, 400, 'Invalid or missing field.', validate.error)
         }
 
-        const { id, name, slug } = validate.data
+        const { id, name, slug, mediaId } = payload
 
         const getCategory = await getSingleCategory(id)
 
 
-        const updatedData = await updateCategory(id, { name, slug})
+        const updatedData = await updateCategory(id, { name, slug, mediaId })
 
         return updatedData
 

@@ -4,16 +4,16 @@ import banner1 from '@/public/assets/banner1.jpg'
 import banner2 from '@/public/assets/banner2.jpg'
 import Link from 'next/link'
 import Image from 'next/image'
-import FeaturedProduct from '@/components/Application/website/FeaturedProduct'
+import FeaturedCategories from '@/components/Application/website/FeaturedCategories'
 
 const page = () => {
-  return (
-    <>
-       <section>
+    return (
+        <>
+            <section>
                 <MainSlider />
-      </section>
+            </section>
 
-      <section className='lg:px-32 px-4 sm:pt-20 pt-5 pb-10'>
+            <section className='lg:px-32 px-4 sm:pt-20 pt-5 pb-10'>
                 <div className='grid grid-cols-2 sm:gap-10 gap-2'>
 
                     <div className='border rounded-lg overflow-hidden'>
@@ -42,9 +42,9 @@ const page = () => {
                 </div>
             </section>
 
-            <FeaturedProduct />
-    </>
-  )
+            <FeaturedCategories />
+        </>
+    )
 }
 
 export default page

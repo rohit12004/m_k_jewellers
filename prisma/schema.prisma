@@ -61,6 +61,8 @@ model Media {
   title         String?
   productId     String?          // ✅ product relation (nullable so existing media won't break)
   product       Product?         @relation(fields: [productId], references: [id])
+  categoryId    String?          // ✅ category relation (nullable so existing media won't break)
+  category      Category?        @relation(fields: [categoryId], references: [id])
 
   deletedAt     DateTime? @db.Timestamp(6)
   createdAt     DateTime  @default(now())
@@ -69,6 +71,7 @@ model Media {
   @@map("medias")
   @@index([deletedAt], map: "idx_medias_deleted_at")
   @@index([productId], map: "idx_medias_product_id") // ✅ optional index for faster queries
+  @@index([categoryId], map: "idx_medias_category_id") // ✅ optional index for faster queries
 }
 
 
@@ -85,6 +88,9 @@ model Category {
 
    // Relation: One Category has many SubCategories
   subcategories SubCategory[]
+  
+  // One Category can have many Media (but we'll use only one)
+  media         Media[]
 
   @@map("categories") // table name
   @@index([deletedAt], map: "idx_categories_deleted_at")

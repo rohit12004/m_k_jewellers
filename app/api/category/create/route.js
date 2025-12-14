@@ -22,8 +22,9 @@ export async function POST(request) {
             return response(false, 400, 'Invalid or missing fields.', validate.error)
         }
 
-        const {name, slug } = validate.data;
-        const newCreatedCategory = await createCategory({name, slug })
+        const { name, slug } = validate.data;
+        const { mediaId } = payload; // Get mediaId from original payload
+        const newCreatedCategory = await createCategory({ name, slug, mediaId })
 
         return newCreatedCategory
     } catch (error) {

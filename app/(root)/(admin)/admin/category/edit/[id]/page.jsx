@@ -13,6 +13,8 @@ import slugify from 'slugify'
 import { showToast } from '@/lib/showToast'
 import axios from 'axios'
 import useFetch from '@/hooks/useFetch'
+import MediaModal from '@/components/Application/Admin/MediaModal'
+import Image from 'next/image'
 const breadcrumbData = [
     { href: ADMIN_DASHBOARD, label: 'Home' },
     { href: ADMIN_CATEGORY_SHOW, label: 'Category' },
@@ -26,6 +28,9 @@ const EditCategory = ({ params }) => {
 
 
     const [loading, setLoading] = useState(false)
+    const [open, setOpen] = useState(false)
+    const [selectedMedia, setSelectedMedia] = useState([])
+
     const formSchema = zSchema.pick({
         id: true, name: true, slug: true
     })
@@ -48,6 +53,19 @@ const EditCategory = ({ params }) => {
                 name: data?.name,
                 slug: data?.slug
             })
+
+            // Pre-populate media if exists
+            if (data?.media && data.media.length > 0) {
+                const media = data.media[0]
+                setSelectedMedia([{
+                    id: media.id,
+                    url: media.secure_url,
+                    alt: media.alt,
+                    title: media.title
+                }])
+            } else {
+                setSelectedMedia([])
+            }
         }
     }, [categoryData])
 
@@ -62,6 +80,13 @@ const EditCategory = ({ params }) => {
     const onSubmit = async (values) => {
         setLoading(true)
         try {
+            // Add mediaId if media is selected
+            if (selectedMedia && selectedMedia.length > 0) {
+                values.mediaId = selectedMedia[0].id
+            } else {
+                values.mediaId = null // Remove media if deselected
+            }
+
             const { data: response } = await axios.put('/api/category/update', values)
             if (!response.success) {
                 throw new Error(response.message)
@@ -69,7 +94,8 @@ const EditCategory = ({ params }) => {
 
             showToast('success', response.message)
         } catch (error) {
-            showToast('error', error.message)
+            const errorMessage = error.response?.data?.message || error.message || 'An error occurred'
+            showToast('error', errorMessage)
         } finally {
             setLoading(false)
         }
@@ -117,6 +143,44 @@ const EditCategory = ({ params }) => {
                                         </FormItem>
                                     )}
                                 />
+                            </div>
+
+                            {/* Media Selection */}
+                            <div className='mb-5 border p-5 rounded text-center'>
+                                <MediaModal
+                                    open={open}
+                                    setOpen={setOpen}
+                                    selectedMedia={selectedMedia}
+                                    setSelectedMedia={setSelectedMedia}
+                                    isMultiple={false}
+                                />
+                                {selectedMedia && selectedMedia.length > 0 && (
+                                    <div className='flex justify-center my-3'>
+                                        <Image
+                                            src={selectedMedia[0].url}
+                                            height={120}
+                                            width={120}
+                                            className='object-cover rounded border'
+                                            alt={selectedMedia[0].alt || 'Category image'}
+                                        />
+                                    </div>
+                                )}
+                                <div className='flex gap-2 justify-center'>
+                                    <div
+                                        onClick={() => setOpen(true)}
+                                        className='cursor-pointer border p-3 rounded inline-block hover:bg-gray-50'
+                                    >
+                                        {selectedMedia && selectedMedia.length > 0 ? 'Change Image' : 'Select Image (Optional)'}
+                                    </div>
+                                    {selectedMedia && selectedMedia.length > 0 && (
+                                        <div
+                                            onClick={() => setSelectedMedia([])}
+                                            className='cursor-pointer border p-3 rounded inline-block hover:bg-red-50 text-red-600'
+                                        >
+                                            Remove Image
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className='mb-3'>
