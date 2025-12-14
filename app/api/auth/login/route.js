@@ -70,8 +70,8 @@ export async function POST(request) {
             email,
             otpEmail(generatedotp))
 
-        if(!otpEmailStatus.success){
-            response(false, 400, 'Failed to send OTP to your email. Please try again later.')
+        if (!otpEmailStatus.success) {
+            return response(false, 400, 'Failed to send OTP to your email. Please try again later.')
         }
 
         return response(true, 200, 'OTP has been sent to your email. Please verify to complete login process.')

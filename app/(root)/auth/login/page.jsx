@@ -64,7 +64,8 @@ const page = () => {
             form.reset()
             showToast('success', loginResponse.message)
         } catch (error) {
-            showToast('error', error.message)
+            const errorMessage = error.response?.data?.message || error.message || 'An error occurred during login. Please try again.'
+            showToast('error', errorMessage)
         } finally {
             setLoading(false)
         }
@@ -83,13 +84,14 @@ const page = () => {
             showToast('success', otpResponse.message)
 
             dispatch(login(otpResponse.data))
-            if(searchParams.has('callback')){
+            if (searchParams.has('callback')) {
                 router.push(searchParams.get('callback'))
-            }else{
+            } else {
                 otpResponse.data.role === 'admin' ? router.push(ADMIN_DASHBOARD) : router.push(USER_DASHBOARD)
             }
         } catch (error) {
-            showToast('error', error.message)
+            const errorMessage = error.response?.data?.message || error.message || 'An error occurred during OTP verification. Please try again.'
+            showToast('error', errorMessage)
         } finally {
             setotpVerificationLoading(false)
         }
@@ -185,7 +187,7 @@ const page = () => {
                     </>
                     :
                     <>
-                        
+
                         <OTPVerification email={otpEmail} onSubmit={handleOtpVerification} loading={otpVerificationLoading} />
                     </>}
 
