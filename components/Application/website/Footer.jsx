@@ -25,9 +25,6 @@ const Footer = () => {
                         alt='logo'
                         className='w-28 mb-4'
                     />
-                    <p className='text-gray-600 text-sm leading-relaxed'>
-                        E-store is your trusted destination for quality and convenience. From fashion to essentials, we bring everything you need right to your doorstep. Shop smart, live better — only at E-store.
-                    </p>
                 </div>
 
 
@@ -132,15 +129,15 @@ const Footer = () => {
                     <ul className='space-y-4'>
                         <li className='text-gray-600 flex gap-3 items-start group'>
                             <IoLocationOutline size={20} className='text-primary mt-0.5 flex-shrink-0' />
-                            <span className='text-sm leading-relaxed'>E-store market Lucknow, India 256320</span>
+                            <span className='text-sm leading-relaxed'>Arihant Mall, Main Road, Ratnagiri, Maharashtra, 415612</span>
                         </li>
                         <li className='text-gray-600 flex gap-3 items-center group'>
                             <MdOutlinePhone size={20} className='text-primary flex-shrink-0' />
-                            <Link href="tel:+91-8569874589" className='hover:text-primary transition-colors text-sm'>+91-8569874589</Link>
+                            <Link href="tel:+91-8569874589" className='hover:text-primary transition-colors text-sm'>+91-9881339944</Link>
                         </li>
                         <li className='text-gray-600 flex gap-3 items-center group'>
                             <MdOutlineMail size={20} className='text-primary flex-shrink-0' />
-                            <Link href="mailto:support@estore.com" className='hover:text-primary transition-colors text-sm'>support@estore.com</Link>
+                            <Link href="mailto:support@estore.com" className='hover:text-primary transition-colors text-sm'>mkjew@rediffmail.com</Link>
                         </li>
 
                     </ul>
@@ -172,7 +169,7 @@ const Footer = () => {
 
 
             <div className='py-6 bg-gray-800 border-t border-gray-700' >
-                <p className='text-center text-gray-300 text-sm'>© 2024 Estore. All Rights Reserved.</p>
+                <p className='text-center text-gray-300 text-sm'>All Rights Reserved.</p>
             </div>
 
         </footer>
