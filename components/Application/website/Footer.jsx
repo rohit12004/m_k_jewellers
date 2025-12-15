@@ -145,20 +145,14 @@ const Footer = () => {
 
                     <div className='flex gap-4 mt-8'>
 
-                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center  hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
                             <AiOutlineYoutube className='text-primary group-hover:text-white' size={22} />
                         </Link>
-                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
                             <FaInstagram className='text-primary group-hover:text-white' size={20} />
                         </Link>
-                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
                             <FaWhatsapp className='text-primary group-hover:text-white' size={20} />
-                        </Link>
-                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
-                            <TiSocialFacebookCircular className='text-primary group-hover:text-white' size={22} />
-                        </Link>
-                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
-                            <FiTwitter className='text-primary group-hover:text-white' size={20} />
                         </Link>
 
                     </div>

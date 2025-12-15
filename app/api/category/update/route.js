@@ -2,6 +2,7 @@ import { catchError, response } from "@/lib/helperFunction"
 import { zSchema } from "@/lib/zodSchema"
 import { isAuthenticated } from "@/lib/authentication"
 import { getSingleCategory, updateCategory } from "@/lib/categories.service"
+import { revalidateTag } from 'next/cache'
 
 export async function PUT(request) {
     try {
@@ -30,6 +31,9 @@ export async function PUT(request) {
 
 
         const updatedData = await updateCategory(id, { name, slug, mediaId })
+
+        // Revalidate categories cache to show updated category immediately
+        revalidateTag('categories')
 
         return updatedData
 

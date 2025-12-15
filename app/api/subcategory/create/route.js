@@ -2,6 +2,7 @@ import { isAuthenticated } from "@/lib/authentication"
 import { catchError, response } from "@/lib/helperFunction"
 import { createSubCategory } from "@/lib/subcategories.service"
 import { zSchema } from "@/lib/zodSchema"
+import { revalidateTag } from 'next/cache'
 
 export async function POST(request) {
     try {
@@ -17,6 +18,7 @@ export async function POST(request) {
         const schema = zSchema.pick({
             name: true,
             slug: true,
+            mediaId: true,
         }).extend({
             categoryIds: zSchema.shape.categoryIds  // array of category IDs
         })
@@ -27,10 +29,13 @@ export async function POST(request) {
             return response(false, 400, 'Invalid or missing fields.', validate.error)
         }
 
-        const { name, slug, categoryIds } = validate.data
+        const { name, slug, categoryIds, mediaId } = validate.data
 
         // Call sub-category creation service
-        const newCreatedSubCategory = await createSubCategory({ name, slug, categoryIds })
+        const newCreatedSubCategory = await createSubCategory({ name, slug, categoryIds, mediaId })
+
+        // Revalidate subcategories cache to show new subcategory immediately
+        revalidateTag('subcategories')
 
         return newCreatedSubCategory
     } catch (error) {

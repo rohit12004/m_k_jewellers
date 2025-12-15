@@ -5,6 +5,7 @@ import banner2 from '@/public/assets/banner2.jpg'
 import Link from 'next/link'
 import Image from 'next/image'
 import FeaturedCategories from '@/components/Application/website/FeaturedCategories'
+import SubcategoriesSection from '@/components/Application/website/SubcategoriesSection'
 import advertisingBanner from '@/public/assets/advertising-banner.png'
 
 const page = () => {
@@ -44,6 +45,8 @@ const page = () => {
             </section>
 
             <FeaturedCategories />
+
+            <SubcategoriesSection />
 
             <section className='sm:pt-20 pt-5 pb-10'>
                 <Image

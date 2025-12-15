@@ -1,6 +1,7 @@
 import { catchError, response } from "@/lib/helperFunction"
 import { isAuthenticated } from "@/lib/authentication"
 import { deleteManySubCategory, getSubCategoryById, restoreSubCategory, softDeleteSubCategory } from "@/lib/subcategories.service"
+import { revalidateTag } from 'next/cache'
 
 export async function PUT(request) {
   const payload = await request.json()
@@ -30,9 +31,11 @@ export async function PUT(request) {
 
     if (deleteType === "SD") {
       await softDeleteSubCategory(ids)
+      revalidateTag('subcategories') // Clear cache after soft delete
       return response(true, 200, "Subcategory moved to trash successfully")
     } else {
       await restoreSubCategory(ids)
+      revalidateTag('subcategories') // Clear cache after restore
       return response(true, 200, "Subcategory restored successfully")
     }
 
@@ -63,6 +66,7 @@ export async function DELETE(request) {
 
     try {
       const result = await deleteManySubCategory(ids)
+      revalidateTag('subcategories') // Clear cache after permanent delete
       return response(true, 200, "Subcategory permanently deleted successfully", result)
     } catch (err) {
       return response(false, 500, "Failed to delete Subcategory. Transaction rolled back.")

@@ -2,6 +2,7 @@ import { isAuthenticated } from "@/lib/authentication"
 import { createCategory } from "@/lib/categories.service"
 import { catchError, response } from "@/lib/helperFunction"
 import { zSchema } from "@/lib/zodSchema"
+import { revalidateTag } from 'next/cache'
 
 export async function POST(request) {
     try {
@@ -25,6 +26,9 @@ export async function POST(request) {
         const { name, slug } = validate.data;
         const { mediaId } = payload; // Get mediaId from original payload
         const newCreatedCategory = await createCategory({ name, slug, mediaId })
+
+        // Revalidate categories cache to show new category immediately
+        revalidateTag('categories')
 
         return newCreatedCategory
     } catch (error) {

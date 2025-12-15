@@ -13,6 +13,8 @@ import slugify from 'slugify'
 import { showToast } from '@/lib/showToast'
 import axios from 'axios'
 import useFetch from '@/hooks/useFetch'
+import MediaModal from '@/components/Application/Admin/MediaModal'
+import Image from 'next/image'
 
 const breadcrumbData = [
     { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -28,6 +30,8 @@ const EditSubCategory = ({ params }) => {
 
     const [loading, setLoading] = useState(false)
     const [categories, setCategories] = useState([])
+    const [open, setOpen] = useState(false)
+    const [selectedMedia, setSelectedMedia] = useState([])
 
     const formSchema = zSchema.pick({
         id: true,
@@ -62,6 +66,16 @@ const EditSubCategory = ({ params }) => {
                 slug: data?.slug,
                 categoryIds: categoryIds
             })
+
+            // Set existing media if available
+            if (data?.media && data.media.length > 0) {
+                setSelectedMedia([{
+                    id: data.media[0].id,
+                    url: data.media[0].secure_url,
+                    alt: data.media[0].alt,
+                    title: data.media[0].title
+                }])
+            }
         }
     }, [subCategoryData])
 
@@ -77,6 +91,14 @@ const EditSubCategory = ({ params }) => {
     const onSubmit = async (values) => {
         setLoading(true)
         try {
+            // Add mediaId if media is selected
+            if (selectedMedia && selectedMedia.length > 0) {
+                values.mediaId = selectedMedia[0].id
+            } else {
+                // If no media selected, explicitly set to null to remove existing media
+                values.mediaId = null
+            }
+
             const { data: response } = await axios.put('/api/subcategory/update', values)
             if (!response.success) throw new Error(response.message)
 
@@ -169,6 +191,44 @@ const EditSubCategory = ({ params }) => {
                                         </FormItem>
                                     )}
                                 />
+                            </div>
+
+                            {/* Media Selection */}
+                            <div className='mb-5 border p-5 rounded text-center'>
+                                <MediaModal
+                                    open={open}
+                                    setOpen={setOpen}
+                                    selectedMedia={selectedMedia}
+                                    setSelectedMedia={setSelectedMedia}
+                                    isMultiple={false}
+                                />
+                                {selectedMedia && selectedMedia.length > 0 && (
+                                    <div className='flex justify-center my-3'>
+                                        <Image
+                                            src={selectedMedia[0].url}
+                                            height={120}
+                                            width={120}
+                                            className='object-cover rounded border'
+                                            alt={selectedMedia[0].alt || 'Subcategory image'}
+                                        />
+                                    </div>
+                                )}
+                                <div className='flex gap-2 justify-center'>
+                                    <div
+                                        onClick={() => setOpen(true)}
+                                        className='cursor-pointer border p-3 rounded inline-block hover:bg-gray-50'
+                                    >
+                                        {selectedMedia && selectedMedia.length > 0 ? 'Change Image' : 'Select Image (Optional)'}
+                                    </div>
+                                    {selectedMedia && selectedMedia.length > 0 && (
+                                        <div
+                                            onClick={() => setSelectedMedia([])}
+                                            className='cursor-pointer border p-3 rounded inline-block hover:bg-red-50 text-red-600'
+                                        >
+                                            Remove Image
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className='mb-3'>
