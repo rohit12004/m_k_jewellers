@@ -40,11 +40,13 @@ const AddCategory = () => {
     })
 
     useEffect(() => {
-        const name = form.getValues('name')
-        if (name) {
-            form.setValue('slug', slugify(name).toLowerCase())
-        }
-    }, [form.watch('name')])
+        const subscription = form.watch((value, { name }) => {
+            if (name === 'name' && value.name) {
+                form.setValue('slug', slugify(value.name).toLowerCase())
+            }
+        })
+        return () => subscription.unsubscribe()
+    }, [form])
 
     const onSubmit = async (values) => {
         setLoading(true)

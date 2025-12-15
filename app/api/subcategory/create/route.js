@@ -17,7 +17,8 @@ export async function POST(request) {
         const schema = zSchema.pick({
             name: true,
             slug: true,
-            categoryId: true  // <-- include parent category
+        }).extend({
+            categoryIds: zSchema.shape.categoryIds  // array of category IDs
         })
 
         // Validate payload
@@ -26,10 +27,10 @@ export async function POST(request) {
             return response(false, 400, 'Invalid or missing fields.', validate.error)
         }
 
-        const { name, slug, categoryId } = validate.data
+        const { name, slug, categoryIds } = validate.data
 
         // Call sub-category creation service
-        const newCreatedSubCategory = await createSubCategory({ name, slug, categoryId })
+        const newCreatedSubCategory = await createSubCategory({ name, slug, categoryIds })
 
         return newCreatedSubCategory
     } catch (error) {

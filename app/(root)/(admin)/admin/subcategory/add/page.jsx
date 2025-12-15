@@ -24,10 +24,10 @@ const AddSubCategory = () => {
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState([])
 
-  const formSchema = zSchema.pick({ name: true, slug: true, categoryId: true })
+  const formSchema = zSchema.pick({ name: true, slug: true }).extend({ categoryIds: zSchema.shape.categoryIds })
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: { name: '', slug: '', categoryId: '' },
+    defaultValues: { name: '', slug: '', categoryIds: [] },
   })
 
   useEffect(() => {
@@ -42,10 +42,15 @@ const AddSubCategory = () => {
     fetchCategories()
   }, [])
 
+
   useEffect(() => {
-    const name = form.getValues('name')
-    if (name) form.setValue('slug', slugify(name).toLowerCase())
-  }, [form.watch('name')])
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'name' && value.name) {
+        form.setValue('slug', slugify(value.name).toLowerCase())
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   const onSubmit = async (values) => {
     setLoading(true)
@@ -76,16 +81,34 @@ const AddSubCategory = () => {
               <div className='mb-5'>
                 <FormField
                   control={form.control}
-                  name="categoryId"
+                  name="categoryIds"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
+                      <FormLabel>Categories (Select one or more)</FormLabel>
                       <FormControl>
-                        <Select
-                          options={categories.map(cat => ({ label: cat.name, value: cat.id }))}
-                          selected={field.value}
-                          setSelected={field.onChange}
-                        />
+                        <div className="border rounded-md p-3 space-y-2 max-h-60 overflow-y-auto">
+                          {categories.length === 0 ? (
+                            <p className="text-sm text-gray-500">No categories available</p>
+                          ) : (
+                            categories.map((cat) => (
+                              <label key={cat.id} className="flex items-center space-x-2 cursor-pointer hover:bg-green-500 p-2 rounded">
+                                <input
+                                  type="checkbox"
+                                  value={cat.id}
+                                  checked={field.value?.includes(cat.id)}
+                                  onChange={(e) => {
+                                    const updatedValue = e.target.checked
+                                      ? [...(field.value || []), cat.id]
+                                      : (field.value || []).filter((id) => id !== cat.id)
+                                    field.onChange(updatedValue)
+                                  }}
+                                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                />
+                                <span className="text-sm">{cat.name}</span>
+                              </label>
+                            ))
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

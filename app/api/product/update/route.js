@@ -15,7 +15,7 @@ export async function PUT(request) {
     // ✅ Parse request body
     const payload = await request.json();
 
-    
+
     console.log(payload)
 
     // ✅ Product validation schema
@@ -25,14 +25,10 @@ export async function PUT(request) {
       slug: true,
       categoryId: true,
       subCategoryId: true,
-      weight: true,
-      gst: true,
-      labourCharge: true,
-      purityFactor: true,
-      hallmarkCharges: true,
       gender: true,
       description: true,
       media: true, // array of media IDs
+      variants: true,
     });
 
     const validate = schema.safeParse(payload);
@@ -48,14 +44,10 @@ export async function PUT(request) {
       slug,
       categoryId,
       subCategoryId,
-      weight,
-      gst,
-      labourCharge,
-      purityFactor,
-      hallmarkCharges,
       gender,
       description,
       media,
+      variants,
     } = validate.data;
 
     // ✅ Fetch existing product
@@ -68,14 +60,10 @@ export async function PUT(request) {
       slug,
       categoryId,
       subCategoryId,
-      weight,
-      gst,
-      labourCharge,
-      purityFactor,
-      hallmarkCharges,
       gender,
       description,
       media, // array of media IDs
+      variants,
     };
 
     // ✅ Update product

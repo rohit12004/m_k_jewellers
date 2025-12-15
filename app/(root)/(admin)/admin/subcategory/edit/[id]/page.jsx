@@ -1,6 +1,6 @@
 'use client'
 import BreadCrumb from '@/components/Application/Admin/BreadCrumb'
-import { ADMIN_DASHBOARD,ADMIN_SUB_CATEGORY_SHOW } from '@/routes/adminPanelRoutes'
+import { ADMIN_DASHBOARD, ADMIN_SUB_CATEGORY_SHOW } from '@/routes/adminPanelRoutes'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -24,16 +24,16 @@ const EditSubCategory = ({ params }) => {
 
     const { id } = use(params)
     const { data: subCategoryData } = useFetch(`/api/subcategory/get/${id}`)
-
+    const { data: categoriesData } = useFetch('/api/category')
 
     const [loading, setLoading] = useState(false)
+    const [categories, setCategories] = useState([])
 
     const formSchema = zSchema.pick({
         id: true,
         name: true,
         slug: true,
-        categoryId: true
-    })
+    }).extend({ categoryIds: zSchema.shape.categoryIds.optional() })
 
     const form = useForm({
         resolver: zodResolver(formSchema),
@@ -41,28 +41,38 @@ const EditSubCategory = ({ params }) => {
             id,
             name: "",
             slug: "",
-            categoryId: "",
+            categoryIds: [],
         },
     })
 
     useEffect(() => {
+        if (categoriesData && categoriesData.success) {
+            setCategories(categoriesData.data || [])
+        }
+    }, [categoriesData])
+
+    useEffect(() => {
         if (subCategoryData && subCategoryData.success) {
             const data = subCategoryData.data
+            // Extract category IDs from the junction table data
+            const categoryIds = data?.categorySubCategories?.map(csc => csc.category.id) || []
             form.reset({
                 id: data?.id,
                 name: data?.name,
                 slug: data?.slug,
-                categoryId: data?.categoryId
+                categoryIds: categoryIds
             })
         }
     }, [subCategoryData])
 
     useEffect(() => {
-        const name = form.getValues('name')
-        if (name) {
-            form.setValue('slug', slugify(name).toLowerCase())
-        }
-    }, [form.watch('name')])
+        const subscription = form.watch((value, { name }) => {
+            if (name === 'name' && value.name) {
+                form.setValue('slug', slugify(value.name).toLowerCase())
+            }
+        })
+        return () => subscription.unsubscribe()
+    }, [form])
 
     const onSubmit = async (values) => {
         setLoading(true)
@@ -126,18 +136,34 @@ const EditSubCategory = ({ params }) => {
                             <div className='mb-5'>
                                 <FormField
                                     control={form.control}
-                                    name="categoryId"
+                                    name="categoryIds"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Parent Category</FormLabel>
+                                            <FormLabel>Categories (Select one or more)</FormLabel>
                                             <FormControl>
-                                                <select {...field} className="border rounded p-2 w-full">
-                                                    {subCategoryData?.data?.category && (
-                                                        <option value={subCategoryData.data.category.id}>
-                                                            {subCategoryData.data.category.name}
-                                                        </option>
+                                                <div className="border rounded-md p-3 space-y-2 max-h-60 overflow-y-auto">
+                                                    {categories.length === 0 ? (
+                                                        <p className="text-sm text-gray-500">Loading categories...</p>
+                                                    ) : (
+                                                        categories.map((cat) => (
+                                                            <label key={cat.id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    value={cat.id}
+                                                                    checked={field.value?.includes(cat.id)}
+                                                                    onChange={(e) => {
+                                                                        const updatedValue = e.target.checked
+                                                                            ? [...(field.value || []), cat.id]
+                                                                            : (field.value || []).filter((id) => id !== cat.id)
+                                                                        field.onChange(updatedValue)
+                                                                    }}
+                                                                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                                                />
+                                                                <span className="text-sm">{cat.name}</span>
+                                                            </label>
+                                                        ))
                                                     )}
-                                                </select>
+                                                </div>
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

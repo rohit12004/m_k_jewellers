@@ -17,7 +17,8 @@ export async function PUT(request) {
       id: true,
       name: true,
       slug: true,
-      categoryId: true
+    }).extend({
+      categoryIds: zSchema.shape.categoryIds.optional()  // optional array of category IDs
     })
 
     const validate = schema.safeParse(payload)
@@ -26,13 +27,13 @@ export async function PUT(request) {
       return response(false, 400, "Invalid or missing field.", validate.error)
     }
 
-    const { id, name, slug, categoryId } = validate.data
+    const { id, name, slug, categoryIds } = validate.data
 
     // ✅ Ensure subcategory exists before updating
     const existing = await getSingleSubCategory(id)
 
     // ✅ Perform update
-    const updated = await updateSubCategory(id, { name, slug, categoryId })
+    const updated = await updateSubCategory(id, { name, slug, categoryIds })
 
     return updated
 

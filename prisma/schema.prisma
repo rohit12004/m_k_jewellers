@@ -86,11 +86,14 @@ model Category {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-   // Relation: One Category has many SubCategories
-  subcategories SubCategory[]
+  // Many-to-Many: One Category can have many SubCategories via junction table
+  categorySubCategories CategorySubCategory[]
   
   // One Category can have many Media (but we'll use only one)
   media         Media[]
+  
+  // One Category can have many Products
+  products      Product[]
 
   @@map("categories") // table name
   @@index([deletedAt], map: "idx_categories_deleted_at")
@@ -105,16 +108,32 @@ model SubCategory {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  // Relation: many SubCategories belong to one Category
-  categoryId  String
-  category    Category      @relation(fields: [categoryId], references: [id])
+  // Many-to-Many: One SubCategory can belong to many Categories via junction table
+  categorySubCategories CategorySubCategory[]
 
   // One SubCategory has many Products
   products    Product[]
 
   @@map("sub_categories")
-  @@index([categoryId], map: "idx_subcategories_category_id")
   @@index([deletedAt], map: "idx_subcategories_deleted_at")
+}
+
+// Junction table for many-to-many relationship between Category and SubCategory
+model CategorySubCategory {
+  id            String      @id @default(uuid())
+  categoryId    String
+  subCategoryId String
+  
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([categoryId, subCategoryId]) // Prevent duplicate relationships
+  @@map("category_subcategory")
+  @@index([categoryId], map: "idx_cat_subcat_category_id")
+  @@index([subCategoryId], map: "idx_cat_subcat_subcategory_id")
 }
 
 enum Gender {
@@ -127,26 +146,49 @@ model Product {
   id              String       @id @default(uuid())
   name            String
   slug            String       @unique
+  categoryId      String
+  category        Category     @relation(fields: [categoryId], references: [id])
   subCategoryId   String
   subCategory     SubCategory  @relation(fields: [subCategoryId], references: [id])
-  weight          Float
-  gst             Float
-  labourCharge    Float
-  purityFactor    Float
-  hallmarkCharges Float
   gender          Gender
   description     String        // ✅ new field (required)
   
   // One Product has many Media
   media           Media[]       // ✅ new relation
 
+  // One Product has many Variants
+  variants        ProductVariant[]
+
   deletedAt       DateTime?     @db.Timestamp(6)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
   @@map("products")
+  @@index([categoryId], map: "idx_products_category_id")
   @@index([subCategoryId], map: "idx_products_subcategory_id")
   @@index([deletedAt], map: "idx_products_deleted_at")
+}
+
+model ProductVariant {
+  id              String   @id @default(uuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  weight          Float
+  purity          String   // e.g., "22K"
+  size            String?  // e.g., "12"
+  
+  // Pricing & Charges
+  gst             Float
+  labourCharge    Float
+  hallmarkCharges Float
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("product_variants")
+  @@index([productId], map: "idx_product_variants_product_id")
+  @@unique([productId, weight, purity, size], map: "idx_product_variants_unique")
 }
 
 

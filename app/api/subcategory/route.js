@@ -19,7 +19,7 @@ export async function GET(request) {
         const filters = JSON.parse(searchParams.get("filters") || "[]")
         const globalFilter = searchParams.get("globalFilter") || ""
         const sorting = JSON.parse(searchParams.get("sorting") || "[]")
-        const deleteType = searchParams.get("deleteType")   
+        const deleteType = searchParams.get("deleteType")
 
         // ✅ Build match query
         let matchQuery = {}
@@ -30,21 +30,33 @@ export async function GET(request) {
             matchQuery.NOT = { deletedAt: null }
         }
 
-        // ✅ Global search (including related category)
+        // ✅ Global search (including related categories via junction table)
         if (globalFilter) {
             matchQuery.OR = [
                 { name: { contains: globalFilter } },
                 { slug: { contains: globalFilter } },
-                { category: { is: { name: { contains: globalFilter } } } }
+                {
+                    categorySubCategories: {
+                        some: {
+                            category: {
+                                name: { contains: globalFilter }
+                            }
+                        }
+                    }
+                }
             ]
         }
 
         // ✅ Column-based filtering
         filters.forEach((filter) => {
-            if (filter.id === "category") {
-                // filter by related category name
-                matchQuery.category = {
-                    is: { name: { contains: filter.value } }
+            if (filter.id === "categories") {
+                // filter by related category names via junction table
+                matchQuery.categorySubCategories = {
+                    some: {
+                        category: {
+                            name: { contains: filter.value }
+                        }
+                    }
                 }
             } else {
                 matchQuery[filter.id] = { contains: filter.value }
@@ -54,9 +66,9 @@ export async function GET(request) {
         // ✅ Sorting
         let orderBy = {}
         sorting.forEach((sort) => {
-            if (sort.id === "category") {
-                orderBy.category = { name: sort.desc ? "desc" : "asc" }
-            } else {
+            // Note: Sorting by categories is complex with many-to-many
+            // We'll skip category sorting for now
+            if (sort.id !== "categories") {
                 orderBy[sort.id] = sort.desc ? "desc" : "asc"
             }
         })

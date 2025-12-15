@@ -46,8 +46,9 @@ export async function GET(request) {
           { name: { contains: globalFilter } },
           { slug: { contains: globalFilter } },
           { subCategory: { name: { contains: globalFilter } } },
-          { subCategory: { category: { name: { contains: globalFilter } } } },
-          !isNaN(numericValue) ? { weight: numericValue } : undefined,+
+          { subCategory: { name: { contains: globalFilter } } },
+          { category: { name: { contains: globalFilter } } },
+          !isNaN(numericValue) ? { weight: numericValue } : undefined,
           !isNaN(numericValue) ? { gst: numericValue } : undefined,
           !isNaN(numericValue) ? { labourCharge: numericValue } : undefined,
           !isNaN(numericValue) ? { purityFactor: numericValue } : undefined,
@@ -69,7 +70,7 @@ export async function GET(request) {
         });
       } else if (f.id === "categoryName") {
         matchQuery.AND.push({
-          subCategory: { category: { name: { contains: f.value } } },
+          category: { name: { contains: f.value } },
         });
       } else if (f.id === "gender") {
         const genderValue = ["MEN", "WOMEN"].includes(f.value.toUpperCase())
@@ -91,7 +92,7 @@ export async function GET(request) {
         return { subCategory: { name: s.desc ? "desc" : "asc" } };
       }
       if (s.id === "categoryName") {
-        return { subCategory: { category: { name: s.desc ? "desc" : "asc" } } };
+        return { category: { name: s.desc ? "desc" : "asc" } };
       }
       return { [s.id]: s.desc ? "desc" : "asc" };
     });

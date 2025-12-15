@@ -13,17 +13,14 @@ export async function POST(request) {
         const payload = await request.json()
 
         const schema = zSchema.pick({
-            name : true,
-            slug : true,
-            subCategoryId : true,
-            weight : true,
-            gst : true,
-            labourCharge : true,
-            purityFactor : true,
-            hallmarkCharges : true,
-            gender : true,
-            description : true,
-            media : true,
+            name: true,
+            slug: true,
+            categoryId: true,
+            subCategoryId: true,
+            gender: true,
+            description: true,
+            media: true,
+            variants: true,
         })
 
 

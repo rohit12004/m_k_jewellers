@@ -5,10 +5,12 @@ import { ADMIN_DASHBOARD, ADMIN_PRODUCT_SHOW } from '@/routes/adminPanelRoutes'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import ButtonLoading from '@/components/Application/ButtonLoading'
-import { useForm } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
+import { FiPlus } from "react-icons/fi"
 import slugify from 'slugify'
 import { showToast } from '@/lib/showToast'
 import axios from 'axios'
@@ -33,13 +35,9 @@ const formSchema = zSchema.pick({
   slug: true,
   categoryId: true,
   subCategoryId: true,
-  weight: true,
-  gst: true,
-  labourCharge: true,
-  purityFactor: true,
-  hallmarkCharges: true,
   gender: true,
   description: true,
+  variants: true,
 })
 
 const EditProduct = () => {
@@ -56,15 +54,16 @@ const EditProduct = () => {
       slug: '',
       categoryId: '',
       subCategoryId: '',
-      weight: '',
-      gst: '',
-      labourCharge: '',
-      purityFactor: '',
-      hallmarkCharges: '',
       gender: '',
       description: '',
+      variants: [],
     },
   })
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "variants"
+  });
 
   // ✅ Fetch Categories/SubCategories
   const { data: fetchCategory } = useFetch('/api/category?deleteType=SD&&size=10000')
@@ -87,16 +86,19 @@ const EditProduct = () => {
           id: p.id, // <-- include product id
           name: p.name,
           slug: p.slug,
-          categoryId: p.subCategory?.category?.id || '',
-          subCategoryId: p.subCategory?.id || '',
-          weight: p.weight,
-          gst: p.gst,
-          labourCharge: p.labourCharge,
-          purityFactor: p.purityFactor,
-          hallmarkCharges: p.hallmarkCharges,
+          categoryId: p.categoryId || '', // ✅ Use direct categoryId
+          subCategoryId: p.subCategoryId || '', // ✅ Use direct subCategoryId
           gender: p.gender,
           description: p.description,
           media: p.media,
+          variants: p.variants?.map(v => ({
+            id: v.id,
+            weight: String(v.weight),
+            purity: v.purity,
+            gst: String(v.gst),
+            labourCharge: String(v.labourCharge),
+            hallmarkCharges: String(v.hallmarkCharges),
+          })) || [],
         })
         setSelectedMedia(p.media || [])
       } catch (error) {
@@ -123,9 +125,13 @@ const EditProduct = () => {
 
   // ✅ Auto slug
   useEffect(() => {
-    const name = form.watch('name')
-    if (name) form.setValue('slug', slugify(name, { lower: true }))
-  }, [form.watch('name')])
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'name' && value.name) {
+        form.setValue('slug', slugify(value.name, { lower: true }))
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   // ✅ Description Editor
   const editorHandler = (event, editor) => {
@@ -213,50 +219,70 @@ const EditProduct = () => {
                 </FormItem>
               )} />
 
-              {/* Weight */}
-              <FormField control={form.control} name="weight" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Weight (g) <span className="text-red-500">*</span></FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+              {/* Variants Section */}
+              <div className="md:col-span-2 space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel className="text-lg font-semibold">Product Variants</FormLabel>
+                  <Button type="button" size="sm" onClick={() => append({ weight: "", gst: "", labourCharge: "", purity: "", hallmarkCharges: "" })}>
+                    <FiPlus className="mr-2" /> Add Variant
+                  </Button>
+                </div>
 
-              {/* GST */}
-              <FormField control={form.control} name="gst" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>GST (%) <span className="text-red-500">*</span></FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                {fields.map((item, index) => (
+                  <div key={item.id} className="grid md:grid-cols-6 gap-4 border p-4 rounded relative">
+                    {fields.length > 1 && (
+                      <Button type="button" variant="destructive" size="icon" className="absolute -top-3 -right-3 h-6 w-6 rounded-full" onClick={() => remove(index)}>
+                        <span className="text-xs">X</span>
+                      </Button>
+                    )}
 
-              {/* Labour Charge */}
-              <FormField control={form.control} name="labourCharge" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Labour Charge <span className="text-red-500">*</span></FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                    {/* Weight */}
+                    <FormField control={form.control} name={`variants.${index}.weight`} render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Weight (g) <span className="text-red-500">*</span></FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-              {/* Purity Factor */}
-              <FormField control={form.control} name="purityFactor" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Purity (Example: 22) <span className="text-red-500">*</span></FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                    {/* Purity */}
+                    <FormField control={form.control} name={`variants.${index}.purity`} render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Purity <span className="text-red-500">*</span></FormLabel>
+                        <FormControl><Input {...field} placeholder="e.g. 22K" /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
 
-              {/* Hallmark Charges */}
-              <FormField control={form.control} name="hallmarkCharges" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Hallmark Charges <span className="text-red-500">*</span></FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
+                    {/* GST */}
+                    <FormField control={form.control} name={`variants.${index}.gst`} render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>GST (%) <span className="text-red-500">*</span></FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+
+                    {/* Labour Charge */}
+                    <FormField control={form.control} name={`variants.${index}.labourCharge`} render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Labour Charge <span className="text-red-500">*</span></FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+
+                    {/* Hallmark Charges */}
+                    <FormField control={form.control} name={`variants.${index}.hallmarkCharges`} render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Hallmark <span className="text-red-500">*</span></FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+                ))}
+              </div>
 
               {/* Gender (Disabled) */}
               <FormField control={form.control} name="gender" render={({ field }) => (
