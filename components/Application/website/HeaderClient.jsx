@@ -86,7 +86,7 @@ const HeaderClient = ({ categories = [] }) => {
                                         <span className='absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300'></span>
                                     </Link>
                                 </li>
-                                <li className='group relative'>
+                                {/* <li className='group relative'>
                                     <Link
                                         href={WEBSITE_SHOP}
                                         className='block py-3 lg:py-2 text-gray-700 hover:text-primary font-medium transition-colors duration-300'
@@ -95,7 +95,7 @@ const HeaderClient = ({ categories = [] }) => {
                                         Shop
                                         <span className='absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300'></span>
                                     </Link>
-                                </li>
+                                </li> */}
 
                                 {/* Dynamic Categories from Database */}
                                 {categories.map((category) => (

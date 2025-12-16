@@ -15,7 +15,7 @@ import { FiPlus } from "react-icons/fi"
 import slugify from 'slugify'
 import { showToast } from '@/lib/showToast'
 import axios from 'axios'
-import useFetch from '@/hooks/useFetch'
+import { useCategories, useSubcategories } from '@/hooks/useAdminData'
 import Select from '@/components/Application/Select'
 import Editor from '@/components/Application/Admin/Editor'
 import Image from 'next/image'
@@ -71,12 +71,12 @@ const AddProduct = () => {
     name: "variants"
   });
 
-  // ✅ Fetch categories
-  const { data: fetchCategory } = useFetch('/api/category?deleteType=SD&&size=10000')
+  // ✅ Fetch categories with caching
+  const { data: fetchCategory } = useCategories()
   const [categoryOptions, setCategoryOptions] = useState([])
 
-  // ✅ Fetch subcategories
-  const { data: fetchSubCategory } = useFetch('/api/subcategory?deleteType=SD&&size=10000')
+  // ✅ Fetch subcategories with caching
+  const { data: fetchSubCategory } = useSubcategories()
   const [subCategoryOption, setSubCategoryOption] = useState([])
 
   const [open, setOpen] = useState(false)

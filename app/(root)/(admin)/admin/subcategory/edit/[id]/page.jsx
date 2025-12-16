@@ -12,7 +12,7 @@ import { use, useEffect, useState } from 'react'
 import slugify from 'slugify'
 import { showToast } from '@/lib/showToast'
 import axios from 'axios'
-import useFetch from '@/hooks/useFetch'
+import { useCategories } from '@/hooks/useAdminData'
 import MediaModal from '@/components/Application/Admin/MediaModal'
 import Image from 'next/image'
 
@@ -26,7 +26,7 @@ const EditSubCategory = ({ params }) => {
 
     const { id } = use(params)
     const { data: subCategoryData } = useFetch(`/api/subcategory/get/${id}`)
-    const { data: categoriesData } = useFetch('/api/category')
+    const { data: categoriesData } = useCategories()
 
     const [loading, setLoading] = useState(false)
     const [categories, setCategories] = useState([])

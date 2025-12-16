@@ -15,6 +15,7 @@ import { useForm } from 'react-hook-form'
 import slugify from 'slugify'
 import MediaModal from '@/components/Application/Admin/MediaModal'
 import Image from 'next/image'
+import { useCategories } from '@/hooks/useAdminData'
 
 const breadcrumbData = [
   { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -34,17 +35,14 @@ const AddSubCategory = () => {
     defaultValues: { name: '', slug: '', categoryIds: [] },
   })
 
+  // Fetch categories with caching
+  const { data: categoriesData } = useCategories()
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data } = await axios.get('/api/category')
-        setCategories(data.data || [])
-      } catch {
-        showToast('error', 'Failed to fetch categories')
-      }
+    if (categoriesData?.success) {
+      setCategories(categoriesData.data || [])
     }
-    fetchCategories()
-  }, [])
+  }, [categoriesData])
 
 
   useEffect(() => {
