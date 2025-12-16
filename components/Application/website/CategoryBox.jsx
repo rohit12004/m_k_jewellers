@@ -6,7 +6,7 @@ import Link from 'next/link'
 const CategoryBox = ({ category }) => {
     return (
         <div className='rounded-lg hover:shadow-lg border overflow-hidden group'>
-            <Link href={`/category/${category.slug}`}>
+            <Link href={`/shop?category=${category.slug}`}>
                 <div className='relative'>
                     <Image
                         src={category?.media && category.media.length > 0 ? category.media[0].secure_url : imgPlaceholder.src}

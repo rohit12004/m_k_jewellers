@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import FeaturedCategories from '@/components/Application/website/FeaturedCategories'
 import SubcategoriesSection from '@/components/Application/website/SubcategoriesSection'
-import advertisingBanner from '@/public/assets/advertising-banner.png'
+import advertisingBanner from '@/public/assets/advertising-banner.jpg'
 
 const page = () => {
     return (
@@ -50,11 +50,9 @@ const page = () => {
 
             <section className='sm:pt-20 pt-5 pb-10'>
                 <Image
-                    src={advertisingBanner.src}
-                    height={advertisingBanner.height}
-                    width={advertisingBanner.width}
-                    alt='Advertisement'
-
+                    src={advertisingBanner}
+                    alt="Advertisement"
+                    className="w-full h-auto"
                 />
             </section>
 

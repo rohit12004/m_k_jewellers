@@ -16,16 +16,16 @@ import { LuChevronLeft } from "react-icons/lu";
 const ArrowNext = (props) => {
     const { onClick } = props
     return (
-        <button onClick={onClick} type='button' className='w-14 h-14 flex justify-center items-center rounded-full absolute z-10 top-1/2 -translate-y-1/2 bg-white right-10' >
-            <LuChevronRight size={25} className='text-gray-600' />
+        <button onClick={onClick} type='button' className='w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 flex justify-center items-center rounded-full absolute z-10 top-1/2 -translate-y-1/2 bg-white right-2 sm:right-4 lg:right-10' >
+            <LuChevronRight className='text-gray-600 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6' />
         </button>
     )
 }
 const ArrowPrev = (props) => {
     const { onClick } = props
     return (
-        <button onClick={onClick} type='button' className='w-14 h-14 flex justify-center items-center rounded-full absolute z-10 top-1/2 -translate-y-1/2 bg-white left-10' >
-            <LuChevronLeft size={25} className='text-gray-600' />
+        <button onClick={onClick} type='button' className='w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 flex justify-center items-center rounded-full absolute z-10 top-1/2 -translate-y-1/2 bg-white left-2 sm:left-4 lg:left-10' >
+            <LuChevronLeft className='text-gray-600 w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6' />
         </button>
     )
 }
@@ -44,7 +44,7 @@ const MainSlider = () => {
                 breakpoint: 480,
                 settings: {
                     dots: false,
-                    arrow: false,
+                    arrows: false,
                     nextArrow: '',
                     prevArrow: ''
                 }
