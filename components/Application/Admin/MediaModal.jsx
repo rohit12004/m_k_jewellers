@@ -4,8 +4,8 @@ import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useState } from 'react'
-import loading from '@/public/assets/loading.svg'
 import ModalMediaBlock from './ModalMediaBlock'
+import MediaGridSkeleton from './MediaGridSkeleton'
 import { showToast } from '@/lib/showToast'
 import ButtonLoading from '../ButtonLoading'
 const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple }) => {
@@ -64,9 +64,7 @@ const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple
 
                     <div className='h-[calc(100%-80px)] overflow-auto py-2'>
                         {isPending ?
-                            (<div className='size-full flex justify-center items-center'>
-                                <Image src={loading} alt='loading' height={80} width={80} />
-                            </div>)
+                            <MediaGridSkeleton />
                             :
                             isError ?
                                 <div className='size-full flex justify-center items-center'>
