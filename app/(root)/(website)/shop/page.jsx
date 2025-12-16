@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useSearchParams } from 'next/navigation'
-import useFetch from '@/hooks/useFetch'
+import { useProductsBySubcategory } from '@/hooks/useWebsiteData'
 import ProductCard from '@/components/Application/website/ProductCard'
 import Link from 'next/link'
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
@@ -10,15 +10,13 @@ import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 const ShopPage = () => {
     const searchParams = useSearchParams()
     const subcategory = searchParams.get('subcategory')
-    const page = searchParams.get('page') || '1'
+    const page = parseInt(searchParams.get('page') || '1', 10)
 
-    // Fetch products using custom useFetch hook
-    const { data, loading, error } = useFetch(
-        `/api/product/get-by-subcategory?subcategory=${subcategory}&page=${page}&limit=12`
-    )
+    // Fetch products using TanStack Query with caching
+    const { data, isLoading, error } = useProductsBySubcategory(subcategory, page, 12)
 
     // Loading state
-    if (loading) {
+    if (isLoading) {
         return (
             <div className='min-h-screen lg:px-32 px-4 py-10'>
                 <div className='flex items-center justify-center h-96'>
@@ -38,7 +36,7 @@ const ShopPage = () => {
                 <div className='flex items-center justify-center h-96'>
                     <div className='text-center'>
                         <p className='text-red-600 dark:text-red-400 text-lg mb-2'>Error loading products</p>
-                        <p className='text-gray-600 dark:text-gray-400'>{error}</p>
+                        <p className='text-gray-600 dark:text-gray-400'>{error?.message || 'Something went wrong'}</p>
                     </div>
                 </div>
             </div>
@@ -112,8 +110,8 @@ const ShopPage = () => {
                     <Link
                         href={`/shop?subcategory=${subcategory}&page=${Math.max(1, meta.currentPage - 1)}`}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${meta.currentPage === 1
-                                ? 'opacity-50 pointer-events-none bg-gray-100 dark:bg-gray-800'
-                                : 'hover:bg-primary hover:text-white hover:border-primary'
+                            ? 'opacity-50 pointer-events-none bg-gray-100 dark:bg-gray-800'
+                            : 'hover:bg-primary hover:text-white hover:border-primary'
                             }`}
                     >
                         <IoIosArrowBack />
@@ -131,8 +129,8 @@ const ShopPage = () => {
                     <Link
                         href={`/shop?subcategory=${subcategory}&page=${Math.min(meta.totalPages, meta.currentPage + 1)}`}
                         className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${meta.currentPage === meta.totalPages
-                                ? 'opacity-50 pointer-events-none bg-gray-100 dark:bg-gray-800'
-                                : 'hover:bg-primary hover:text-white hover:border-primary'
+                            ? 'opacity-50 pointer-events-none bg-gray-100 dark:bg-gray-800'
+                            : 'hover:bg-primary hover:text-white hover:border-primary'
                             }`}
                     >
                         <span>Next</span>
