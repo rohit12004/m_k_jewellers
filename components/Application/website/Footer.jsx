@@ -15,21 +15,21 @@ import { USER_DASHBOARD, WEBSITE_HOME, WEBSITE_LOGIN, WEBSITE_REGISTER, WEBSITE_
 const Footer = () => {
     return (
         <footer className='bg-gradient-to-b from-gray-50 to-gray-100 border-t border-gray-200'>
-            <div className='grid lg:grid-cols-5 md:grid-cols-2 grid-cols-1 gap-10 py-16 lg:px-32 px-4'>
+            <div className='grid lg:grid-cols-5 md:grid-cols-2 grid-cols-2 gap-6 md:gap-8 lg:gap-10 py-5 md:py-5 px-6 md:px-8 lg:px-32'>
 
-                <div className='lg:col-span-1 md:col-span-2 col-span-1'>
+                <div className='lg:col-span-1 md:col-span-2 col-span-2 flex justify-center lg:justify-start'>
                     <Image
                         src={logo}
                         width={383}
                         height={146}
                         alt='logo'
-                        className='w-28 mb-4'
+                        className='w-20 md:w-24 lg:w-28 mb-4 object-contain rounded-full'
                     />
                 </div>
 
 
                 <div>
-                    <h4 className='text-lg font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Categories</h4>
+                    <h4 className='sm:text-lg text-sm font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Categories</h4>
                     <ul className='space-y-3'>
                         <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
                             <Link href={`${WEBSITE_SHOP}?category=t-shirts`} className='flex items-center group'>
@@ -52,7 +52,7 @@ const Footer = () => {
                     </ul>
                 </div>
                 <div>
-                    <h4 className='text-lg font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Userfull Links</h4>
+                    <h4 className='sm:text-lg text-sm font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Userfull Links</h4>
                     <ul className='space-y-3'>
                         <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
                             <Link href={WEBSITE_HOME} className='flex items-center group'>
@@ -88,7 +88,7 @@ const Footer = () => {
                     </ul>
                 </div>
                 <div>
-                    <h4 className='text-lg font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Help Center</h4>
+                    <h4 className='sm:text-lg text-sm font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Help Center</h4>
                     <ul className='space-y-3'>
                         <li className='text-gray-600 hover:text-primary transition-colors duration-200'>
                             <Link href={WEBSITE_REGISTER} className='flex items-center group'>
@@ -125,7 +125,7 @@ const Footer = () => {
                     </ul>
                 </div>
                 <div>
-                    <h4 className='text-lg font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Contact Us </h4>
+                    <h4 className='sm:text-lg text-sm font-bold uppercase mb-6 text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Contact Us </h4>
                     <ul className='space-y-4'>
                         <li className='text-gray-600 flex gap-3 items-start group'>
                             <IoLocationOutline size={20} className='text-primary mt-0.5 flex-shrink-0' />
@@ -135,29 +135,27 @@ const Footer = () => {
                             <MdOutlinePhone size={20} className='text-primary flex-shrink-0' />
                             <Link href="tel:+91-8569874589" className='hover:text-primary transition-colors text-sm'>+91-9881339944</Link>
                         </li>
-                        <li className='text-gray-600 flex gap-3 items-center group'>
-                            <MdOutlineMail size={20} className='text-primary flex-shrink-0' />
-                            <Link href="mailto:support@estore.com" className='hover:text-primary transition-colors text-sm'>mkjew@rediffmail.com</Link>
+                        <li className='text-gray-600 flex gap-3 items-start group'>
+                            <MdOutlineMail size={20} className='text-primary flex-shrink-0 mt-0.5' />
+                            <Link href="mailto:support@estore.com" className='hover:text-primary transition-colors text-sm break-all'>mkjew@rediffmail.com</Link>
                         </li>
 
                     </ul>
 
-
-                    <div className='flex gap-4 mt-8'>
-
-                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center  hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
-                            <AiOutlineYoutube className='text-primary group-hover:text-white' size={22} />
-                        </Link>
-                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
-                            <FaInstagram className='text-primary group-hover:text-white' size={20} />
-                        </Link>
-                        <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
-                            <FaWhatsapp className='text-primary group-hover:text-white' size={20} />
-                        </Link>
-
-                    </div>
-
                 </div>
+
+            </div>
+            <div className='flex item-center justify-center gap-4 mb-3'>
+
+                <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center  hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                    <AiOutlineYoutube className='text-primary group-hover:text-white' size={22} />
+                </Link>
+                <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                    <FaInstagram className='text-primary group-hover:text-white' size={20} />
+                </Link>
+                <Link href="" className='w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                    <FaWhatsapp className='text-primary group-hover:text-white' size={20} />
+                </Link>
 
             </div>
 

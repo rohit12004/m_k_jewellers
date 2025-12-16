@@ -81,6 +81,7 @@ const AddProduct = () => {
 
   const [open, setOpen] = useState(false)
   const [selectedMedia, setSelectedMedia] = useState([])
+  const [editorKey, setEditorKey] = useState(0)
 
   // ✅ Convert Category list
   useEffect(() => {
@@ -131,6 +132,7 @@ const AddProduct = () => {
 
       form.reset()
       setSelectedMedia([])
+      setEditorKey(prev => prev + 1)
       showToast('success', response.message)
     } catch (error) {
       showToast('error', error.message)
@@ -278,7 +280,7 @@ const AddProduct = () => {
               {/* Description */}
               <div className='md:col-span-2'>
                 <FormLabel>Description <span className="text-red-500">*</span></FormLabel>
-                <Editor onChange={editorHandler} />
+                <Editor key={editorKey} onChange={editorHandler} />
               </div>
 
               {/* Media */}
