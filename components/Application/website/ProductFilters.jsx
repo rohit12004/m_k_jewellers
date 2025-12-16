@@ -47,7 +47,7 @@ const ProductFilters = ({ filters, onFilterChange, filterOptions, onClearAll, ac
             <Separator />
 
             {/* Subcategory Filter */}
-            {filterOptions?.subcategories && filterOptions.subcategories.length > 1 && (
+            {filterOptions?.subcategories && filterOptions.subcategories.length > 0 && (
                 <div className="space-y-3">
                     <h3 className="font-medium text-sm">Type</h3>
                     <div className="space-y-2">

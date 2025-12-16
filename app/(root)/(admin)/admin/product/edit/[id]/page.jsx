@@ -21,6 +21,8 @@ import Image from 'next/image'
 import MediaModal from '@/components/Application/Admin/MediaModal'
 import { useParams, useRouter } from 'next/navigation'
 import { zSchema } from '@/lib/zodSchema'
+import { getPurityOptions } from '@/lib/purityHelper'
+import { useWatch } from 'react-hook-form'
 
 const breadcrumbData = [
   { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -246,13 +248,27 @@ const EditProduct = () => {
                     )} />
 
                     {/* Purity */}
-                    <FormField control={form.control} name={`variants.${index}.purity`} render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Purity <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input {...field} placeholder="e.g. 22K" /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+                    <FormField control={form.control} name={`variants.${index}.purity`} render={({ field }) => {
+                      // Get selected category name to determine purity options
+                      const selectedCategoryId = useWatch({ control: form.control, name: 'categoryId' })
+                      const selectedCategory = categoryOptions.find(cat => cat.value === selectedCategoryId)
+                      const purityOptions = selectedCategory ? getPurityOptions(selectedCategory.label) : []
+
+                      return (
+                        <FormItem>
+                          <FormLabel>Purity <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Select
+                              options={purityOptions}
+                              selected={field.value}
+                              setSelected={field.onChange}
+                              disabled={!selectedCategoryId}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )
+                    }} />
 
                     {/* GST */}
                     <FormField control={form.control} name={`variants.${index}.gst`} render={({ field }) => (
@@ -266,8 +282,8 @@ const EditProduct = () => {
                     {/* Labour Charge */}
                     <FormField control={form.control} name={`variants.${index}.labourCharge`} render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Labour Charge <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
+                        <FormLabel>Labour (%) <span className="text-red-500">*</span></FormLabel>
+                        <FormControl><Input {...field} placeholder="e.g., 10" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />

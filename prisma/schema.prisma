@@ -197,4 +197,16 @@ model ProductVariant {
   @@unique([productId, weight, purity, size], map: "idx_product_variants_unique")
 }
 
+model MetalRate {
+  id            String   @id @default(uuid())
+  categoryName  String   // "Gold", "Silver", "Diamond" - matches Category.name
+  purity        String   // "22K", "24K", "18K", "92.5"
+  ratePerGram   Float    // Daily rate per gram
+  updatedBy     String?  // Optional: admin user ID who updated
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([categoryName, purity], map: "idx_metal_rates_unique")
+  @@map("metal_rates")
+}
 

@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import ButtonLoading from '@/components/Application/ButtonLoading'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useEffect, useState } from 'react'
@@ -20,6 +20,7 @@ import Select from '@/components/Application/Select'
 import Editor from '@/components/Application/Admin/Editor'
 import Image from 'next/image'
 import MediaModal from '@/components/Application/Admin/MediaModal'
+import { getPurityOptions } from '@/lib/purityHelper'
 
 const breadcrumbData = [
   { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -79,6 +80,9 @@ const AddProduct = () => {
   const { data: fetchSubCategory } = useSubcategories()
   const [subCategoryOption, setSubCategoryOption] = useState([])
 
+  // Track selected category
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null)
+
   const [open, setOpen] = useState(false)
   const [selectedMedia, setSelectedMedia] = useState([])
   const [editorKey, setEditorKey] = useState(0)
@@ -91,9 +95,17 @@ const AddProduct = () => {
   }, [fetchCategory])
 
 
-  // ✅ Filter SubCategory list based on selected Category
-  const selectedCategoryId = form.watch("categoryId")
+  // ✅ Watch for category changes
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (value.categoryId !== selectedCategoryId) {
+        setSelectedCategoryId(value.categoryId)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form, selectedCategoryId])
 
+  // ✅ Filter SubCategory list based on selected Category
   useEffect(() => {
     if (fetchSubCategory?.success && selectedCategoryId) {
       // Filter subcategories that have the selected category in their junction table
@@ -221,13 +233,27 @@ const AddProduct = () => {
                     )} />
 
                     {/* Purity */}
-                    <FormField control={form.control} name={`variants.${index}.purity`} render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Purity <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input {...field} placeholder="e.g. 22K" /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+                    <FormField control={form.control} name={`variants.${index}.purity`} render={({ field }) => {
+                      // Get selected category name to determine purity options using useWatch
+                      const selectedCategoryId = useWatch({ control: form.control, name: 'categoryId' })
+                      const selectedCategory = categoryOptions.find(cat => cat.value === selectedCategoryId)
+                      const purityOptions = selectedCategory ? getPurityOptions(selectedCategory.label) : []
+
+                      return (
+                        <FormItem>
+                          <FormLabel>Purity <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Select
+                              options={purityOptions}
+                              selected={field.value}
+                              setSelected={field.onChange}
+                              disabled={!selectedCategoryId}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )
+                    }} />
 
                     {/* GST */}
                     <FormField control={form.control} name={`variants.${index}.gst`} render={({ field }) => (
@@ -241,8 +267,8 @@ const AddProduct = () => {
                     {/* Labour Charge */}
                     <FormField control={form.control} name={`variants.${index}.labourCharge`} render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Labour Charge <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
+                        <FormLabel>Labour (%) <span className="text-red-500">*</span></FormLabel>
+                        <FormControl><Input {...field} placeholder="e.g., 10" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />

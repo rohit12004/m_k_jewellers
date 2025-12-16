@@ -1,6 +1,7 @@
 import { response, catchError } from "@/lib/helperFunction";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { addCalculatedPrices } from "@/lib/pricingHelper";
 
 export async function GET(request) {
     try {
@@ -124,6 +125,16 @@ export async function GET(request) {
                             title: true,
                         },
                     },
+                    variants: {
+                        select: {
+                            id: true,
+                            weight: true,
+                            purity: true,
+                            labourCharge: true,
+                            hallmarkCharges: true,
+                            gst: true,
+                        },
+                    },
                 },
                 skip,
                 take: limit,
@@ -144,11 +155,14 @@ export async function GET(request) {
         // Calculate pagination metadata
         const totalPages = Math.ceil(totalCount / limit);
 
+        // Add calculated prices to products
+        const productsWithPrices = await addCalculatedPrices(products);
+
         return NextResponse.json({
             success: true,
             data: {
                 subcategory: subcategoryInfo,
-                products,
+                products: productsWithPrices,
             },
             meta: {
                 currentPage: page,

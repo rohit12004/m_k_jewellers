@@ -5,6 +5,8 @@ export const ADMIN_DASHBOARD = '/admin/dashboard'
 export const ADMIN_MEDIA_SHOW = '/admin/media'
 export const ADMIN_MEDIA_EDIT = (id) => id ? `/admin/media/edit/${id}` : '';
 
+// Metal Rates route
+export const ADMIN_METAL_RATES = '/admin/metal-rates'
 
 // Category routes 
 

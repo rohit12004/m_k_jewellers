@@ -47,6 +47,24 @@ const ProductCard = ({ product }) => {
                     <h3 className='text-sm sm:text-base font-medium text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors duration-300 line-clamp-2 text-center'>
                         {product.name}
                     </h3>
+
+                    {/* Product Price */}
+                    {product.variants && product.variants.length > 0 && product.variants[0].calculatedPrice ? (
+                        <div className='mt-2'>
+                            <p className='text-base sm:text-lg font-bold text-primary text-center'>
+                                ₹{product.variants[0].calculatedPrice.finalPrice.toLocaleString('en-IN')}
+                            </p>
+                            {product.variants.length > 1 && (
+                                <p className='text-xs text-gray-500 dark:text-gray-400 text-center mt-0.5'>
+                                    +{product.variants.length - 1} more variant{product.variants.length > 2 ? 's' : ''}
+                                </p>
+                            )}
+                        </div>
+                    ) : (
+                        <p className='text-sm text-gray-500 dark:text-gray-400 text-center mt-2'>
+                            Price on request
+                        </p>
+                    )}
                 </div>
             </div>
         </Link>
