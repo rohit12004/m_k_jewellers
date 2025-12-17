@@ -20,6 +20,8 @@ import { toast } from "react-toastify"
 import imgPlaceholder from '@/public/assets/img-placeholder.jpg'
 import { RING_SIZES } from '@/lib/ringSizes'
 import Select from '@/components/Application/Select'
+import { useDispatch } from 'react-redux'
+import { addToCart } from '@/store/reducer/cartReducer'
 
 const ProductDetails = ({
     product,
@@ -105,30 +107,41 @@ const ProductDetails = ({
         }
     }
 
-    const handleAddToCart = () => {
-        const productName = `${product.name} - ${currentVariant.purity}${currentVariant.weight ? `, ${currentVariant.weight}g` : ''}${currentVariant.size ? `, Size ${currentVariant.size}` : ''}`
+    const dispatch = useDispatch()
 
-        toast.success(`Added to cart: ${productName}`, {
+    const handleAddToCart = () => {
+        // Validate that variant has a price
+        if (!currentVariant.calculatedPrice?.finalPrice) {
+            toast.error('Price not available for this variant', {
+                position: "top-right",
+                autoClose: 3000,
+            })
+            return
+        }
+
+        // Prepare cart item data
+        const cartItem = {
+            productId: product.id,
+            variantId: currentVariant.id,
+            name: product.name,
+            size: currentVariant.size || null,
+            length: currentVariant.length || null,
+            weight: currentVariant.weight || null,
+            color: currentVariant.purity, // Using purity as color/variant identifier
+            price: currentVariant.calculatedPrice.finalPrice,
+            media: media[0]?.secure_url || imgPlaceholder.src,
+            qty: quantity,
+            subcategory: product.subCategory?.name || null,
+            category: product.category?.name || null
+        }
+
+        // Dispatch to Redux cart
+        dispatch(addToCart(cartItem))
+
+        toast.success(`${product.name} added to cart`, {
             position: "top-right",
             autoClose: 3000,
         })
-
-        // Future: Dispatch to Redux cart
-        // const cartItem = {
-        //     productId: product.id,
-        //     variantId: currentVariant.id,
-        //     name: product.name,
-        //     slug: product.slug,
-        //     purity: currentVariant.purity,
-        //     size: currentVariant.size,
-        //     weight: currentVariant.weight,
-        //     price: currentVariant.calculatedPrice?.finalPrice || 0,
-        //     quantity: quantity,
-        //     image: media[0]?.secure_url || imgPlaceholder.src,
-        //     category: product.category.name,
-        //     subCategory: product.subCategory.name
-        // }
-        // dispatch(addToCart(cartItem))
     }
 
     const handleQuantityChange = (newQty) => {

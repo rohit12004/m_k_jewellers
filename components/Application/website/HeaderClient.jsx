@@ -11,6 +11,7 @@ import userIcon from '@/public/assets/user.png'
 import { IoMdClose } from "react-icons/io";
 import { HiMiniBars3 } from "react-icons/hi2";
 import logo from '@/public/assets/mk_logo.jpg'
+import Cart from './Cart'
 
 const HeaderClient = ({ categories = [] }) => {
     const auth = useSelector(store => store.authStore.auth)
@@ -126,6 +127,9 @@ const HeaderClient = ({ categories = [] }) => {
                                     size={22}
                                 />
                             </button>
+
+                            {/* Cart */}
+                            <Cart />
 
                             {/* Account/Avatar */}
                             {!auth ? (
