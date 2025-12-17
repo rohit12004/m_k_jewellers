@@ -23,6 +23,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { zSchema } from '@/lib/zodSchema'
 import { getPurityOptions } from '@/lib/purityHelper'
 import { useWatch } from 'react-hook-form'
+import { RING_SIZES } from '@/lib/ringSizes'
 
 const breadcrumbData = [
   { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -67,6 +68,10 @@ const EditProduct = () => {
     name: "variants"
   });
 
+  // Watch subcategory to conditionally show size field for rings
+  const watchedSubCategoryId = useWatch({ control: form.control, name: 'subCategoryId' })
+  const watchedCategoryId = useWatch({ control: form.control, name: 'categoryId' })
+
   // ✅ Fetch Categories/SubCategories with caching
   const { data: fetchCategory } = useCategories()
   const { data: fetchSubCategory } = useSubcategories()
@@ -97,6 +102,8 @@ const EditProduct = () => {
             id: v.id,
             weight: String(v.weight),
             purity: v.purity,
+            size: v.size || '', // Include size for rings
+            length: v.length || '', // Include length for chains/mangalsutra
             gst: String(v.gst),
             labourCharge: String(v.labourCharge),
             hallmarkCharges: String(v.hallmarkCharges),
@@ -225,79 +232,118 @@ const EditProduct = () => {
               <div className="md:col-span-2 space-y-4">
                 <div className="flex justify-between items-center">
                   <FormLabel className="text-lg font-semibold">Product Variants</FormLabel>
-                  <Button type="button" size="sm" onClick={() => append({ weight: "", gst: "", labourCharge: "", purity: "", hallmarkCharges: "" })}>
+                  <Button type="button" size="sm" onClick={() => append({ weight: "", gst: "", labourCharge: "", purity: "", hallmarkCharges: "", size: "", length: "" })}>
                     <FiPlus className="mr-2" /> Add Variant
                   </Button>
                 </div>
 
-                {fields.map((item, index) => (
-                  <div key={item.id} className="grid md:grid-cols-6 gap-4 border p-4 rounded relative">
-                    {fields.length > 1 && (
-                      <Button type="button" variant="destructive" size="icon" className="absolute -top-3 -right-3 h-6 w-6 rounded-full" onClick={() => remove(index)}>
-                        <span className="text-xs">X</span>
-                      </Button>
-                    )}
+                {fields.map((item, index) => {
+                  // Check if selected subcategory is a ring or chain/mangalsutra
+                  const selectedSubCategory = subCategoryOption.find(sc => sc.value === watchedSubCategoryId)
+                  const subCatName = selectedSubCategory?.label?.toLowerCase() || ''
+                  // Use word boundary to match 'ring' or 'rings' but not 'earring'
+                  const isRing = /\brings?\b/.test(subCatName)
+                  const isChainOrMangalsutra = subCatName.includes('chain') || subCatName.includes('mangalsutra')
+                  const gridCols = (isRing || isChainOrMangalsutra) ? 'md:grid-cols-6' : 'md:grid-cols-5'
 
-                    {/* Weight */}
-                    <FormField control={form.control} name={`variants.${index}.weight`} render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Weight (g) <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+                  return (
+                    <div key={item.id} className={`grid ${gridCols} gap-4 border p-4 rounded relative`}>
+                      {fields.length > 1 && (
+                        <Button type="button" variant="destructive" size="icon" className="absolute -top-3 -right-3 h-6 w-6 rounded-full" onClick={() => remove(index)}>
+                          <span className="text-xs">X</span>
+                        </Button>
+                      )}
 
-                    {/* Purity */}
-                    <FormField control={form.control} name={`variants.${index}.purity`} render={({ field }) => {
-                      // Get selected category name to determine purity options
-                      const selectedCategoryId = useWatch({ control: form.control, name: 'categoryId' })
-                      const selectedCategory = categoryOptions.find(cat => cat.value === selectedCategoryId)
-                      const purityOptions = selectedCategory ? getPurityOptions(selectedCategory.label) : []
-
-                      return (
+                      {/* Weight */}
+                      <FormField control={form.control} name={`variants.${index}.weight`} render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Purity <span className="text-red-500">*</span></FormLabel>
-                          <FormControl>
-                            <Select
-                              options={purityOptions}
-                              selected={field.value}
-                              setSelected={field.onChange}
-                              disabled={!selectedCategoryId}
-                            />
-                          </FormControl>
+                          <FormLabel>Weight (g) <span className="text-red-500">*</span></FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
                           <FormMessage />
                         </FormItem>
-                      )
-                    }} />
+                      )} />
 
-                    {/* GST */}
-                    <FormField control={form.control} name={`variants.${index}.gst`} render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>GST (%) <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+                      {/* Purity */}
+                      <FormField control={form.control} name={`variants.${index}.purity`} render={({ field }) => {
+                        // Use watched value from top level
+                        const selectedCategory = categoryOptions.find(cat => cat.value === watchedCategoryId)
+                        const purityOptions = selectedCategory ? getPurityOptions(selectedCategory.label) : []
 
-                    {/* Labour Charge */}
-                    <FormField control={form.control} name={`variants.${index}.labourCharge`} render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Labour (%) <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input {...field} placeholder="e.g., 10" /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
+                        return (
+                          <FormItem>
+                            <FormLabel>Purity <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Select
+                                options={purityOptions}
+                                selected={field.value}
+                                setSelected={field.onChange}
+                                disabled={!watchedCategoryId}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )
+                      }} />
 
-                    {/* Hallmark Charges */}
-                    <FormField control={form.control} name={`variants.${index}.hallmarkCharges`} render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hallmark <span className="text-red-500">*</span></FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )} />
-                  </div>
-                ))}
+                      {/* Size (Only for rings) */}
+                      {isRing && (
+                        <FormField control={form.control} name={`variants.${index}.size`} render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Size</FormLabel>
+                            <FormControl>
+                              <Select
+                                options={RING_SIZES}
+                                selected={field.value}
+                                setSelected={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      )}
+
+                      {/* Length (Only for chains/mangalsutra) */}
+                      {isChainOrMangalsutra && (
+                        <FormField control={form.control} name={`variants.${index}.length`} render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Length</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="e.g., 18 inches" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      )}
+
+                      {/* GST */}
+                      <FormField control={form.control} name={`variants.${index}.gst`} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>GST (%) <span className="text-red-500">*</span></FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+
+                      {/* Labour Charge */}
+                      <FormField control={form.control} name={`variants.${index}.labourCharge`} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Labour (%) <span className="text-red-500">*</span></FormLabel>
+                          <FormControl><Input {...field} placeholder="e.g., 10" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+
+                      {/* Hallmark Charges */}
+                      <FormField control={form.control} name={`variants.${index}.hallmarkCharges`} render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Hallmark <span className="text-red-500">*</span></FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                    </div>
+                  )
+                })}
               </div>
 
               {/* Gender (Disabled) */}

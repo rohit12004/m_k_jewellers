@@ -4,23 +4,42 @@ const VariantSelector = ({ label, options, selected, onChange }) => {
     return (
         <div>
             <p className="mb-2 font-semibold text-gray-700 dark:text-gray-300">
-                {label}: <span className="text-primary">{selected || 'Select'}</span>
+                {label}
             </p>
             <div className="flex flex-wrap gap-3">
                 {options.map((option) => (
-                    <button
+                    <label
                         key={option}
                         onClick={() => onChange(option)}
-                        className={`
-                            px-4 py-2 rounded-lg border-2 transition-all font-medium
-                            ${option === selected
-                                ? 'border-primary bg-primary/10 text-primary'
-                                : 'border-gray-300 dark:border-gray-600 hover:border-primary/50 text-gray-700 dark:text-gray-300'
-                            }
-                        `}
+                        className="flex items-center gap-2 cursor-pointer group"
                     >
-                        {option}
-                    </button>
+                        <div className="relative flex items-center justify-center">
+                            {/* Radio button outer circle */}
+                            <div className={`
+                                w-5 h-5 rounded-full border-2 transition-all
+                                ${option === selected
+                                    ? 'border-primary'
+                                    : 'border-gray-400 dark:border-gray-500 group-hover:border-primary/50'
+                                }
+                            `}>
+                                {/* Radio button inner dot */}
+                                {option === selected && (
+                                    <div className="absolute inset-0 m-auto w-3 h-3 rounded-full bg-primary" />
+                                )}
+                            </div>
+                        </div>
+                        <span
+                            className={`
+                                text-sm font-medium transition-colors
+                                ${option === selected
+                                    ? 'text-gray-900 dark:text-gray-100'
+                                    : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-100'
+                                }
+                            `}
+                        >
+                            {option}
+                        </span>
+                    </label>
                 ))}
             </div>
         </div>
@@ -28,3 +47,4 @@ const VariantSelector = ({ label, options, selected, onChange }) => {
 }
 
 export default VariantSelector
+

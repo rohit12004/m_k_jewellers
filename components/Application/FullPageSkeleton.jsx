@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 const FullPageSkeleton = () => {
     return (
-        <div className='h-screen w-screen flex justify-center items-start mt-12 px-4'>
+        <div className='min-h-screen w-full flex justify-center items-start mt-12 px-4 overflow-hidden'>
             <div className='w-full max-w-6xl space-y-8'>
                 {/* Header skeleton */}
                 <div className='space-y-3'>

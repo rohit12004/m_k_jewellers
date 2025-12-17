@@ -182,7 +182,8 @@ model ProductVariant {
   
   weight          Float
   purity          String   // e.g., "22K"
-  size            String?  // e.g., "12"
+  size            String?  // e.g., "12" - for rings
+  length          String?  // e.g., "18 inches" - for chains/mangalsutra
   
   // Pricing & Charges
   gst             Float

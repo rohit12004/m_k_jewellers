@@ -18,6 +18,8 @@ import PriceBreakdown from "./PriceBreakdown"
 import { Button } from "@/components/ui/button"
 import { toast } from "react-toastify"
 import imgPlaceholder from '@/public/assets/img-placeholder.jpg'
+import { RING_SIZES } from '@/lib/ringSizes'
+import Select from '@/components/Application/Select'
 
 const ProductDetails = ({
     product,
@@ -40,6 +42,15 @@ const ProductDetails = ({
         setCurrentVariant(initialVariant)
     }, [initialVariant])
 
+    // Detect if product is a ring (check subcategory name with word boundary)
+    // Matches 'ring' or 'rings' but not 'earring'
+    const isRing = /\brings?\b/.test(product.subCategory?.name?.toLowerCase() || '')
+
+    // For rings: show ALL sizes 1-33, not just variant sizes
+    const availableSizes = isRing
+        ? RING_SIZES.map(s => s.value) // All sizes 1-33
+        : sizes // Only variant sizes for non-rings
+
     // Handle variant change - CLIENT-SIDE matching (no refetch)
     const handleVariantChange = (type, value) => {
         // Safety check: ensure currentVariant exists
@@ -47,17 +58,35 @@ const ProductDetails = ({
             return
         }
 
-        // Smart matching: Prioritize the attribute user changed
         let matchedVariant
 
-        if (type === 'purity') {
+        if (type === 'size' && isRing) {
+            // LOOSE SIZE MATCHING for rings:
+            // Find variant with same weight + purity (ignore size)
+            const priceVariant = allVariants.find(v =>
+                v.weight === currentVariant.weight &&
+                v.purity === currentVariant.purity
+            )
+
+            if (priceVariant) {
+                // Create virtual variant with selected size + price from weight match
+                matchedVariant = {
+                    ...priceVariant,
+                    size: value, // Override with selected size
+                    isVirtual: true
+                }
+            } else {
+                // Fallback: just update size on current variant
+                matchedVariant = { ...currentVariant, size: value, isVirtual: true }
+            }
+        } else if (type === 'purity') {
             // Find first variant with this purity (weight/size can be different)
             matchedVariant = allVariants.find(v => v.purity === value)
         } else if (type === 'weight') {
             // Find first variant with this weight (purity/size can be different)
             matchedVariant = allVariants.find(v => v.weight === parseFloat(value))
         } else if (type === 'size') {
-            // Find first variant with this size (purity/weight can be different)
+            // Non-ring: strict matching
             matchedVariant = allVariants.find(v => v.size === value)
         }
 
@@ -198,27 +227,34 @@ const ProductDetails = ({
                         </div>
                     )}
 
-                    {weights.length > 1 && (
+
+                    {/* Size Selector (Only for rings) */}
+                    {isRing && availableSizes.length > 0 && (
                         <div className="mb-5">
-                            <VariantSelector
-                                label="Weight"
-                                options={weights.map(w => `${w}g`)}
-                                selected={`${currentVariant.weight}g`}
-                                onChange={(value) => handleVariantChange('weight', value.replace('g', ''))}
-                            />
+                            <p className="mb-2 font-semibold text-gray-700 dark:text-gray-300">
+                                Size <span className="text-sm">(Select any size you want.)</span>
+                            </p>
+                            <div className="max-w-xs">
+                                <Select
+                                    options={RING_SIZES}
+                                    selected={currentVariant.size || ''}
+                                    setSelected={(value) => handleVariantChange('size', value)}
+                                    placeholder="Select Size"
+                                />
+                            </div>
                         </div>
                     )}
 
-                    {sizes.length > 0 && (
-                        <div className="mb-5">
-                            <VariantSelector
-                                label="Size"
-                                options={sizes}
-                                selected={currentVariant.size}
-                                onChange={(value) => handleVariantChange('size', value)}
-                            />
-                        </div>
-                    )}
+                    {/* Length Display (Only for chains/mangalsutra) */}
+                    {(product.subCategory?.name?.toLowerCase().includes('chain') ||
+                        product.subCategory?.name?.toLowerCase().includes('mangalsutra')) &&
+                        currentVariant.length && (
+                            <div className="mb-5">
+                                <p className="font-semibold text-gray-700 dark:text-gray-300">
+                                    Length: <span className="text-primary">{currentVariant.length}</span>
+                                </p>
+                            </div>
+                        )}
 
                     {/* Quantity Selector */}
                     <div className="mb-6">
