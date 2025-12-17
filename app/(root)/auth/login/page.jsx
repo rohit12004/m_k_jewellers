@@ -98,18 +98,18 @@ const page = () => {
     }
 
     return (
-        <div>
-            <Card className='w-[450px]'>
+        <div className="w-full px-4 sm:px-0">
+            <Card className='w-full max-w-[450px] mx-auto'>
                 <CardHeader className="flex flex-col items-center">
-                    <div className='flex justify-center items-center gap-5'>
+                    <div className='flex sm:flex-row flex-col justify-center items-center gap-3 sm:gap-5'>
                         <Image
                             src={mklogo}
-                            width={100}
-                            height={100}
+                            width={80}
+                            height={80}
                             alt="mklogo"
-                            className="rounded-full"
+                            className="rounded-full sm:w-[100px] sm:h-[100px]"
                         />
-                        <h1 className="text-2xl font-bold">M.K. JEWELLER'S</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold text-center">M.K. JEWELLER'S</h1>
                     </div>
                     <CardTitle className="mt-3 font-bold text-2xl text-center">
                         Login Into Account
@@ -174,13 +174,13 @@ const page = () => {
                             </Form>
                         </CardContent>
                         <CardFooter>
-                            <div className='flex flex-col items-center justify-center'>
-                                <div className='flex items-center justify-center gap-2'>
+                            <div className='flex flex-col items-center justify-center gap-3 w-full'>
+                                <div className='flex flex-wrap items-center justify-center gap-2 text-sm sm:text-base'>
                                     <p>Don't Have Account ?</p>
-                                    <Link href={WEBSITE_REGISTER} className='text-primary underline'> Create Account !</Link>
+                                    <Link href={WEBSITE_REGISTER} className='text-primary underline min-h-[44px] flex items-center'>Create Account !</Link>
                                 </div>
                                 <div>
-                                    <Link href={WEBSITE_RESETPASSWORD} className='text-primary underline'> Forget Passowrd ?</Link>
+                                    <Link href={WEBSITE_RESETPASSWORD} className='text-primary underline min-h-[44px] flex items-center'> Forget Passowrd ?</Link>
                                 </div>
                             </div>
                         </CardFooter>

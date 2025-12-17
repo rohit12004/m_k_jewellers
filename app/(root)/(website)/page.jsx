@@ -48,7 +48,7 @@ const page = () => {
 
             <SubcategoriesSection />
 
-            <section className='sm:pt-20 pt-5 pb-10'>
+            <section className='sm:pt-5 pt-5 pb-5'>
                 <Image
                     src={advertisingBanner}
                     alt="Advertisement"

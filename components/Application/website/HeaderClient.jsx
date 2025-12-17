@@ -28,10 +28,10 @@ const HeaderClient = ({ categories = [] }) => {
 
     return (
         <header className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? 'shadow-md' : 'shadow-sm border-b'}`}>
-            <div className='lg:px-10 px-4'>
-                <div className='flex justify-between items-center lg:py-3 py-4'>
+            <div className='lg:px-10 px-4 max-w-full overflow-hidden'>
+                <div className='flex justify-between items-center lg:py-3 py-4 w-full'>
                     {/* Logo */}
-                    <Link href={WEBSITE_HOME} className='flex items-center group'>
+                    <Link href={WEBSITE_HOME} className='flex items-center group flex-shrink-0'>
                         <Image
                             src={logo}
                             width={60}
@@ -42,7 +42,7 @@ const HeaderClient = ({ categories = [] }) => {
                         />
                     </Link>
 
-                    <div className='flex justify-between gap-20'>
+                    <div className='flex justify-end items-center lg:gap-20 gap-4 flex-1'>
                         {/* Navigation */}
                         <nav className={`lg:relative lg:w-auto lg:h-auto lg:top-0 lg:left-0 lg:p-0 lg:bg-transparent bg-white fixed z-50 top-0 w-full h-screen transition-all duration-300 ${isMobileMenu ? 'left-0' : '-left-full'}`}>
 
@@ -114,7 +114,7 @@ const HeaderClient = ({ categories = [] }) => {
                         </nav>
 
                         {/* Action Icons */}
-                        <div className='flex justify-between items-center gap-6'>
+                        <div className='flex justify-between items-center lg:gap-6 gap-3'>
                             {/* Search Icon */}
                             <button
                                 type='button'
