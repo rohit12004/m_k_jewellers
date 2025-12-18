@@ -23,10 +23,16 @@ const ShowCategory = () => {
     }, [])
 
     const action = useCallback((row, deleteType, handleDelete) => {
-        let actionMenu = []
-        actionMenu.push(<EditAction key="edit" href={ADMIN_CATEGORY_EDIT(row.original.id)} />)
-        actionMenu.push(<DeleteAction key="delete" handleDelete={handleDelete} row={row} deleteType={deleteType} />)
-        return actionMenu
+        // Categories are temporarily non-editable and non-deletable
+        // to prevent breaking metal rate pricing calculations
+        // Category names (Gold, Silver, Diamond) must remain unchanged
+        return []
+
+        // Disabled actions:
+        // let actionMenu = []
+        // actionMenu.push(<EditAction key="edit" href={ADMIN_CATEGORY_EDIT(row.original.id)} />)
+        // actionMenu.push(<DeleteAction key="delete" handleDelete={handleDelete} row={row} deleteType={deleteType} />)
+        // return actionMenu
     }, [])
 
     return (

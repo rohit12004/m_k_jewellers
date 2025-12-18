@@ -4,7 +4,6 @@ import banner1 from '@/public/assets/banner1.jpg'
 import banner2 from '@/public/assets/banner2.jpg'
 import Link from 'next/link'
 import Image from 'next/image'
-import FeaturedCategories from '@/components/Application/website/FeaturedCategories'
 import SubcategoriesSection from '@/components/Application/website/SubcategoriesSection'
 import advertisingBanner from '@/public/assets/advertising-banner.jpg'
 
@@ -43,8 +42,6 @@ const page = () => {
 
                 </div>
             </section>
-
-            <FeaturedCategories />
 
             <SubcategoriesSection />
 

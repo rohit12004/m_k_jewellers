@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { IoLocationOutline } from "react-icons/io5";
 import { MdOutlinePhone } from "react-icons/md";
 import { MdOutlineMail } from "react-icons/md";
-import { AiOutlineYoutube } from "react-icons/ai";
 import { FaInstagram } from "react-icons/fa";
 import { FaWhatsapp } from "react-icons/fa";
 import { TiSocialFacebookCircular } from "react-icons/ti";
@@ -147,13 +146,10 @@ const Footer = () => {
             </div>
             <div className='flex item-center justify-center gap-4 mb-3'>
 
-                <Link href="" className='w-10 h-10 rounded-full bg-white dark:bg-white shadow-sm flex items-center justify-center  hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
-                    <AiOutlineYoutube className='text-primary group-hover:text-white' size={22} />
-                </Link>
                 <Link href="" className='w-10 h-10 rounded-full bg-white dark:bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
                     <FaInstagram className='text-primary group-hover:text-white' size={20} />
                 </Link>
-                <Link href="" className='w-10 h-10 rounded-full bg-white dark:bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
+                <Link href="https://wa.me/919881339944" target="_blank" rel="noopener noreferrer" className='w-10 h-10 rounded-full bg-white dark:bg-white shadow-sm flex items-center justify-center hover:text-white transition-all duration-300 hover:shadow-md hover:-translate-y-1'>
                     <FaWhatsapp className='text-primary group-hover:text-white' size={20} />
                 </Link>
 

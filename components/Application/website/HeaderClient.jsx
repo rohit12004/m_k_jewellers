@@ -3,7 +3,6 @@ import { USER_DASHBOARD, WEBSITE_HOME, WEBSITE_LOGIN, WEBSITE_SHOP } from '@/rou
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
-import { IoIosSearch } from "react-icons/io";
 import { VscAccount } from "react-icons/vsc";
 import { useSelector } from 'react-redux'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
@@ -16,7 +15,6 @@ import Cart from './Cart'
 const HeaderClient = ({ categories = [] }) => {
     const auth = useSelector(store => store.authStore.auth)
     const [isMobileMenu, setIsMobileMenu] = useState(false)
-    const [showSearch, setShowSearch] = useState(false)
     const [isScrolled, setIsScrolled] = useState(false)
 
     useEffect(() => {
@@ -87,16 +85,16 @@ const HeaderClient = ({ categories = [] }) => {
                                         <span className='absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300'></span>
                                     </Link>
                                 </li>
-                                {/* <li className='group relative'>
+                                <li className='group relative'>
                                     <Link
                                         href={WEBSITE_SHOP}
-                                        className='block py-3 lg:py-2 text-gray-700 hover:text-primary font-medium transition-colors duration-300'
+                                        className='block py-3 lg:py-2 text-gray-700 dark:text-gray-700 hover:text-primary font-medium transition-colors duration-300'
                                         onClick={() => setIsMobileMenu(false)}
                                     >
                                         Shop
                                         <span className='absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300'></span>
                                     </Link>
-                                </li> */}
+                                </li>
 
                                 {/* Dynamic Categories from Database */}
                                 {categories.map((category) => (
@@ -116,18 +114,6 @@ const HeaderClient = ({ categories = [] }) => {
 
                         {/* Action Icons */}
                         <div className='flex justify-between items-center lg:gap-6 gap-3'>
-                            {/* Search Icon */}
-                            <button
-                                type='button'
-                                onClick={() => setShowSearch(!showSearch)}
-                                className='p-2 rounded-full hover:bg-primary/10 transition-all duration-300 group'
-                            >
-                                <IoIosSearch
-                                    className='text-gray-600 dark:text-gray-600 group-hover:text-primary transition-colors duration-300'
-                                    size={22}
-                                />
-                            </button>
-
                             {/* Cart */}
                             <Cart />
 
@@ -177,8 +163,7 @@ const HeaderClient = ({ categories = [] }) => {
                 />
             )}
 
-            {/* Search Component Placeholder */}
-            {/* {showSearch && <Search isShow={showSearch} />} */}
+
         </header>
     )
 }
