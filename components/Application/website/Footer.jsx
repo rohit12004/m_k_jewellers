@@ -113,14 +113,6 @@ const Footer = () => {
                                 Privacy Policy
                             </Link>
                         </li>
-                        <li className='text-gray-600 dark:text-gray-600 hover:text-primary transition-colors duration-200'>
-                            <Link href="/terms-and-conditions" className='flex items-center group'>
-                                <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
-                                Terms & Conditions
-                            </Link>
-                        </li>
-
-
                     </ul>
                 </div>
                 <div>
