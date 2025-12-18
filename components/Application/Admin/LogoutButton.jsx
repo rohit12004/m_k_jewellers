@@ -12,25 +12,25 @@ import { useDispatch } from 'react-redux'
 const LogoutButton = () => {
     const dispatch = useDispatch()
     const router = useRouter()
-    const handleLogout =async ()=>{
+    const handleLogout = async () => {
         try {
-             const {data: logoutResponse} = await axios.post('/api/auth/logout')
-             if(!logoutResponse.success){
+            const { data: logoutResponse } = await axios.post('/api/auth/logout')
+            if (!logoutResponse.success) {
                 throw new Error(logoutResponse.message)
-             }
-             dispatch(logout())
-             showToast('success', logoutResponse.message)
-             router.push(WEBSITE_LOGIN)
+            }
+            dispatch(logout())
+            showToast('success', logoutResponse.message)
+            router.push('/')
         } catch (error) {
             showToast('error', error.message)
         }
     }
     return (
         <DropdownMenuItem onClick={handleLogout} className="cursor-pointer w-full">
-           <div className='flex items-center justify-start gap-2 p-2'>
-             <AiOutlineLogout color='red' />
-            Logout
-           </div>
+            <div className='flex items-center justify-start gap-2 p-2'>
+                <AiOutlineLogout color='red' />
+                Logout
+            </div>
         </DropdownMenuItem>
     )
 }

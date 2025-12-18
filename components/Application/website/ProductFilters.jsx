@@ -171,8 +171,6 @@ const ProductFilters = ({ filters, onFilterChange, filterOptions, onClearAll, ac
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="newest">Newest First</SelectItem>
-                        <SelectItem value="price_asc">Price: Low to High</SelectItem>
-                        <SelectItem value="price_desc">Price: High to Low</SelectItem>
                         <SelectItem value="name_asc">Name: A to Z</SelectItem>
                         <SelectItem value="name_desc">Name: Z to A</SelectItem>
                     </SelectContent>

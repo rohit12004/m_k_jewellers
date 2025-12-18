@@ -1,8 +1,8 @@
 import React from 'react'
 
-const layout = ({children}) => {
+const layout = ({ children }) => {
   return (
-    <div className="h-screen w-screen flex justify-center items-center">
+    <div className="min-h-screen w-full flex justify-center items-center overflow-x-hidden">
       {children}
     </div>
   )

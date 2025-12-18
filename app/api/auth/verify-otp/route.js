@@ -33,10 +33,13 @@ export async function POST(request) {
         }
 
         const loggesInUserData = {
-            _id: getUser.id,
+            id: getUser.id,
             role: getUser.role,
             name: getUser.name,
-            avatar: getUser.avatar,
+            email: getUser.email,
+            phone: getUser.phone,
+            address: getUser.address,
+            avatarUrl: getUser.avatarUrl,
         }
 
         const secret = new TextEncoder().encode(process.env.SECRET_KEY)
@@ -48,12 +51,12 @@ export async function POST(request) {
 
         const cookieStore = await cookies()
         cookieStore.set({
-            name : "access_token",
-            value : token,
+            name: "access_token",
+            value: token,
             httpOnly: process.env.NODE_ENV === 'production',
-            path:'/',
-            secure : process.env.NODE_ENV === 'production',
-            sameSite : 'lax',
+            path: '/',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
         })
 
         // remove otp

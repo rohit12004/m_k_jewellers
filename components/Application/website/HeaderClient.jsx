@@ -28,7 +28,7 @@ const HeaderClient = ({ categories = [] }) => {
     }, [])
 
     return (
-        <header className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? 'shadow-md' : 'shadow-sm border-b'}`}>
+        <header className={`sticky top-0 z-50 bg-white/95 dark:bg-white/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? 'shadow-md' : 'shadow-sm border-b'}`}>
             <div className='lg:px-10 px-4 max-w-full overflow-hidden'>
                 <div className='flex justify-between items-center lg:py-3 py-4 w-full'>
                     {/* Logo */}
@@ -45,7 +45,7 @@ const HeaderClient = ({ categories = [] }) => {
 
                     <div className='flex justify-end items-center lg:gap-20 gap-4 flex-1'>
                         {/* Navigation */}
-                        <nav className={`lg:relative lg:w-auto lg:h-auto lg:top-0 lg:left-0 lg:p-0 lg:bg-transparent bg-white fixed z-50 top-0 w-full h-screen transition-all duration-300 ${isMobileMenu ? 'left-0' : '-left-full'}`}>
+                        <nav className={`lg:relative lg:w-auto lg:h-auto lg:top-0 lg:left-0 lg:p-0 lg:bg-transparent bg-white dark:bg-white fixed z-50 top-0 w-full h-screen transition-all duration-300 ${isMobileMenu ? 'left-0' : '-left-full'}`}>
 
                             {/* Mobile Menu Header */}
                             <div className='lg:hidden flex justify-between items-center bg-gradient-to-r from-primary/5 to-primary/10 py-4 border-b px-4'>
@@ -70,7 +70,7 @@ const HeaderClient = ({ categories = [] }) => {
                                 <li className='group relative'>
                                     <Link
                                         href={WEBSITE_HOME}
-                                        className='block py-3 lg:py-2 text-gray-700 hover:text-primary font-medium transition-colors duration-300'
+                                        className='block py-3 lg:py-2 text-gray-700 dark:text-gray-700 hover:text-primary font-medium transition-colors duration-300'
                                         onClick={() => setIsMobileMenu(false)}
                                     >
                                         Home
@@ -80,7 +80,7 @@ const HeaderClient = ({ categories = [] }) => {
                                 <li className='group relative'>
                                     <Link
                                         href="/about-us"
-                                        className='block py-3 lg:py-2 text-gray-700 hover:text-primary font-medium transition-colors duration-300'
+                                        className='block py-3 lg:py-2 text-gray-700 dark:text-gray-700 hover:text-primary font-medium transition-colors duration-300'
                                         onClick={() => setIsMobileMenu(false)}
                                     >
                                         About
@@ -103,7 +103,7 @@ const HeaderClient = ({ categories = [] }) => {
                                     <li key={category.id} className='group relative'>
                                         <Link
                                             href={`${WEBSITE_SHOP}?category=${category.slug}`}
-                                            className='block py-3 lg:py-2 text-gray-700 hover:text-primary font-medium transition-colors duration-300'
+                                            className='block py-3 lg:py-2 text-gray-700 dark:text-gray-700 hover:text-primary font-medium transition-colors duration-300'
                                             onClick={() => setIsMobileMenu(false)}
                                         >
                                             {category.name}
@@ -123,7 +123,7 @@ const HeaderClient = ({ categories = [] }) => {
                                 className='p-2 rounded-full hover:bg-primary/10 transition-all duration-300 group'
                             >
                                 <IoIosSearch
-                                    className='text-gray-600 group-hover:text-primary transition-colors duration-300'
+                                    className='text-gray-600 dark:text-gray-600 group-hover:text-primary transition-colors duration-300'
                                     size={22}
                                 />
                             </button>
@@ -138,7 +138,7 @@ const HeaderClient = ({ categories = [] }) => {
                                     className='p-2 rounded-full hover:bg-primary/10 transition-all duration-300 group'
                                 >
                                     <VscAccount
-                                        className='text-gray-600 group-hover:text-primary transition-colors duration-300'
+                                        className='text-gray-600 dark:text-gray-600 group-hover:text-primary transition-colors duration-300'
                                         size={22}
                                     />
                                 </Link>
@@ -148,7 +148,7 @@ const HeaderClient = ({ categories = [] }) => {
                                     className='ring-2 ring-primary/20 hover:ring-primary/40 rounded-full transition-all duration-300'
                                 >
                                     <Avatar className='w-9 h-9'>
-                                        <AvatarImage src={auth?.avatar?.url || userIcon.src} />
+                                        <AvatarImage src={auth?.avatarUrl || userIcon.src} />
                                     </Avatar>
                                 </Link>
                             )}
@@ -161,7 +161,7 @@ const HeaderClient = ({ categories = [] }) => {
                             >
                                 <HiMiniBars3
                                     size={24}
-                                    className='text-gray-600 group-hover:text-primary transition-colors duration-300'
+                                    className='text-gray-600 dark:text-gray-600 group-hover:text-primary transition-colors duration-300'
                                 />
                             </button>
                         </div>

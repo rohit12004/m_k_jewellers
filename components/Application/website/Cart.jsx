@@ -117,14 +117,20 @@ const Cart = () => {
                             </Button>
                             <Button
                                 type="button"
-                                asChild
                                 className="w-full sm:w-1/2"
-                                onClick={() => setOpen(false)}
+                                onClick={() => {
+                                    if (!cart.count) {
+                                        showToast('error', 'Your cart is empty!')
+                                        return
+                                    }
+                                    setOpen(false)
+                                }}
+                                asChild={cart.count}
                             >
                                 {cart.count ?
                                     <Link href={WEBSITE_CHECKOUT}>Checkout</Link>
                                     :
-                                    <button type="button" onClick={() => showToast('error', 'Your cart is empty!')}>Checkout</button>
+                                    <span>Checkout</span>
                                 }
                             </Button>
                         </div>

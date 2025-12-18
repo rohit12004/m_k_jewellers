@@ -1,5 +1,6 @@
 import Header from '@/components/Application/Website/Header'
 import Footer from '@/components/Application/Website/Footer'
+import ThemeManager from '@/components/Application/Website/ThemeManager'
 import React from 'react'
 import { Kumbh_Sans } from 'next/font/google'
 
@@ -11,13 +12,15 @@ const kumbh = Kumbh_Sans({
 
 const layout = ({ children }) => {
     return (
-        <div className={kumbh.className}>
-            <Header />
-            <main>
-                {children}
-            </main>
-            <Footer />
-        </div>
+        <ThemeManager>
+            <div className={kumbh.className}>
+                <Header />
+                <main>
+                    {children}
+                </main>
+                <Footer />
+            </div>
+        </ThemeManager>
     )
 }
 

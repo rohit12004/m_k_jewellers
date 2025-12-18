@@ -72,7 +72,7 @@ const page = () => {
     }
 
     return (
-        <div className="w-full px-4 sm:px-0">
+        <div className="w-full px-4 sm:px-0 overflow-x-hidden">
             <Card className='w-full max-w-[450px] mx-auto'>
                 <CardHeader className="flex flex-col items-center">
                     <div className='flex sm:flex-row flex-col justify-center items-center gap-3 sm:gap-5'>
@@ -186,7 +186,7 @@ const page = () => {
                     <div className='flex flex-col items-center justify-center gap-3 w-full'>
                         <div className='flex flex-wrap items-center justify-center gap-2 text-sm sm:text-base'>
                             <p>Already Have Account ?</p>
-                            <Link href={WEBSITE_LOGIN} className='text-primary underline min-h-[44px] flex items-center'>Login !</Link>
+                            <Link href={WEBSITE_LOGIN} className='text-primary underline'>Login !</Link>
                         </div>
                     </div>
                 </CardFooter>
