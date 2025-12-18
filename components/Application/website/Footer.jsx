@@ -32,21 +32,21 @@ const Footer = () => {
                     <h4 className='sm:text-lg text-sm font-bold uppercase mb-6 text-gray-800 dark:text-gray-800 relative inline-block after:content-[""] after:absolute after:left-0 after:bottom-0 after:w-12 after:h-0.5 after:bg-primary'>Categories</h4>
                     <ul className='space-y-3'>
                         <li className='text-gray-600 dark:text-gray-600 hover:text-primary transition-colors duration-200'>
-                            <Link href={`${WEBSITE_SHOP}?category=t-shirts`} className='flex items-center group'>
+                            <Link href={`${WEBSITE_SHOP}?category=gold`} className='flex items-center group'>
                                 <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
                                 Gold
                             </Link>
                         </li>
                         <li className='text-gray-600 dark:text-gray-600 hover:text-primary transition-colors duration-200'>
-                            <Link href={`${WEBSITE_SHOP}?category=hoodies`} className='flex items-center group'>
+                            <Link href={`${WEBSITE_SHOP}?category=silver`} className='flex items-center group'>
                                 <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
                                 Silver
                             </Link>
                         </li>
                         <li className='text-gray-600 dark:text-gray-600 hover:text-primary transition-colors duration-200'>
-                            <Link href={`${WEBSITE_SHOP}?category=oversized`} className='flex items-center group'>
+                            <Link href={`${WEBSITE_SHOP}?category=diamond`} className='flex items-center group'>
                                 <span className='w-1.5 h-1.5 bg-gray-400 rounded-full mr-2 group-hover:bg-primary transition-colors'></span>
-                                Other
+                                Diamond
                             </Link>
                         </li>
                     </ul>

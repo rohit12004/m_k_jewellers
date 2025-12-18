@@ -1,12 +1,19 @@
 import axios from 'axios'
+import Link from 'next/link'
 import ProductDetails from '@/components/Application/Website/ProductDetails'
+import { API_PRODUCT_DETAILS } from '@/routes/websiteRoutes'
+
+// Helper to get base URL for server-side fetching
+const getBaseUrl = () => {
+    return process.env.NEXT_PUBLIC_BASE_URL
+}
 
 const ProductPage = async ({ params, searchParams }) => {
     const { slug } = await params
     const { purity, size, weight } = await searchParams
 
     // Build API URL with optional query params
-    let url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/product/details/${slug}`
+    let url = `${getBaseUrl()}${API_PRODUCT_DETAILS(slug)}`
 
     const queryParams = new URLSearchParams()
     if (purity) queryParams.set('purity', purity)
@@ -64,12 +71,12 @@ const ProductPage = async ({ params, searchParams }) => {
                     <p className='text-gray-600 dark:text-gray-400 mb-6'>
                         {error.response?.data?.message || 'Failed to load product details. Please try again.'}
                     </p>
-                    <button
-                        onClick={() => window.location.reload()}
+                    <Link
+                        href={`/product/${slug}`}
                         className='inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors'
                     >
                         Retry
-                    </button>
+                    </Link>
                 </div>
             </div>
         )

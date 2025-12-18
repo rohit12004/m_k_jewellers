@@ -62,7 +62,7 @@ const Datatable = ({
         }
     }
 
-    // Data fetching logics 
+    // Data fetching logics
     const {
         data: { data = [], meta } = {},
         isError,
@@ -71,7 +71,7 @@ const Datatable = ({
     } = useQuery({
         queryKey: [queryKey, { columnFilters, globalFilter, pagination, sorting }],
         queryFn: async () => {
-            const url = new URL(fetchUrl, process.env.NEXT_PUBLIC_BASE_URL)
+            const url = new URL(fetchUrl, window.location.origin)
             url.searchParams.set(
                 'start',
                 `${pagination.pageIndex * pagination.pageSize}`,

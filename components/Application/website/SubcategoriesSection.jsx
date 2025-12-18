@@ -1,10 +1,17 @@
 import React from 'react'
 import SubcategoryCard from './SubcategoryCard'
+import { API_SUBCATEGORY_GET_ALL } from '@/routes/websiteRoutes'
+
+// Helper to get base URL for server-side fetching
+const getBaseUrl = () => {
+    // For production: use environment variable or default to localhost
+    return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
+}
 
 // Fetch subcategories with caching - revalidate every hour
 async function getSubcategories() {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/subcategory/get-all`, {
+        const res = await fetch(`${getBaseUrl()}${API_SUBCATEGORY_GET_ALL}`, {
             next: {
                 revalidate: 3600, // Cache for 1 hour (3600 seconds)
                 tags: ['subcategories'] // Tag for on-demand revalidation

@@ -17,3 +17,26 @@ export const WEBSITE_ORDER_DETAILS = (order_id) => `/order-details/${order_id}`
 export const USER_DASHBOARD = "/my-account"
 export const USER_PROFILE = "/profile"
 export const USER_ORDERS = "/orders"
+
+// ============================================
+// API ROUTES (Backend Endpoints)
+// ============================================
+
+// Auth API
+export const API_AUTH_LOGIN = "/api/auth/login"
+export const API_AUTH_REGISTER = "/api/auth/register"
+export const API_AUTH_LOGOUT = "/api/auth/logout"
+export const API_AUTH_VERIFY_OTP = "/api/auth/verify-otp"
+export const API_AUTH_RESET_PASSWORD = "/api/auth/reset-password"
+
+// User API
+export const API_USER_UPDATE_PROFILE = "/api/user/update-profile"
+
+// Category API
+export const API_CATEGORY_GET_FEATURED = "/api/category/get-featured-categories"
+
+// Subcategory API
+export const API_SUBCATEGORY_GET_ALL = "/api/subcategory/get-all"
+
+// Product API
+export const API_PRODUCT_DETAILS = (slug) => `/api/product/details/${slug}`

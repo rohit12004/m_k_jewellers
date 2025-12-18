@@ -89,7 +89,35 @@ const MetalRatesPage = () => {
                 </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+                {data?.map((rate) => (
+                    <div key={rate.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+                        <div className="flex justify-between items-start mb-3">
+                            <div>
+                                <p className="font-semibold text-lg text-gray-900 dark:text-white">{rate.categoryName}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{rate.purity}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Rate per Gram</p>
+                                <Input
+                                    type="number"
+                                    step="0.01"
+                                    className="w-24 h-9 text-right mt-1"
+                                    value={editingRates[rate.id] ?? rate.ratePerGram}
+                                    onChange={(e) => handleRateChange(rate.id, e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Updated: {formatDateTime(rate.updatedAt)}
+                        </p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -122,16 +150,17 @@ const MetalRatesPage = () => {
                         ))}
                     </TableBody>
                 </Table>
+            </div>
 
-                <div className="p-4 border-t">
-                    <Button
-                        onClick={handleUpdate}
-                        disabled={updateRates.isPending}
-                        className="w-full sm:w-auto"
-                    >
-                        {updateRates.isPending ? 'Updating...' : 'Update Rates'}
-                    </Button>
-                </div>
+            {/* Update Button */}
+            <div className="mt-4">
+                <Button
+                    onClick={handleUpdate}
+                    disabled={updateRates.isPending}
+                    className="w-full"
+                >
+                    {updateRates.isPending ? 'Updating...' : 'Update Rates'}
+                </Button>
             </div>
 
             <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">

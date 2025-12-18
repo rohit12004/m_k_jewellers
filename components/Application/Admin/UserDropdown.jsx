@@ -29,10 +29,6 @@ const UserDropdown = () => {
                 <DropdownMenuLabel>{auth?.name}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <Link href="" className="cursor-pointer">
-                        <IoShirtOutline />
-                        New Product
-                    </Link>
                 </DropdownMenuItem>
                 <LogoutButton/>
             </DropdownMenuContent>

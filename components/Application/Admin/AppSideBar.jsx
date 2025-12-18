@@ -21,7 +21,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import Link from "next/link";
 
 const AppSideBar = () => {
-    const {toggleSidebar} = useSidebar()
+    const { toggleSidebar } = useSidebar()
     return (
         <Sidebar className="z-50">
             <SidebarHeader className="border-b-2 h-16">
@@ -41,7 +41,12 @@ const AppSideBar = () => {
                             <SidebarMenuItem>
                                 <CollapsibleTrigger asChild>
                                     <SidebarMenuButton asChild className="font-semibold px-2 py-5">
-                                        <Link href={menu?.url}>
+                                        <Link href={menu?.url} onClick={() => {
+                                            // Close sidebar on mobile when clicking menu item without submenu
+                                            if (!menu.submenu || menu.submenu.length === 0) {
+                                                if (window.innerWidth < 768) toggleSidebar()
+                                            }
+                                        }}>
                                             <menu.icon />
                                             {menu.title}
                                             {menu.submenu && menu.submenu.length > 0
@@ -51,14 +56,17 @@ const AppSideBar = () => {
                                         </Link>
                                     </SidebarMenuButton>
                                 </CollapsibleTrigger>
-                                {menu.submenu && menu.submenu.length > 0 
-                                &&
+                                {menu.submenu && menu.submenu.length > 0
+                                    &&
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
                                             {menu.submenu.map((submenuItem, submenuIndex) => (
                                                 <SidebarMenuSubItem key={submenuIndex}>
                                                     <SidebarMenuSubButton asChild className="px-2 py-5 font-semibold">
-                                                        <Link href={submenuItem.url}>
+                                                        <Link href={submenuItem.url} onClick={() => {
+                                                            // Close sidebar on mobile when clicking submenu item
+                                                            if (window.innerWidth < 768) toggleSidebar()
+                                                        }}>
                                                             {submenuItem.title}
                                                         </Link>
                                                     </SidebarMenuSubButton>
