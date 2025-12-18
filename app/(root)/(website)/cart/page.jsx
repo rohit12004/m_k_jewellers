@@ -181,7 +181,7 @@ const CartPage = () => {
 
                             <div className='text-center text-sm text-gray-600 mb-4'>
                                 <p>Any Questions?</p>
-                                <p>Please call us at <a href="tel:18004190066" className='text-primary hover:underline font-medium'>1800 419 0066</a></p>
+                                <p>Please call us at <a href="tel:18004190066" className='text-primary hover:underline font-medium'>+91-9881339944</a></p>
                             </div>
 
                             <p className='text-center text-sm'>

@@ -1,26 +1,35 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { WEBSITE_LOGIN } from '@/routes/websiteRoutes'
+import { WEBSITE_LOGIN, WEBSITE_ORDER_DETAILS, API_PAYMENT_GET_ORDER_ID, API_PAYMENT_SAVE_ORDER } from '@/routes/websiteRoutes'
+import { clearCart } from '@/store/reducer/cartReducer'
 import Image from 'next/image'
 import imgPlaceholder from '@/public/assets/img-placeholder.jpg'
-import { Check, Lock, Phone, Mail, MapPin, ShoppingBag, CreditCard } from 'lucide-react'
+import { Check, Lock, Phone, Mail, MapPin, ShoppingBag, CreditCard, Loader2 } from 'lucide-react'
+import { showToast } from '@/lib/showToast'
+import Script from 'next/script'
+import axios from 'axios'
 
 const CheckoutPage = () => {
     const auth = useSelector(store => store.authStore.auth)
     const cart = useSelector(store => store.cartStore)
     const router = useRouter()
+    const dispatch = useDispatch()
+
     const [subtotal, setSubtotal] = useState(0)
+    const [total, setTotal] = useState(0)
     const [panCard, setPanCard] = useState(auth?.panCard || '')
     const [panError, setPanError] = useState('')
+    const [placingOrder, setPlacingOrder] = useState(false)
+    const [savingOrder, setSavingOrder] = useState(false)
 
-    // Redirect to login if not authenticated - do this first before any rendering
+    // Redirect to login if not authenticated
     useEffect(() => {
         if (!auth) {
             router.push(WEBSITE_LOGIN)
@@ -31,11 +40,153 @@ const CheckoutPage = () => {
     useEffect(() => {
         const totalAmount = cart.products.reduce((sum, product) => sum + (product.price * product.qty), 0)
         setSubtotal(totalAmount)
+        setTotal(totalAmount)
     }, [cart])
 
     // Don't render anything if not authenticated
     if (!auth) {
         return null
+    }
+
+    // Get Razorpay order ID from backend
+    const getOrderId = async (amount, panCard) => {
+        try {
+            const { data: orderIdData } = await axios.post(API_PAYMENT_GET_ORDER_ID, {
+                amount,
+                panCard
+            })
+            if (!orderIdData.success) {
+                throw new Error(orderIdData.message)
+            }
+            return { success: true, order_id: orderIdData.data }
+        } catch (error) {
+            return { success: false, message: error.response?.data?.message || error.message }
+        }
+    }
+
+    // Place order and initiate Razorpay payment
+    const placeOrder = async () => {
+        setPlacingOrder(true)
+        try {
+            // Validate PAN card
+            if (!panCard || panError) {
+                showToast('error', 'Please enter a valid PAN card number')
+                setPlacingOrder(false)
+                return
+            }
+
+            // Validate cart
+            if (cart.products.length === 0) {
+                showToast('error', 'Your cart is empty')
+                setPlacingOrder(false)
+                return
+            }
+
+            // Get Razorpay order ID
+            const generateOrderId = await getOrderId(total, panCard)
+            if (!generateOrderId.success) {
+                throw new Error(generateOrderId.message)
+            }
+
+            const order_id = generateOrderId.order_id
+
+            // Razorpay options
+            const razOption = {
+                "key": process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                "amount": total * 100, // Convert to paise
+                "currency": "INR",
+                "name": "M.K. Jewellers",
+                "description": "Payment for jewelry order",
+                "image": "https://res.cloudinary.com/dxh3hcxav/image/upload/v1766064001/mk_logo_udntp5.webp",
+                "order_id": order_id,
+                "method": {
+                    "netbanking": true,
+                    "card": true,
+                    "upi": true,
+                    "wallet": true
+                },
+                "handler": async function (response) {
+                    // Payment successful - save order
+                    setSavingOrder(true)
+                    try {
+                        // Prepare cart items with all required fields
+                        const cartItems = cart.products.map((item) => ({
+                            productId: item.productId,
+                            variantId: item.variantId,
+                            name: item.name,
+                            weight: item.weight,
+                            purity: item.purity || '',
+                            size: item.size || null,
+                            length: item.length || null,
+                            color: item.color || null,
+                            qty: item.qty,
+                            price: item.price,
+                            category: item.category || '',
+                            subcategory: item.subcategory || '',
+                            media: item.media || null
+                        }))
+
+                        const orderData = {
+                            userId: auth.id,
+                            email: auth.email,
+                            phone: auth.phone,
+                            address: auth.address || '{}',
+                            panCard: panCard,
+                            total: total,
+                            cartItems: cartItems,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature
+                        }
+
+                        const { data: paymentResponseData } = await axios.post(API_PAYMENT_SAVE_ORDER, orderData)
+
+                        if (paymentResponseData.success) {
+                            showToast('success', paymentResponseData.message)
+                            dispatch(clearCart())
+                            router.push(WEBSITE_ORDER_DETAILS(response.razorpay_order_id))
+                        } else {
+                            showToast('error', paymentResponseData.message)
+                        }
+                    } catch (error) {
+                        showToast('error', error.response?.data?.message || 'Failed to save order')
+                    } finally {
+                        setSavingOrder(false)
+                    }
+                },
+                "prefill": {
+                    "name": auth.name,
+                    "email": auth.email,
+                    "contact": auth.phone
+                },
+                "theme": {
+                    "color": "#7c3aed"
+                }
+            }
+
+            // Initialize Razorpay
+            const rzp = new window.Razorpay(razOption)
+
+            rzp.on('payment.failed', function (response) {
+                showToast('error', response.error.description || 'Payment failed')
+                setPlacingOrder(false)
+            })
+
+            rzp.open()
+
+        } catch (error) {
+            showToast('error', error.message || 'Failed to initiate payment')
+        } finally {
+            setPlacingOrder(false)
+        }
+    }
+
+    const handleProceedToPayment = () => {
+        if (!panCard || panError) {
+            showToast('error', 'Please enter a valid PAN card number')
+            return
+        }
+        placeOrder()
     }
 
     return (
@@ -223,12 +374,24 @@ const CheckoutPage = () => {
                                     <div className='space-y-2'>
                                         <h3 className='font-semibold text-lg'>Total Payable</h3>
                                         <p className='text-2xl font-bold text-primary'>
-                                            {subtotal.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
+                                            {total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
                                         </p>
                                     </div>
 
-                                    <Button className='w-full cursor-pointer' size='lg'>
-                                        PROCEED TO PAYMENT
+                                    <Button
+                                        className='w-full cursor-pointer'
+                                        size='lg'
+                                        onClick={handleProceedToPayment}
+                                        disabled={!!panError || !panCard || placingOrder || savingOrder}
+                                    >
+                                        {placingOrder || savingOrder ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                {savingOrder ? 'Saving Order...' : 'Processing...'}
+                                            </>
+                                        ) : (
+                                            'PROCEED TO PAYMENT'
+                                        )}
                                     </Button>
 
                                     <Separator />
@@ -266,6 +429,7 @@ const CheckoutPage = () => {
                         </div>
                     </div>
                 </div>
+                <Script src='https://checkout.razorpay.com/v1/checkout.js' />
             </div>
         </div>
     )

@@ -28,6 +28,9 @@ model User {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  // Relations
+  orders          Order[]
+
   @@map("user")
 }
 
@@ -148,6 +151,22 @@ enum Gender {
   WOMEN
 }
 
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 
 model Product {
   id              String       @id @default(uuid())
@@ -210,5 +229,68 @@ model MetalRate {
   
   @@unique([categoryName, purity], map: "idx_metal_rates_unique")
   @@map("metal_rates")
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  userId        String?       // Optional for guest checkout
+  email         String
+  phone         String
+  address       String        // JSON string with address details
+  panCard       String        // PAN card for tax compliance
+  total         Decimal       @db.Decimal(10, 2) // Total amount
+  paymentId     String?       // Razorpay payment ID
+  orderId       String        @unique // Razorpay order ID
+  paymentStatus PaymentStatus @default(PENDING)
+  orderStatus   OrderStatus   @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  user     User?          @relation(fields: [userId], references: [id])
+  products OrderProduct[]
+
+  @@map("orders")
+  @@index([userId], map: "idx_orders_user_id")
+  @@index([orderId], map: "idx_orders_order_id")
+  @@index([createdAt], map: "idx_orders_created_at")
+}
+
+model OrderProduct {
+  id            String   @id @default(uuid())
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  // Product Reference (for linking back to original product)
+  productId     String
+  variantId     String
+  
+  // Product Snapshot (prices at time of purchase)
+  name          String
+  weight        Float
+  purity        String   // e.g., "22K", "24K", "92.5"
+  size          String?  // Optional - for rings
+  length        String?  // Optional - for chains/mangalsutra
+  color         String?  // Metal color/finish
+  
+  // Pricing Details
+  qty           Int
+  unitPrice     Float    // Price per unit at time of purchase
+  totalPrice    Float    // qty * unitPrice
+  metalRate     Float?   // Metal rate per gram at time of purchase
+  
+  // Category Information (for reporting)
+  category      String
+  subcategory   String
+  
+  // Product Image
+  media         String?  // Product image URL
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("order_products")
+  @@index([orderId], map: "idx_order_products_order_id")
+  @@index([productId], map: "idx_order_products_product_id")
 }
 

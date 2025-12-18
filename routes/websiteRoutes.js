@@ -31,6 +31,7 @@ export const API_AUTH_RESET_PASSWORD = "/api/auth/reset-password"
 
 // User API
 export const API_USER_UPDATE_PROFILE = "/api/user/update-profile"
+export const API_USER_ORDERS = "/api/user/get-user-orders"
 
 // Category API
 export const API_CATEGORY_GET_FEATURED = "/api/category/get-featured-categories"
@@ -40,3 +41,10 @@ export const API_SUBCATEGORY_GET_ALL = "/api/subcategory/get-all"
 
 // Product API
 export const API_PRODUCT_DETAILS = (slug) => `/api/product/details/${slug}`
+
+// Payment API
+export const API_PAYMENT_GET_ORDER_ID = "/api/payment/get-order-id"
+export const API_PAYMENT_SAVE_ORDER = "/api/payment/save-order"
+
+// Order API
+export const API_ORDER_DETAILS = (order_id) => `/api/order/details/${order_id}`
