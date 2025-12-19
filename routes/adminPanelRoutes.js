@@ -35,6 +35,9 @@ export const ADMIN_PRODUCT_EDIT = (id) => id ? `/admin/product/edit/${id}` : ''
 // Customer route 
 export const ADMIN_CUSTOMERS_SHOW = '/admin/customers'
 
+// Orders route
+export const ADMIN_ORDERS_SHOW = '/admin/orders'
+
 // ============================================
 // API ROUTES (Backend Endpoints)
 // ============================================

@@ -36,6 +36,7 @@ const MetalRatesPage = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['metalRates'])
+            queryClient.invalidateQueries(['cart-prices']) // Invalidate cart prices to reflect new rates
             showToast('success', 'Metal rates updated successfully!')
             setEditingRates({})
         },

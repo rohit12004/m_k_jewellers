@@ -102,26 +102,53 @@ const Datatable = ({
                 filename: 'csv-data'
             })
 
-            let rowData
-
-            const flattenCategory = (row) => {
-                if (row.category) {
-                    const { category, ...rest } = row
-                    return { ...rest, categoryName: category?.name || '' }
-                }
-                return row // no category field, return as-is
-            }
+            let rawData
 
             if (Object.keys(rowSelection).length > 0) {
                 // export only selected rows  
-                rowData = selectedRows.map((row) => flattenCategory(row.original))
+                rawData = selectedRows.map((row) => row.original)
             } else {
                 // export all data  
                 const { data: response } = await axios.get(exportEndpoint)
                 if (!response.success) throw new Error(response.message)
-
-                rowData = response.data.map(flattenCategory)
+                rawData = response.data
             }
+
+            // Extract only the columns defined in columnsConfig
+            const rowData = rawData.map(row => {
+                const extractedRow = {}
+
+                columnsConfig.forEach(column => {
+                    const header = column.header
+                    let value
+
+                    // Get value using accessorKey or accessorFn
+                    if (column.accessorFn) {
+                        value = column.accessorFn(row)
+                    } else if (column.accessorKey) {
+                        value = row[column.accessorKey]
+                    } else if (column.id) {
+                        // For custom columns with id, try accessorFn first
+                        value = column.accessorFn ? column.accessorFn(row) : ''
+                    }
+
+                    // Format the value
+                    if (value === null || value === undefined) {
+                        extractedRow[header] = ''
+                    } else if (value instanceof Date) {
+                        extractedRow[header] = value.toLocaleDateString('en-IN')
+                    } else if (typeof value === 'object' && !Array.isArray(value)) {
+                        // If still an object, convert to string
+                        extractedRow[header] = JSON.stringify(value)
+                    } else if (Array.isArray(value)) {
+                        extractedRow[header] = value.join(', ')
+                    } else {
+                        extractedRow[header] = value
+                    }
+                })
+
+                return extractedRow
+            })
 
             const csv = generateCsv(csvConfig)(rowData)
             download(csvConfig)(csv)
@@ -232,9 +259,9 @@ const Datatable = ({
             </>
         ),
 
-        enableRowActions: true,
+        enableRowActions: !!createAction,
         positionActionsColumn: 'last',
-        renderRowActionMenuItems: ({ row }) => createAction(row, deleteType, handleDelete),
+        renderRowActionMenuItems: createAction ? ({ row }) => createAction(row, deleteType, handleDelete) : undefined,
 
         renderTopToolbarCustomActions: ({ table }) => (
             <Tooltip>

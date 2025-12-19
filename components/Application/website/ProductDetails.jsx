@@ -119,7 +119,7 @@ const ProductDetails = ({
             return
         }
 
-        // Prepare cart item data
+        // Prepare cart item data (NO PRICE - Industry standard)
         const cartItem = {
             productId: product.id,
             variantId: currentVariant.id,
@@ -127,12 +127,13 @@ const ProductDetails = ({
             size: currentVariant.size || null,
             length: currentVariant.length || null,
             weight: currentVariant.weight || null,
+            purity: currentVariant.purity, // Needed for price calculation
             color: currentVariant.purity, // Using purity as color/variant identifier
-            price: currentVariant.calculatedPrice.finalPrice,
             media: media[0]?.secure_url || imgPlaceholder.src,
             qty: quantity,
             subcategory: product.subCategory?.name || null,
             category: product.category?.name || null
+            // NO PRICE - Calculated fresh on cart page
         }
 
         // Dispatch to Redux cart

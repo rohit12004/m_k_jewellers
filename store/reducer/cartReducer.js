@@ -10,7 +10,7 @@ const cartSlice = createSlice({
     initialState,
     reducers: {
         addToCart: (state, action) => {
-            const { productId, variantId, name, size, length, weight, color, price, media, qty, subcategory, category } = action.payload;
+            const { productId, variantId, name, size, length, weight, color, purity, media, qty, subcategory, category } = action.payload;
 
             // Check if product variant already exists in cart
             const existingProductIndex = state.products.findIndex(
@@ -21,7 +21,7 @@ const cartSlice = createSlice({
                 // Update quantity if product already exists
                 state.products[existingProductIndex].qty += qty;
             } else {
-                // Add new product to cart
+                // Add new product to cart (NO PRICE - Industry standard)
                 state.products.push({
                     productId,
                     variantId,
@@ -29,12 +29,13 @@ const cartSlice = createSlice({
                     size,
                     length,
                     weight,
+                    purity,
                     color,
-                    price,
                     media,
                     qty,
                     subcategory,
                     category
+                    // NO PRICE - Calculated fresh on demand
                 });
             }
 

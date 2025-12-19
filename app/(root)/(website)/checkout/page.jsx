@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/navigation'
+import { useQueryClient, useQuery, keepPreviousData } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,27 +22,54 @@ const CheckoutPage = () => {
     const cart = useSelector(store => store.cartStore)
     const router = useRouter()
     const dispatch = useDispatch()
+    const queryClient = useQueryClient()
 
-    const [subtotal, setSubtotal] = useState(0)
-    const [total, setTotal] = useState(0)
     const [panCard, setPanCard] = useState(auth?.panCard || '')
     const [panError, setPanError] = useState('')
     const [placingOrder, setPlacingOrder] = useState(false)
     const [savingOrder, setSavingOrder] = useState(false)
 
-    // Redirect to login if not authenticated
-    useEffect(() => {
-        if (!auth) {
-            router.push(WEBSITE_LOGIN)
-        }
-    }, [auth, router])
+    // Fetch fresh prices (will use cache from cart page if available)
+    const { data: cartWithPrices, isLoading: loadingPrices } = useQuery({
+        queryKey: ['cart-prices', cart.products],
+        queryFn: async () => {
+            const { data } = await axios.post('/api/cart/calculate-prices', {
+                cartItems: cart.products.map(item => ({
+                    productId: item.productId,
+                    variantId: item.variantId,
+                    qty: item.qty,
+                    weight: item.weight,
+                    purity: item.purity,
+                    category: item.category,
+                    subcategory: item.subcategory,
+                    color: item.color,
+                    size: item.size,
+                    length: item.length,
+                    media: item.media,
+                    name: item.name,
+                    price: 0
+                }))
+            })
+            return data.data.items
+        },
+        enabled: cart.products.length > 0,
+        staleTime: 1000 * 60 * 5, // 5 minute cache
+        refetchOnWindowFocus: true,
+        placeholderData: keepPreviousData
+    })
 
-    // Calculate subtotal
-    useEffect(() => {
-        const totalAmount = cart.products.reduce((sum, product) => sum + (product.price * product.qty), 0)
-        setSubtotal(totalAmount)
-        setTotal(totalAmount)
-    }, [cart])
+    // Calculate total from fresh prices
+    const total = cartWithPrices?.reduce((sum, item) => sum + item.totalPrice, 0) || 0
+    const subtotal = total
+
+    // Merge cart items with fresh prices
+    const cartProducts = cart.products.map(item => {
+        const priceData = cartWithPrices?.find(p => p.variantId === item.variantId)
+        return {
+            ...item,
+            price: priceData?.unitPrice || 0
+        }
+    })
 
     // Don't render anything if not authenticated
     if (!auth) {
@@ -82,6 +110,44 @@ const CheckoutPage = () => {
                 return
             }
 
+            // CRITICAL: Verify prices with backend BEFORE payment
+            // This prevents payment with stale prices
+            try {
+                const { data: priceCheckData } = await axios.post('/api/cart/calculate-prices', {
+                    cartItems: cartProducts.map(item => ({
+                        productId: item.productId,
+                        variantId: item.variantId,
+                        qty: item.qty,
+                        weight: item.weight,
+                        purity: item.purity,
+                        category: item.category,
+                        subcategory: item.subcategory,
+                        color: item.color,
+                        size: item.size,
+                        length: item.length,
+                        media: item.media,
+                        name: item.name,
+                        price: item.price // Current price from cache
+                    }))
+                })
+
+                const freshTotal = priceCheckData.data.items.reduce((sum, item) => sum + item.totalPrice, 0)
+
+                // Check if prices have changed (tolerance of ₹10)
+                if (Math.abs(freshTotal - total) > 10) {
+                    // Prices changed! Invalidate cache and show notification
+                    queryClient.invalidateQueries(['cart-prices'])
+                    showToast('info', 'Gold/Silver rates have been updated. Please review the revised prices to continue.')
+                    setPlacingOrder(false)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                    return
+                }
+            } catch (error) {
+                showToast('error', 'Failed to verify prices. Please try again.')
+                setPlacingOrder(false)
+                return
+            }
+
             // Get Razorpay order ID
             const generateOrderId = await getOrderId(total, panCard)
             if (!generateOrderId.success) {
@@ -109,8 +175,8 @@ const CheckoutPage = () => {
                     // Payment successful - save order
                     setSavingOrder(true)
                     try {
-                        // Prepare cart items with all required fields
-                        const cartItems = cart.products.map((item) => ({
+                        // Prepare cart items with all required fields (including prices)
+                        const cartItems = cartProducts.map((item) => ({
                             productId: item.productId,
                             variantId: item.variantId,
                             name: item.name,
@@ -120,7 +186,7 @@ const CheckoutPage = () => {
                             length: item.length || null,
                             color: item.color || null,
                             qty: item.qty,
-                            price: item.price,
+                            price: item.price, // Now has the fresh price
                             category: item.category || '',
                             subcategory: item.subcategory || '',
                             media: item.media || null
@@ -142,6 +208,9 @@ const CheckoutPage = () => {
                         const { data: paymentResponseData } = await axios.post(API_PAYMENT_SAVE_ORDER, orderData)
 
                         if (paymentResponseData.success) {
+                            // Invalidate user orders cache to show new order instantly
+                            queryClient.invalidateQueries({ queryKey: ['user-orders'] })
+
                             showToast('success', paymentResponseData.message)
                             dispatch(clearCart())
                             router.push(WEBSITE_ORDER_DETAILS(response.razorpay_order_id))
@@ -149,7 +218,23 @@ const CheckoutPage = () => {
                             showToast('error', paymentResponseData.message)
                         }
                     } catch (error) {
-                        showToast('error', error.response?.data?.message || 'Failed to save order')
+                        const errorMessage = error.response?.data?.message || 'Failed to save order'
+
+                        // Check if it's a price mismatch error
+                        if (errorMessage.includes('Price verification failed') ||
+                            errorMessage.includes('Total amount mismatch') ||
+                            errorMessage.includes('refresh')) {
+
+                            // Invalidate cart prices cache to force fresh fetch
+                            queryClient.invalidateQueries(['cart-prices'])
+
+                            showToast('error', '⚠️ Prices have changed! Please review the updated prices and try again.')
+
+                            // Optionally scroll to top to show updated prices
+                            window.scrollTo({ top: 0, behavior: 'smooth' })
+                        } else {
+                            showToast('error', errorMessage)
+                        }
                     } finally {
                         setSavingOrder(false)
                     }
@@ -346,7 +431,7 @@ const CheckoutPage = () => {
 
                                     {/* Product List */}
                                     <div className='space-y-3 max-h-64 overflow-y-auto'>
-                                        {cart.products.map((product) => (
+                                        {cartProducts.map((product) => (
                                             <div key={product.variantId} className='flex gap-3'>
                                                 <Image
                                                     src={product.media || imgPlaceholder.src}
@@ -361,7 +446,11 @@ const CheckoutPage = () => {
                                                         {product.color} {product.weight ? `(${product.weight}g)` : ''}
                                                     </p>
                                                     <p className='text-sm font-semibold mt-1'>
-                                                        {product.qty} × {product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
+                                                        {product.price > 0 ? (
+                                                            `${product.qty} × ${product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}`
+                                                        ) : (
+                                                            <span className="text-gray-400">Loading...</span>
+                                                        )}
                                                     </p>
                                                 </div>
                                             </div>

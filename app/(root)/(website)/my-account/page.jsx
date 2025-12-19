@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -25,8 +26,6 @@ const MyAccount = () => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const [ordersData, setOrdersData] = useState(null)
-  const [loadingOrders, setLoadingOrders] = useState(true)
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     defaultValues: {
@@ -40,6 +39,28 @@ const MyAccount = () => {
       postalCode: ''
     }
   })
+
+  // Fetch user orders using TanStack Query
+  const {
+    data: ordersResponse,
+    isLoading: loadingOrders,
+    isError: ordersError,
+    refetch: refetchOrders
+  } = useQuery({
+    queryKey: ['user-orders', auth?.id],
+    queryFn: async () => {
+      const { data } = await axios.get(API_USER_ORDERS)
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to fetch orders')
+      }
+      return data.data
+    },
+    enabled: !!auth, // Only fetch when user is authenticated
+    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+  })
+
+  const ordersData = ordersResponse || null
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -65,25 +86,8 @@ const MyAccount = () => {
           setValue('street', auth.address || '')
         }
       }
-
-      // Fetch user orders
-      fetchOrders()
     }
   }, [auth, router, setValue, isLoggingOut])
-
-  const fetchOrders = async () => {
-    try {
-      setLoadingOrders(true)
-      const { data } = await axios.get(API_USER_ORDERS)
-      if (data.success) {
-        setOrdersData(data.data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch orders:', error)
-    } finally {
-      setLoadingOrders(false)
-    }
-  }
 
   const onSubmit = async (data) => {
     try {

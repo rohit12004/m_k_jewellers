@@ -17,19 +17,54 @@ import { WEBSITE_CART, WEBSITE_CHECKOUT } from "@/routes/websiteRoutes";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { showToast } from "@/lib/showToast";
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
+import axios from 'axios'
 
 const Cart = () => {
     const [open, setOpen] = useState(false)
-    const [subtotal, setSubTotal] = useState(0)
 
     const cart = useSelector(store => store.cartStore)
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        const cartProducts = cart.products
-        const totalAmount = cartProducts.reduce((sum, product) => sum + (product.price * product.qty), 0)
-        setSubTotal(totalAmount)
-    }, [cart])
+    // Fetch fresh prices when cart opens
+    const { data: cartWithPrices } = useQuery({
+        queryKey: ['cart-prices', cart.products],
+        queryFn: async () => {
+            const { data } = await axios.post('/api/cart/calculate-prices', {
+                cartItems: cart.products.map(item => ({
+                    productId: item.productId,
+                    variantId: item.variantId,
+                    qty: item.qty,
+                    weight: item.weight,
+                    purity: item.purity,
+                    category: item.category,
+                    subcategory: item.subcategory,
+                    color: item.color,
+                    size: item.size,
+                    length: item.length,
+                    media: item.media,
+                    name: item.name,
+                    price: 0
+                }))
+            })
+            return data.data.items
+        },
+        enabled: cart.products.length > 0 && open, // Only fetch when cart is open
+        staleTime: 1000 * 60 * 5, // 5 minute cache
+        refetchOnWindowFocus: true,
+        placeholderData: keepPreviousData
+    })
+
+    // Merge cart items with fresh prices
+    const cartProducts = cart.products.map(item => {
+        const priceData = cartWithPrices?.find(p => p.variantId === item.variantId)
+        return {
+            ...item,
+            price: priceData?.unitPrice || 0
+        }
+    })
+
+    const subtotal = cartProducts.reduce((sum, product) => sum + (product.price * product.qty), 0)
 
     return (
         <Sheet open={open} onOpenChange={setOpen} >
@@ -50,7 +85,7 @@ const Cart = () => {
                             Your Cart Is Empty.
                         </div>}
 
-                        {cart.products?.map(product => (
+                        {cartProducts?.map(product => (
                             <div key={product.variantId} className="flex items-center gap-3 sm:gap-4 mb-2 pb-2 border-b last:border-b-0">
                                 {/* Product Image */}
                                 <div className="flex-shrink-0">
@@ -80,7 +115,11 @@ const Cart = () => {
                                         </p>
                                     )}
                                     <p className="text-sm sm:text-base font-semibold">
-                                        {product.qty} × {product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
+                                        {product.price > 0 ? (
+                                            `${product.qty} × ${product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}`
+                                        ) : (
+                                            <span className="text-gray-400">Loading price...</span>
+                                        )}
                                     </p>
                                 </div>
 
