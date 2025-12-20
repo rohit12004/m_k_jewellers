@@ -130,7 +130,11 @@ const MyAccount = () => {
       if (!logoutResponse.success) {
         throw new Error(logoutResponse.message)
       }
+
+      // Clear Redux state (auth is not persisted, so this is all we need)
       dispatch(logout())
+
+
       showToast('success', logoutResponse.message)
       router.push(WEBSITE_HOME)
     } catch (error) {

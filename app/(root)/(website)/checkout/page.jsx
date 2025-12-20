@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 import { WEBSITE_LOGIN, WEBSITE_ORDER_DETAILS, API_PAYMENT_GET_ORDER_ID, API_PAYMENT_SAVE_ORDER } from '@/routes/websiteRoutes'
 import { clearCart } from '@/store/reducer/cartReducer'
 import Image from 'next/image'
@@ -28,6 +29,7 @@ const CheckoutPage = () => {
     const [panError, setPanError] = useState('')
     const [placingOrder, setPlacingOrder] = useState(false)
     const [savingOrder, setSavingOrder] = useState(false)
+    const hasRedirected = React.useRef(false)
 
     // Fetch fresh prices (will use cache from cart page if available)
     const { data: cartWithPrices, isLoading: loadingPrices } = useQuery({
@@ -52,7 +54,7 @@ const CheckoutPage = () => {
             })
             return data.data.items
         },
-        enabled: cart.products.length > 0,
+        enabled: cart.products.length > 0 && !!auth,
         staleTime: 1000 * 60 * 5, // 5 minute cache
         refetchOnWindowFocus: true,
         placeholderData: keepPreviousData
@@ -71,9 +73,31 @@ const CheckoutPage = () => {
         }
     })
 
-    // Don't render anything if not authenticated
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!auth && !hasRedirected.current) {
+            hasRedirected.current = true
+            showToast('info', 'Please login to continue with checkout')
+            router.push(WEBSITE_LOGIN)
+        }
+    }, [auth, router])
+
+    // Show loading state while redirecting
     if (!auth) {
-        return null
+        return (
+            <div className='min-h-screen bg-gray-50 dark:bg-gray-50 py-8'>
+                <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+                    <div className='grid lg:grid-cols-5 gap-8'>
+                        <div className='lg:col-span-3 space-y-4'>
+                            <Skeleton className='h-64 w-full' />
+                        </div>
+                        <div className='lg:col-span-2'>
+                            <Skeleton className='h-96 w-full' />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     // Get Razorpay order ID from backend

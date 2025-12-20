@@ -11,9 +11,11 @@ const rootReducer = combineReducers({
 })
 
 
+
 const persistConfig = {
     key: 'root',
-    storage: localStorage
+    storage: localStorage,
+    whitelist: ['cartStore']  // Only persist cart, not auth
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
