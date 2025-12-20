@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
-import { WEBSITE_LOGIN, WEBSITE_ORDER_DETAILS, API_PAYMENT_GET_ORDER_ID, API_PAYMENT_SAVE_ORDER } from '@/routes/websiteRoutes'
+import { WEBSITE_LOGIN, WEBSITE_ORDER_DETAILS, API_PAYMENT_GET_ORDER_ID, API_PAYMENT_SAVE_ORDER, USER_DASHBOARD } from '@/routes/websiteRoutes'
 import { clearCart } from '@/store/reducer/cartReducer'
 import Image from 'next/image'
 import imgPlaceholder from '@/public/assets/img-placeholder.jpg'
@@ -25,7 +25,7 @@ const CheckoutPage = () => {
     const dispatch = useDispatch()
     const queryClient = useQueryClient()
 
-    const [panCard, setPanCard] = useState(auth?.panCard || '')
+    const [panCard, setPanCard] = useState('') // Always start empty - user must enter PAN each time
     const [panError, setPanError] = useState('')
     const [placingOrder, setPlacingOrder] = useState(false)
     const [savingOrder, setSavingOrder] = useState(false)
@@ -73,12 +73,21 @@ const CheckoutPage = () => {
         }
     })
 
-    // Redirect to login if not authenticated
+    // Helper function to check if profile is complete
+    const isProfileComplete = () => {
+        return auth?.phone && auth?.address
+    }
+
+    // Redirect to login if not authenticated, or to my-account if profile incomplete
     useEffect(() => {
         if (!auth && !hasRedirected.current) {
             hasRedirected.current = true
             showToast('info', 'Please login to continue with checkout')
             router.push(WEBSITE_LOGIN)
+        } else if (auth && !isProfileComplete() && !hasRedirected.current) {
+            hasRedirected.current = true
+            showToast('info', 'Please complete your profile first')
+            router.push(USER_DASHBOARD)
         }
     }, [auth, router])
 

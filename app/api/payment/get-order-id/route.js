@@ -1,8 +1,8 @@
 import { catchError, response } from "@/lib/helperFunction";
 import { getUserSession } from "@/lib/authentication";
-import { updateUserPanCard } from "@/lib/order.service";
 import { z } from "zod";
 import Razorpay from "razorpay";
+import prisma from "@/lib/prisma";
 
 export async function POST(request) {
     try {
@@ -21,7 +21,6 @@ export async function POST(request) {
                 .max(10000000, 'Amount exceeds maximum limit'), // ₹1 Crore max
             panCard: z.string()
                 .regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'Invalid PAN card format')
-                .optional()
         })
 
         const validate = schema.safeParse(payload)
@@ -32,16 +31,13 @@ export async function POST(request) {
 
         const { amount, panCard } = validate.data
 
-        // Update user's PAN card if provided and not already set
-        if (panCard) {
-            try {
-                await updateUserPanCard(session.userId, panCard)
-            } catch (error) {
-                console.error('PAN card update failed during order ID generation:', error)
-                // Don't fail order ID generation if PAN update fails
-            }
-        }
+        // Update user's PAN card in user table (before payment)
+        await prisma.user.update({
+            where: { id: session.userId },
+            data: { panCard: panCard }
+        })
 
+        // Create Razorpay order
         const razInstance = new Razorpay({
             key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
             key_secret: process.env.RAZORPAY_KEY_SECRET

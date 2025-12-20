@@ -3,6 +3,8 @@ import { getUserSession } from "@/lib/authentication";
 import { updateUserProfile } from "@/lib/user.service";
 import { zSchema } from "@/lib/zodSchema";
 import { z } from "zod";
+import { SignJWT } from "jose";
+import { cookies } from "next/headers";
 
 export async function PUT(request) {
     try {
@@ -35,6 +37,34 @@ export async function PUT(request) {
             name,
             phone,
             address
+        })
+
+        // Update session cookie with fresh user data
+        const loggedInUserData = {
+            id: updatedUser.id,
+            role: updatedUser.role,
+            name: updatedUser.name,
+            email: updatedUser.email,
+            phone: updatedUser.phone,
+            address: updatedUser.address,
+            avatarUrl: updatedUser.avatarUrl,
+        }
+
+        const secret = new TextEncoder().encode(process.env.SECRET_KEY)
+        const token = await new SignJWT(loggedInUserData)
+            .setIssuedAt()
+            .setExpirationTime('24h')
+            .setProtectedHeader({ alg: 'HS256' })
+            .sign(secret)
+
+        const cookieStore = await cookies()
+        cookieStore.set({
+            name: "access_token",
+            value: token,
+            httpOnly: process.env.NODE_ENV === 'production',
+            path: '/',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
         })
 
         return response(true, 200, 'Profile updated successfully.', updatedUser)
