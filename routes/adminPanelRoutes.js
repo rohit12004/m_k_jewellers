@@ -37,6 +37,7 @@ export const ADMIN_CUSTOMERS_SHOW = '/admin/customers'
 
 // Orders route
 export const ADMIN_ORDERS_SHOW = '/admin/orders'
+export const ADMIN_ORDERS_DETAIL = (id) => id ? `/admin/orders/${id}` : ''
 
 // ============================================
 // API ROUTES (Backend Endpoints)

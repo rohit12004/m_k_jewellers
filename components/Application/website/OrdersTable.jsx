@@ -1,6 +1,9 @@
 import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { Eye } from 'lucide-react'
 
 const OrdersTable = ({ orders }) => {
     const getStatusColor = (status) => {
@@ -35,7 +38,7 @@ const OrdersTable = ({ orders }) => {
     }
 
     return (
-        <div className='rounded-md border'>
+        <div className='rounded-md border overflow-x-auto'>
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -45,6 +48,7 @@ const OrdersTable = ({ orders }) => {
                         <TableHead>Amount</TableHead>
                         <TableHead>Payment Status</TableHead>
                         <TableHead>Order Status</TableHead>
+                        <TableHead className='text-right'>Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -63,6 +67,13 @@ const OrdersTable = ({ orders }) => {
                                 <Badge className={getOrderStatusColor(order.orderStatus)}>
                                     {order.orderStatus}
                                 </Badge>
+                            </TableCell>
+                            <TableCell className='text-right'>
+                                <Link href={`/order-details/${order.orderId}`}>
+                                    <Button variant='outline' size='sm' className='gap-1'>
+                                        <Eye size={16} /> View
+                                    </Button>
+                                </Link>
                             </TableCell>
                         </TableRow>
                     ))}
