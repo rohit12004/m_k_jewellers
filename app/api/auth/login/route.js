@@ -34,7 +34,19 @@ export async function POST(request) {
             return response(false, 404, 'Invalid Login Credentails.')
         }
 
-        // check if email is verified
+        // check if user has a password (prevent bcrypt error with undefined)
+        if (!getUser.password) {
+            return response(false, 404, 'Invalid Login Credentails.')
+        }
+
+        // password comparison - check this BEFORE email verification
+        const isPasswordVerified = await comparePassword(password, getUser.password)
+
+        if (!isPasswordVerified) {
+            return response(false, 404, 'Invalid Login Credentails.')
+        }
+
+        // check if email is verified (only after password is correct)
         if (!getUser.isEmailVerified) {
             const secret = new TextEncoder().encode(process.env.SECRET_KEY);
 
@@ -48,13 +60,6 @@ export async function POST(request) {
                 email, emailVerificationLink(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/verify-email/${token}`))
 
             return response(false, 403, "Please verify your email to login. Verification link has been sent to your email.");
-        }
-
-        // password comparison
-        const isPasswordVerified = await comparePassword(password, getUser.password)
-
-        if (!isPasswordVerified) {
-            return response(false, 404, 'Invalid Login Credentails.')
         }
 
         // otp generation

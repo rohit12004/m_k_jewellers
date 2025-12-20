@@ -1,21 +1,34 @@
 'use client'
 import { Card, CardContent } from '@/components/ui/card'
 import axios from 'axios'
-import React, { use, useEffect, useState } from 'react'
+import React, { use, useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import verified from '@/public/assets/verified.jpg'
 import fail from '@/public/assets/fail.png'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { WEBSITE_HOME } from '@/routes/websiteRoutes'
+import { ADMIN_DASHBOARD } from '@/routes/adminPanelRoutes'
 import { toast } from "react-toastify"
+import { useDispatch } from 'react-redux'
+import { login } from '@/store/reducer/authReducer'
+import { useRouter } from 'next/navigation'
 
 const EmailVerificationLink = ({ params }) => {
   const { token } = use(params)
+  const dispatch = useDispatch()
+  const router = useRouter()
   const [isVerified, setisVerified] = useState(null) // null = not checked yet
+  const [userRole, setUserRole] = useState(null)
+  const hasVerified = useRef(false) // Prevent duplicate verification
 
   useEffect(() => {
+    // Prevent duplicate verification in React Strict Mode
+    if (hasVerified.current) return
+
     const verify = async () => {
+      hasVerified.current = true
+
       try {
         const { data: VerificationResponse } = await axios.post(
           '/api/auth/verify-email',
@@ -24,12 +37,26 @@ const EmailVerificationLink = ({ params }) => {
 
         if (VerificationResponse.success) {
           setisVerified(true)
-          toast.success("Email verified successfully 🎉", {
+          setUserRole(VerificationResponse.data.role)
+
+          // Dispatch login action to update Redux store
+          dispatch(login(VerificationResponse.data))
+
+          toast.success("Email verified successfully! You are now logged in 🎉", {
             autoClose: 4000,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
           })
+
+          // Redirect after 2 seconds
+          setTimeout(() => {
+            if (VerificationResponse.data.role === 'admin') {
+              router.push(ADMIN_DASHBOARD)
+            } else {
+              router.push(WEBSITE_HOME)
+            }
+          }, 2000)
         } else {
           setisVerified(false)
           toast.error("Email verification failed ❌", {
@@ -51,7 +78,7 @@ const EmailVerificationLink = ({ params }) => {
     }
 
     verify()
-  }, [token])
+  }, [token, dispatch, router])
 
   return (
     <Card className="w-[400px]">
@@ -69,10 +96,15 @@ const EmailVerificationLink = ({ params }) => {
             </div>
             <div className="text-center">
               <h1 className="text-2xl font-bold mt-2 mb-2">
-                Email Verification Successful !!
+                Email Verified Successfully!
               </h1>
+              <p className="text-sm text-gray-600 mb-4">
+                You are now logged in. Redirecting to {userRole === 'admin' ? 'dashboard' : 'homepage'}...
+              </p>
               <Button asChild>
-                <Link href={WEBSITE_HOME}>Continue Shopping</Link>
+                <Link href={userRole === 'admin' ? ADMIN_DASHBOARD : WEBSITE_HOME}>
+                  Continue to {userRole === 'admin' ? 'Dashboard' : 'Shopping'}
+                </Link>
               </Button>
             </div>
           </div>

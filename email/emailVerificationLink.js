@@ -1,5 +1,5 @@
 export const emailVerificationLink = (link) => {
-  const html = `
+    const html = `
 <!DOCTYPE html>
 <html lang="en" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
 
@@ -187,10 +187,8 @@ export const emailVerificationLink = (link) => {
                                                             <td class="pad">
                                                                 <div
                                                                     style="color:#393d47;font-family:Tahoma,Verdana,Segoe,sans-serif;font-size:14px;line-height:150%;text-align:center;mso-line-height-alt:21px;">
-                                                                    <p style="margin: 0; word-break: break-word;">If the button above doesn’t work, you can copy and
-                                                                        paste the following link into your browser:</p>
-                                                                      
-                                                                        <a href="${link}">${link}</a>
+                                                                    <p style="margin: 0; word-break: break-word;">If the button above doesn't work, you can 
+                                                                        <a href="${link}" style="color: #7747FF; text-decoration: underline;">click here to verify your email</a>.</p>
                                                                 </div>
                                                             </td>
                                                         </tr>
@@ -231,5 +229,5 @@ export const emailVerificationLink = (link) => {
 
       `;
 
-  return html;
+    return html;
 };
