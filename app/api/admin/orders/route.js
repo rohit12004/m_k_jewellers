@@ -18,11 +18,30 @@ export async function GET(request) {
         const filters = JSON.parse(searchParams.get("filters") || "[]");
         const globalFilter = searchParams.get("globalFilter") || "";
         const sorting = JSON.parse(searchParams.get("sorting") || "[]");
+        const todayOnly = searchParams.get("today") === "true";
 
         // =====================================
         // ✅ Base match query builder
         // =====================================
         let matchQuery = { AND: [] };
+
+        // =====================================
+        // ✅ Filter by today's date if requested
+        // =====================================
+        if (todayOnly) {
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+
+            const endOfDay = new Date();
+            endOfDay.setHours(23, 59, 59, 999);
+
+            matchQuery.AND.push({
+                createdAt: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            });
+        }
 
         // =====================================
         // ✅ Global Search

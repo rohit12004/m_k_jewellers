@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { FiExternalLink } from 'react-icons/fi'
 
 const RecentOrders = () => {
-    const { data: ordersData, isLoading } = useFetch('/api/admin/orders?page=1&pageSize=5')
+    const { data: ordersData, isLoading } = useFetch('/api/admin/orders?page=1&pageSize=5&today=true')
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-IN', {
