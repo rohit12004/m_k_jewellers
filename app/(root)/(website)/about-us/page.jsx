@@ -2,7 +2,7 @@ import React from 'react'
 import Image from 'next/image'
 import mkLogo from '@/public/assets/mk_logo.jpg'
 import mkShop from '@/public/assets/MK-SHOP.jpg'
-import { Mail, Phone, Award, Heart, Shield, Star, Sparkles, Crown } from 'lucide-react'
+import { Mail, Phone, Award, Heart, Shield, Star, Sparkles, Crown, MapPin } from 'lucide-react'
 
 const page = () => {
     return (
@@ -199,6 +199,81 @@ const page = () => {
                     <p className="text-center text-amber-600 font-medium mt-6 text-sm">
                         Your trust is our greatest achievement.
                     </p>
+                </div>
+            </section>
+
+            {/* Store Location */}
+            <section className="py-8 sm:py-10 bg-gray-50">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-8">
+                        <div className="inline-flex items-center justify-center w-14 h-14 bg-amber-100 rounded-full mb-3">
+                            <MapPin className="w-7 h-7 text-amber-600" />
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">Visit Our Store</h2>
+                        <p className="text-base text-gray-600">
+                            Come experience our exquisite collection in person
+                        </p>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+                        {/* Google Map */}
+                        <div className="relative w-full h-[300px] sm:h-[400px]">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d238.47842808494946!2d73.29610881544956!3d16.99151961052719!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bea0d3543b6f9d7%3A0xb1ed93e29e478fae!2sARIHANT%20MALL!5e0!3m2!1sen!2sin!4v1766301786231!5m2!1sen!2sin"
+                                width="100%"
+                                height="100%"
+                                style={{ border: 0 }}
+                                allowFullScreen=""
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                className="absolute inset-0"
+                            ></iframe>
+                        </div>
+
+                        {/* Store Details */}
+                        <div className="p-6 sm:p-8">
+                            <div className="grid md:grid-cols-2 gap-6 items-center">
+                                {/* Left: Address and Details */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                                            MK Jewellers
+                                        </h3>
+                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                                            Arihant Mall, Main Road<br />
+                                            Ratnagiri, Maharashtra<br />
+                                            415612
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <div className="flex items-start gap-2">
+                                            <span className="text-gray-700 font-medium text-sm">Store timings:</span>
+                                            <span className="text-gray-600 text-sm">11:00 am - 10:00 pm</span>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <span className="text-gray-700 font-medium text-sm">Contact Number:</span>
+                                            <a href="tel:+919881339944" className="text-blue-600 hover:underline text-sm">
+                                                +91-9881339944
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right: Get Direction Button */}
+                                <div className="flex justify-start md:justify-end">
+                                    <a
+                                        href="https://www.google.com/maps/dir/?api=1&destination=Arihant+Mall+Ratnagiri+Maharashtra"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center justify-center px-8 py-3 bg-[#EF5350] hover:bg-[#E53935] text-white font-semibold rounded-md shadow-md hover:shadow-lg transition-all duration-200 text-sm sm:text-base uppercase tracking-wide"
+                                    >
+                                        Get Direction
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
