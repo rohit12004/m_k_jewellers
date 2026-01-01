@@ -3,11 +3,11 @@ import { findUserById, updateUserEmailVerifiedStatus } from "@/lib/user.service"
 import { jwtVerify, SignJWT } from "jose"
 import { cookies } from "next/headers"
 
-export async function POST(request){
-    try{
-        const {token} = await request.json()
+export async function POST(request) {
+    try {
+        const { token } = await request.json()
 
-        if(!token){
+        if (!token) {
             return response(false, 400, "Invalid or Missing Token")
         }
 
@@ -18,8 +18,12 @@ export async function POST(request){
 
         const user = await findUserById(userId)
 
-        if(!user){
-            return response(false,404,"User not found")
+        if (!user) {
+            return response(false, 404, "User not found")
+        }
+
+        if (user.isEmailVerified) {
+            return response(true, 200, "Email verified successfully", { isAlreadyVerified: true })
         }
 
         // Update email verification status
@@ -38,7 +42,7 @@ export async function POST(request){
 
         const sessionToken = await new SignJWT(loggedInUserData)
             .setIssuedAt()
-            .setExpirationTime('24h')
+            .setExpirationTime('30d') // 30 days for mobile app persistence
             .setProtectedHeader({ alg: 'HS256' })
             .sign(secret)
 
@@ -52,8 +56,8 @@ export async function POST(request){
             sameSite: 'lax',
         })
 
-        return response(true, 200, "Email verified successfully! You are now logged in.", loggedInUserData)
-    }catch(error){
+        return response(true, 200, "Email verified successfully! You are now logged in.", { ...loggedInUserData, token: sessionToken })
+    } catch (error) {
         return catchError(error)
     }
 }

@@ -32,7 +32,7 @@ export async function POST(request) {
         // 2️⃣ Check if user already exists
         const checkUser = await findUserByEmail(email); // using service function
         if (checkUser) {
-            return response(true, 409, "User Already Exists, Please Login");
+            return response(false, 409, "User Already Exists, Please Login");
         }
 
         // 3️⃣ Create new user (hashed password handled in service)
@@ -58,6 +58,10 @@ export async function POST(request) {
 
 
     } catch (error) {
-        catchError(error)
+        console.error("Register Error:", error);
+        if (error instanceof z.ZodError) {
+            return response(false, 400, "Validation Failed", error.errors);
+        }
+        return catchError(error)
     }
 }

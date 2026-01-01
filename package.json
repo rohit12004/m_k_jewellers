@@ -6,7 +6,11 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "mobile": "cd mobile && npx expo start",
+    "mobile:android": "cd mobile && npx expo run:android",
+    "mobile:ios": "cd mobile && npx expo run:ios",
+    "mobile:web": "cd mobile && npx expo start --web"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-react": "^11.0.0",

@@ -41,3 +41,11 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+# mobile
+/mobile/node_modules
+/mobile/.expo
+/mobile/*.jks
+/mobile/*.keystore
+/mobile/android/
+/mobile/ios/

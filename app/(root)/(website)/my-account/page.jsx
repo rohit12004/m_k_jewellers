@@ -63,10 +63,26 @@ const MyAccount = () => {
   const ordersData = ordersResponse || null
 
   // Redirect to login if not authenticated
+  // Handle Authentication & Restoration
   useEffect(() => {
-    if (!auth && !isLoggingOut) {
-      router.push(WEBSITE_LOGIN)
-    } else if (auth) {
+    // If not authenticated in Redux, try to fetch session from server (Middleware let us in, so cookie likely exists)
+    const checkSession = async () => {
+      if (!auth && !isLoggingOut) {
+        try {
+          const { data } = await axios.get('/api/auth/session');
+          if (data.success && data.data) {
+            dispatch(login(data.data)); // Restore Redux
+            return; // Stay on page
+          }
+          // If really no session, then redirect
+          router.push(WEBSITE_LOGIN)
+        } catch (error) {
+          router.push(WEBSITE_LOGIN)
+        }
+      }
+    }
+
+    if (auth) {
       // Pre-fill form with user data
       setValue('name', auth.name || '')
       setValue('email', auth.email || '')
@@ -86,8 +102,10 @@ const MyAccount = () => {
           setValue('street', auth.address || '')
         }
       }
+    } else {
+      checkSession();
     }
-  }, [auth, router, setValue, isLoggingOut])
+  }, [auth, router, setValue, isLoggingOut, dispatch])
 
   const onSubmit = async (data) => {
     try {

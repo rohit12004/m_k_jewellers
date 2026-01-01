@@ -12,7 +12,10 @@ import { HiMiniBars3 } from "react-icons/hi2";
 import logo from '@/public/assets/mk_logo.jpg'
 import Cart from './Cart'
 
+import { useRouter } from 'next/navigation'
+
 const HeaderClient = ({ categories = [] }) => {
+    const router = useRouter()
     const auth = useSelector(store => store.authStore.auth)
     const [isMobileMenu, setIsMobileMenu] = useState(false)
     const [isScrolled, setIsScrolled] = useState(false)
@@ -119,15 +122,15 @@ const HeaderClient = ({ categories = [] }) => {
 
                             {/* Account/Avatar */}
                             {!auth ? (
-                                <Link
-                                    href={WEBSITE_LOGIN}
-                                    className='p-2 rounded-full hover:bg-primary/10 transition-all duration-300 group'
+                                <div
+                                    onClick={() => router.push(WEBSITE_LOGIN)}
+                                    className='p-2 rounded-full hover:bg-primary/10 transition-all duration-300 group cursor-pointer'
                                 >
                                     <VscAccount
                                         className='text-gray-600 dark:text-gray-600 group-hover:text-primary transition-colors duration-300'
                                         size={22}
                                     />
-                                </Link>
+                                </div>
                             ) : (
                                 <Link
                                     href={USER_DASHBOARD}

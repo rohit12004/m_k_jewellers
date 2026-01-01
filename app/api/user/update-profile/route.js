@@ -53,7 +53,7 @@ export async function PUT(request) {
         const secret = new TextEncoder().encode(process.env.SECRET_KEY)
         const token = await new SignJWT(loggedInUserData)
             .setIssuedAt()
-            .setExpirationTime('24h')
+            .setExpirationTime('30d') // 30 days for mobile app persistence
             .setProtectedHeader({ alg: 'HS256' })
             .sign(secret)
 

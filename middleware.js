@@ -1,53 +1,129 @@
+// ... existing imports ...
 import { NextResponse } from "next/server"
 import { jwtVerify } from "jose"
 import { ADMIN_DASHBOARD } from "./routes/adminPanelRoutes"
 import { USER_DASHBOARD, WEBSITE_LOGIN } from "./routes/websiteRoutes"
 
-export async function middleware(request) {
-    try {
-        const pathname = request.nextUrl.pathname
-        const hasToken = request.cookies.has('access_token')
 
-        if (!hasToken) {
-            // if the user is not loggedin and trying to access a protected route, redirect to login page. 
-            if (!pathname.startsWith('/auth')) {
-                return NextResponse.redirect(new URL(WEBSITE_LOGIN, request.nextUrl))
+export async function middleware(request) {
+    const pathname = request.nextUrl.pathname
+
+    if (request.method === 'OPTIONS' && pathname.startsWith('/api')) {
+        const response = new NextResponse(null, { status: 200 })
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        return response
+    }
+
+    try {
+        let access_token;
+
+        // 1. Try to get token from cookies (Web)
+        if (request.cookies.has('access_token')) {
+            access_token = request.cookies.get('access_token').value;
+        }
+        // 2. Try to get token from Authorization header (Mobile/API)
+        else if (request.headers.get('Authorization')?.startsWith('Bearer ')) {
+            access_token = request.headers.get('Authorization').split(' ')[1];
+        }
+
+        // Helper to return 401/403 for API or Redirect for Web
+        const unauthorizedParams = (msg = "Unauthorized") => {
+            if (pathname.startsWith('/api')) {
+                return NextResponse.json({ success: false, message: msg }, { status: 401 });
             }
-            return NextResponse.next() // Allow access to auth routes if not logged in. 
+            return NextResponse.redirect(new URL(WEBSITE_LOGIN, request.nextUrl));
+        }
+
+        const forbiddenParams = (msg = "Forbidden", redirectUrl = WEBSITE_LOGIN) => {
+            if (pathname.startsWith('/api')) {
+                return NextResponse.json({ success: false, message: msg }, { status: 403 });
+            }
+            return NextResponse.redirect(new URL(redirectUrl, request.nextUrl));
+        }
+
+
+        if (!access_token) {
+            // Unprotected routes check
+            if (!pathname.startsWith('/auth') && !pathname.startsWith('/api/auth')) {
+                // But wait, public API routes (like products) should be accessible without token?
+                // The matcher at the bottom includes '/api/:path*'.
+                // We need to verify if the route REQUIRES auth. 
+                // For now, let's assume all /api routes in matcher require auth EXCEPT /api/auth/*
+
+                // If it is NOT an auth route, it needs a token
+                return unauthorizedParams("Please login to access this resource");
+            }
+            // Allow access to auth routes (login/register)
+            return addCorsHeaders(NextResponse.next(), request);
         }
 
         // verify token 
-        const access_token = request.cookies.get('access_token').value
         const { payload } = await jwtVerify(access_token, new TextEncoder().encode(process.env.SECRET_KEY))
-
         const role = payload.role
 
-        // prevent logged-in users from accessing auth routes 
-        if (pathname.startsWith('/auth')) {
+        // Block logged-in users from accessing auth pages (Web only mainly, API doesn't care much but good to block)
+        if (pathname.startsWith('/auth') || pathname.startsWith('/api/auth')) {
+            // Exception: Allow email verification page even if logged in
+            if (pathname.startsWith('/auth/verify-email')) {
+                return NextResponse.next();
+            }
+
+            if (pathname.startsWith('/api')) {
+                // Allow POST requests to auth endpoints even if logged in (e.g. switching accounts, or stale token)
+                // specifically for register/login/verify-otp/reset-password
+                if (request.method === 'POST') {
+                    return NextResponse.next();
+                }
+
+                // Allow PUT requests for reset-password routes (update password)
+                if (request.method === 'PUT' && pathname.startsWith('/api/auth/reset-password')) {
+                    return NextResponse.next();
+                }
+
+                // For other methods (GET, DELETE, etc.), block them or return JSON
+                return NextResponse.json({ success: false, message: "You are already logged in" }, { status: 400 });
+            }
             return NextResponse.redirect(new URL(role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD, request.nextUrl))
         }
 
-
-        // protect admin route  
+        // Protect Admin Routes
         if (pathname.startsWith('/admin') && role !== 'admin') {
-            return NextResponse.redirect(new URL(WEBSITE_LOGIN, request.nextUrl))
+            return forbiddenParams("Access denied: Admins only");
         }
 
+        // Protect Admin API Routes (if you have specific /api/admin paths)
+        // Adjust this if your admin APIs follow a specific pattern like /api/admin
+        // The current file doesn't explicitly show /api/admin checks but let's be safe if they exist.
 
-        // protect user route  
+        // Protect User Routes
         if (pathname.startsWith('/my-account') && role !== 'user') {
-            return NextResponse.redirect(new URL(WEBSITE_LOGIN, request.nextUrl))
+            return forbiddenParams("Access denied", WEBSITE_LOGIN);
         }
 
-        return NextResponse.next()
+        return addCorsHeaders(NextResponse.next(), request);
 
     } catch (error) {
-        console.log(error)
+        console.log("Middleware Error:", error);
+        if (pathname.startsWith('/api')) {
+            return NextResponse.json({ success: false, message: "Invalid or expired token" }, { status: 401 });
+        }
         return NextResponse.redirect(new URL(WEBSITE_LOGIN, request.nextUrl))
     }
 }
 
+// Helper to add CORS headers to any response
+function addCorsHeaders(response, request) {
+    if (request.nextUrl.pathname.startsWith('/api')) {
+        response.headers.set('Access-Control-Allow-Origin', '*')
+        response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    }
+    return response;
+}
+
 
 export const config = {
-    matcher: ['/admin/:path*', '/my-account/:path*', '/auth/:path*']
+    matcher: ['/admin/:path*', '/my-account/:path*', '/auth/:path*', '/api/:path*']
 }

@@ -45,7 +45,7 @@ export async function POST(request) {
         const secret = new TextEncoder().encode(process.env.SECRET_KEY)
         const token = await new SignJWT(loggesInUserData)
             .setIssuedAt()
-            .setExpirationTime('24h')
+            .setExpirationTime('30d') // 30 days for mobile app persistence
             .setProtectedHeader({ alg: 'HS256' })
             .sign(secret)
 
@@ -62,7 +62,7 @@ export async function POST(request) {
         // remove otp
         await deleteOTPByEmail(email)
 
-        return response(true, 200, "Login successfully", loggesInUserData)
+        return response(true, 200, "Login successfully", { ...loggesInUserData, token })
 
     } catch (error) {
         return catchError(error)

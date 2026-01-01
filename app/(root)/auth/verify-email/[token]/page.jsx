@@ -20,6 +20,7 @@ const EmailVerificationLink = ({ params }) => {
   const router = useRouter()
   const [isVerified, setisVerified] = useState(null) // null = not checked yet
   const [userRole, setUserRole] = useState(null)
+  const [sessionToken, setSessionToken] = useState(null)
   const hasVerified = useRef(false) // Prevent duplicate verification
 
   useEffect(() => {
@@ -36,27 +37,34 @@ const EmailVerificationLink = ({ params }) => {
         )
 
         if (VerificationResponse.success) {
-          setisVerified(true)
-          setUserRole(VerificationResponse.data.role)
+          if (VerificationResponse.data?.isAlreadyVerified) {
+            setisVerified('already-verified')
+            toast.info("Email is already verified. Please login.", {
+              autoClose: 3000,
+            })
+          } else {
+            setisVerified(true)
+            setUserRole(VerificationResponse.data.role)
 
-          // Dispatch login action to update Redux store
-          dispatch(login(VerificationResponse.data))
-
-          toast.success("Email verified successfully! You are now logged in 🎉", {
-            autoClose: 4000,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          })
-
-          // Redirect after 2 seconds
-          setTimeout(() => {
-            if (VerificationResponse.data.role === 'admin') {
-              router.push(ADMIN_DASHBOARD)
-            } else {
-              router.push(WEBSITE_HOME)
+            if (VerificationResponse.data.token) {
+              setSessionToken(VerificationResponse.data.token)
             }
-          }, 2000)
+
+            // Dispatch login action to update Redux store
+            dispatch(login(VerificationResponse.data))
+
+            toast.success("Email verified successfully! You are now logged in 🎉", {
+              autoClose: 4000,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            })
+          }
+
+
+
+          // No auto-redirect. User must choose manually.
+
         } else {
           setisVerified(false)
           toast.error("Email verification failed ❌", {
@@ -80,6 +88,8 @@ const EmailVerificationLink = ({ params }) => {
     verify()
   }, [token, dispatch, router])
 
+  const deepLink = sessionToken ? `mobile://auth-callback?token=${sessionToken}` : null;
+
   return (
     <Card className="w-[400px]">
       <CardContent>
@@ -98,14 +108,37 @@ const EmailVerificationLink = ({ params }) => {
               <h1 className="text-2xl font-bold mt-2 mb-2">
                 Email Verified Successfully!
               </h1>
-              <p className="text-sm text-gray-600 mb-4">
-                You are now logged in. Redirecting to {userRole === 'admin' ? 'dashboard' : 'homepage'}...
-              </p>
-              <Button asChild>
-                <Link href={userRole === 'admin' ? ADMIN_DASHBOARD : WEBSITE_HOME}>
-                  Continue to {userRole === 'admin' ? 'Dashboard' : 'Shopping'}
-                </Link>
-              </Button>
+              <div className="flex flex-col gap-3">
+                <Button asChild>
+                  <Link href={userRole === 'admin' ? ADMIN_DASHBOARD : WEBSITE_HOME}>
+                    Continue to {userRole === 'admin' ? 'Dashboard' : 'Shopping'}
+                  </Link>
+                </Button>
+
+                {/* Mobile Deep Link Button */}
+                {deepLink && (
+                  <Button variant="outline" asChild className="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
+                    <a href={deepLink}>Open in Mobile App</a>
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : isVerified === 'already-verified' ? (
+          <div>
+            <div className="flex justify-center items-center text-blue-800">
+              <Image
+                src={verified}
+                height={verified.height}
+                width={verified.width}
+                className="h-[100px] w-auto"
+                alt="Already Verified"
+              />
+            </div>
+            <div className="text-center">
+              <h1 className="text-2xl font-bold mt-2 mb-2">
+                Email Already Verified
+              </h1>
             </div>
           </div>
         ) : isVerified === false ? (

@@ -1,5 +1,5 @@
 import { otpEmail } from "@/email/otpEmail"
-import { generateOTP, response } from "@/lib/helperFunction"
+import { generateOTP, response, catchError } from "@/lib/helperFunction"
 import { deleteOTPByEmail, saveOTP } from "@/lib/otp.service"
 import { sendMail } from "@/lib/sendMail"
 import { findUserByEmail } from "@/lib/user.service"
@@ -25,14 +25,14 @@ export async function POST(request) {
         const otp = generateOTP()
 
         await saveOTP(email, otp)
-        const otpSendStatus = await sendMail('Your OTP for Login', email, otpEmail(otp))
+        const otpSendStatus = await sendMail('Your OTP for Password Reset', email, otpEmail(otp))
 
         if (!otpSendStatus.success) {
             return response(false, 400, 'Failed to send OTP, Please try again')
         }
 
-        return response(true, 200, 'Please Verify your account.')
+        return response(true, 200, 'OTP sent successfully. Please check your email.')
     } catch (error) {
-
+        return catchError(error)
     }
 }
