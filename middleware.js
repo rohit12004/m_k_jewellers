@@ -5,6 +5,16 @@ import { ADMIN_DASHBOARD } from "./routes/adminPanelRoutes"
 import { USER_DASHBOARD, WEBSITE_LOGIN } from "./routes/websiteRoutes"
 
 
+// Public API routes that don't require authentication
+const PUBLIC_API_ROUTES = [
+    '/api/subcategory/get-all',
+    '/api/product/get-by-subcategory',
+    '/api/product/filter-options',
+    '/api/product/details',
+    '/api/category/get-featured-categories',
+    '/api/cart/calculate-prices',
+];
+
 export async function middleware(request) {
     const pathname = request.nextUrl.pathname
 
@@ -45,14 +55,22 @@ export async function middleware(request) {
 
 
         if (!access_token) {
+            // Check if it's a public API route
+            const isPublicApi = PUBLIC_API_ROUTES.some(route => pathname.startsWith(route));
+
+            if (isPublicApi) {
+                // Allow public API access without authentication
+                return addCorsHeaders(NextResponse.next(), request);
+            }
+
+            // Allow refresh endpoint without valid access token
+            if (pathname === '/api/auth/refresh') {
+                return addCorsHeaders(NextResponse.next(), request);
+            }
+
             // Unprotected routes check
             if (!pathname.startsWith('/auth') && !pathname.startsWith('/api/auth')) {
-                // But wait, public API routes (like products) should be accessible without token?
-                // The matcher at the bottom includes '/api/:path*'.
-                // We need to verify if the route REQUIRES auth. 
-                // For now, let's assume all /api routes in matcher require auth EXCEPT /api/auth/*
-
-                // If it is NOT an auth route, it needs a token
+                // If it is NOT an auth route and NOT a public API, it needs a token
                 return unauthorizedParams("Please login to access this resource");
             }
             // Allow access to auth routes (login/register)

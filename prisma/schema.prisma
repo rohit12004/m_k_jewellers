@@ -30,6 +30,7 @@ model User {
 
   // Relations
   orders          Order[]
+  refreshTokens   RefreshToken[]
 
   @@map("user")
 }
@@ -292,5 +293,23 @@ model OrderProduct {
   @@map("order_products")
   @@index([orderId], map: "idx_order_products_order_id")
   @@index([productId], map: "idx_order_products_product_id")
+}
+
+model RefreshToken {
+  id           String   @id @default(cuid())
+  token        String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Optional: Track device/session info
+  userAgent    String?  @db.Text
+  ipAddress    String?
+  
+  @@index([userId], map: "idx_refresh_tokens_user_id")
+  @@index([token], map: "idx_refresh_tokens_token")
+  @@map("refresh_tokens")
 }
 

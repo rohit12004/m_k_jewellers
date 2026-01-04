@@ -1,12 +1,33 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 import authReducer from "./slices/authSlice";
+
+// SECURITY: Use SecureStore instead of AsyncStorage for encrypted persistence
+// SecureStore keys must only contain alphanumeric, ".", "-", and "_"
+const secureStorage = {
+    // Sanitize keys by replacing colons with underscores
+    sanitizeKey(key) {
+        return key.replace(/:/g, '_');
+    },
+    async getItem(key) {
+        const sanitizedKey = this.sanitizeKey(key);
+        return await SecureStore.getItemAsync(sanitizedKey);
+    },
+    async setItem(key, value) {
+        const sanitizedKey = this.sanitizeKey(key);
+        await SecureStore.setItemAsync(sanitizedKey, value);
+    },
+    async removeItem(key) {
+        const sanitizedKey = this.sanitizeKey(key);
+        await SecureStore.deleteItemAsync(sanitizedKey);
+    },
+};
 
 // Redux Persist configuration
 const persistConfig = {
     key: 'root',
-    storage: AsyncStorage,
+    storage: secureStorage, // Use encrypted SecureStore
     whitelist: ['auth', 'lastLogin'], // Persist auth and lastLogin timestamp
 };
 
@@ -21,7 +42,7 @@ export const store = configureStore({
         getDefaultMiddleware({
             serializableCheck: {
                 // Ignore redux-persist actions
-                ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+                ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE', 'persist/PURGE'],
             },
         }),
 });

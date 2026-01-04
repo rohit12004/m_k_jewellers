@@ -1,4 +1,7 @@
-export const API_BASE_URL = "http://localhost:3000"; // Update with your actual backend URL
+// Use environment variable for API URL
+// For development: Use your computer's local IP address (not localhost)
+// For production: Use your deployed backend URL
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const API_ROUTES = {
     LOGIN: "/api/auth/login",
@@ -9,6 +12,8 @@ export const API_ROUTES = {
     FORGOT_PASSWORD_SEND_OTP: "/api/auth/reset-password/send-otp",
     FORGOT_PASSWORD_VERIFY_OTP: "/api/auth/reset-password/verify-otp",
     FORGOT_PASSWORD_UPDATE: "/api/auth/reset-password/update-password",
+    UPDATE_PROFILE: "/api/user/update-profile",
+    GET_USER_ORDERS: "/api/user/get-user-orders",
 };
 
 export const ROUTES = {
@@ -17,5 +22,6 @@ export const ROUTES = {
     VERIFY_OTP: "/verify-otp",
     FORGOT_PASSWORD: "/forgot-password",
     HOME: "/(tabs)/home",
+    ACCOUNT: "/(tabs)/account",
     ADMIN_DASHBOARD: "/(admin)/dashboard",
 };

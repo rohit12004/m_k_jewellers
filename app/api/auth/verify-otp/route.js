@@ -4,7 +4,7 @@ import { findUserByEmail } from "@/lib/user.service"
 import { zSchema } from "@/lib/zodSchema"
 import { SignJWT } from "jose"
 import { cookies } from "next/headers"
-import { record } from "zod"
+import { generateRefreshToken, saveRefreshToken } from "@/lib/refreshToken.service"
 
 export async function POST(request) {
     try {
@@ -32,7 +32,7 @@ export async function POST(request) {
             return response(false, 404, 'User not found')
         }
 
-        const loggesInUserData = {
+        const loggedInUserData = {
             id: getUser.id,
             role: getUser.role,
             name: getUser.name,
@@ -43,26 +43,64 @@ export async function POST(request) {
         }
 
         const secret = new TextEncoder().encode(process.env.SECRET_KEY)
-        const token = await new SignJWT(loggesInUserData)
+
+        // Generate Access Token (15 minutes)
+        const accessToken = await new SignJWT(loggedInUserData)
             .setIssuedAt()
-            .setExpirationTime('30d') // 30 days for mobile app persistence
+            .setExpirationTime('15m') // Short-lived
             .setProtectedHeader({ alg: 'HS256' })
             .sign(secret)
 
+        // Generate Refresh Token (30 days)
+        const refreshToken = generateRefreshToken()
+        const refreshTokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+
+        // Get user agent and IP for tracking
+        const userAgent = request.headers.get('user-agent')
+        const ipAddress = request.headers.get('x-forwarded-for') || request.ip
+
+        // Save refresh token to database
+        await saveRefreshToken(
+            getUser.id,
+            refreshToken,
+            refreshTokenExpiry,
+            userAgent,
+            ipAddress
+        )
+
         const cookieStore = await cookies()
+
+        // Set access token cookie (web)
         cookieStore.set({
             name: "access_token",
-            value: token,
-            httpOnly: process.env.NODE_ENV === 'production',
+            value: accessToken,
+            httpOnly: true,
             path: '/',
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
+            maxAge: 15 * 60, // 15 minutes
         })
 
-        // remove otp
+        // Set refresh token cookie (web)
+        cookieStore.set({
+            name: "refresh_token",
+            value: refreshToken,
+            httpOnly: true,
+            path: '/',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 30 * 24 * 60 * 60, // 30 days
+        })
+
+        // Remove OTP
         await deleteOTPByEmail(email)
 
-        return response(true, 200, "Login successfully", { ...loggesInUserData, token })
+        // Return both tokens for mobile
+        return response(true, 200, "Login successfully", {
+            ...loggedInUserData,
+            accessToken,
+            refreshToken, // Mobile will store this
+        })
 
     } catch (error) {
         return catchError(error)

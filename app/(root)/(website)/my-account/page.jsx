@@ -14,7 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { showToast } from '@/lib/showToast'
 import { logout, login } from '@/store/reducer/authReducer'
 import { WEBSITE_LOGIN, WEBSITE_CART, WEBSITE_HOME, API_USER_ORDERS } from '@/routes/websiteRoutes'
-import axios from 'axios'
+import api from '@/lib/api' // Use new API service with auto-refresh
+import axios from 'axios' // Keep for non-authenticated calls if needed
 import { LogOut, User, Mail, Phone, MapPin, ShoppingCart, LayoutDashboard, Package, ShoppingBag, IndianRupee } from 'lucide-react'
 import StatCard from '@/components/Application/website/StatCard'
 import OrdersTable from '@/components/Application/website/OrdersTable'
@@ -26,6 +27,7 @@ const MyAccount = () => {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [sessionChecked, setSessionChecked] = useState(false)
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     defaultValues: {
@@ -49,40 +51,51 @@ const MyAccount = () => {
   } = useQuery({
     queryKey: ['user-orders', auth?.id],
     queryFn: async () => {
-      const { data } = await axios.get(API_USER_ORDERS)
+      const { data } = await api.get(API_USER_ORDERS) // Use api service with auto-refresh
       if (!data.success) {
         throw new Error(data.message || 'Failed to fetch orders')
       }
       return data.data
     },
-    enabled: !!auth, // Only fetch when user is authenticated
+    enabled: !!auth && sessionChecked, // Only fetch when user is authenticated AND session check is complete
     staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
     refetchOnWindowFocus: true, // Refetch when user returns to tab
   })
 
   const ordersData = ordersResponse || null
 
-  // Redirect to login if not authenticated
   // Handle Authentication & Restoration
   useEffect(() => {
     // If not authenticated in Redux, try to fetch session from server (Middleware let us in, so cookie likely exists)
     const checkSession = async () => {
-      if (!auth && !isLoggingOut) {
+      if (!auth && !isLoggingOut && !sessionChecked) {
         try {
-          const { data } = await axios.get('/api/auth/session');
+          const { data } = await api.get('/api/auth/session'); // Use api service with auto-refresh
           if (data.success && data.data) {
             dispatch(login(data.data)); // Restore Redux
+            setSessionChecked(true); // Mark session as checked
             return; // Stay on page
           }
           // If really no session, then redirect
+          setSessionChecked(true);
           router.push(WEBSITE_LOGIN)
         } catch (error) {
-          router.push(WEBSITE_LOGIN)
+          console.error('Session check error:', error);
+          setSessionChecked(true);
+          // Only redirect if it's a real auth error (not a network error)
+          if (error.response?.status === 401 || error.response?.status === 403) {
+            router.push(WEBSITE_LOGIN)
+          }
         }
       }
     }
 
     if (auth) {
+      // Mark session as checked if we already have auth
+      if (!sessionChecked) {
+        setSessionChecked(true);
+      }
+
       // Pre-fill form with user data
       setValue('name', auth.name || '')
       setValue('email', auth.email || '')
@@ -105,7 +118,7 @@ const MyAccount = () => {
     } else {
       checkSession();
     }
-  }, [auth, router, setValue, isLoggingOut, dispatch])
+  }, [auth, router, setValue, isLoggingOut, dispatch, sessionChecked])
 
   const onSubmit = async (data) => {
     try {
@@ -120,7 +133,7 @@ const MyAccount = () => {
         postalCode: data.postalCode
       }
 
-      const response = await axios.put('/api/user/update-profile', {
+      const response = await api.put('/api/user/update-profile', { // Use api service
         name: data.name,
         phone: data.phone,
         address: JSON.stringify(addressData)
@@ -144,7 +157,7 @@ const MyAccount = () => {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true)
-      const { data: logoutResponse } = await axios.post('/api/auth/logout')
+      const { data: logoutResponse } = await api.post('/api/auth/logout') // Use api service
       if (!logoutResponse.success) {
         throw new Error(logoutResponse.message)
       }

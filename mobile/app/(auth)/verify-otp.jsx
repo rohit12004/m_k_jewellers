@@ -76,8 +76,10 @@ export default function VerifyOtp() {
             return response.data;
         },
         onSuccess: async (response) => {
-            if (response.success && response.data?.token) {
-                await SecureStore.setItemAsync("access_token", response.data.token);
+            if (response.success && response.data?.accessToken) {
+                // Store both access token and refresh token
+                await SecureStore.setItemAsync("access_token", response.data.accessToken);
+                await SecureStore.setItemAsync("refresh_token", response.data.refreshToken);
                 dispatch(login(response.data));
 
                 // Auto-redirect handled by RootLayout based on auth state

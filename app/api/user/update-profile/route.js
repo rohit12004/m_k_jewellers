@@ -53,7 +53,7 @@ export async function PUT(request) {
         const secret = new TextEncoder().encode(process.env.SECRET_KEY)
         const token = await new SignJWT(loggedInUserData)
             .setIssuedAt()
-            .setExpirationTime('30d') // 30 days for mobile app persistence
+            .setExpirationTime('15m') // Match refresh token system
             .setProtectedHeader({ alg: 'HS256' })
             .sign(secret)
 
@@ -61,13 +61,17 @@ export async function PUT(request) {
         cookieStore.set({
             name: "access_token",
             value: token,
-            httpOnly: process.env.NODE_ENV === 'production',
+            httpOnly: true,
             path: '/',
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
+            maxAge: 15 * 60, // 15 minutes
         })
 
-        return response(true, 200, 'Profile updated successfully.', updatedUser)
+        return response(true, 200, 'Profile updated successfully.', {
+            ...updatedUser,
+            accessToken: token // Include new token for mobile app to update SecureStore
+        })
 
     } catch (error) {
         return catchError(error)

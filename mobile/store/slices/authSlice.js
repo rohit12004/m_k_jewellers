@@ -10,7 +10,10 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
         login: (state, action) => {
-            state.auth = action.payload;
+            // SECURITY: Never store tokens in Redux state
+            // Remove accessToken and refreshToken from the payload
+            const { accessToken, refreshToken, ...userDataWithoutTokens } = action.payload;
+            state.auth = userDataWithoutTokens;
             state.lastLogin = Date.now(); // Store login timestamp
         },
         logout: (state) => {
