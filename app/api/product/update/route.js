@@ -16,7 +16,7 @@ export async function PUT(request) {
     const payload = await request.json();
 
 
-    console.log(payload)
+
 
     // ✅ Product validation schema
     const schema = zSchema.pick({

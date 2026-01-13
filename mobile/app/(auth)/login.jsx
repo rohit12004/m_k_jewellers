@@ -34,7 +34,6 @@ export default function Login() {
             }
         },
         onError: (error) => {
-            console.log("Login Error:", error);
             const msg = error.response?.data?.message || error.message || "Login failed. Please try again.";
             showToast("error", "Error", msg);
         },

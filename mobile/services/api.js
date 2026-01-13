@@ -16,10 +16,6 @@ const api = axios.create({
 api.interceptors.request.use(
     async (config) => {
         const accessToken = await SecureStore.getItemAsync("access_token");
-        // SECURITY: Never log tokens in production
-        if (__DEV__) {
-            console.log("API Request:", config.url);
-        }
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
@@ -41,17 +37,12 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                console.log("🔄 Access token expired, attempting refresh...");
-
                 // Get refresh token
                 const refreshToken = await SecureStore.getItemAsync("refresh_token");
 
                 if (!refreshToken) {
-                    console.log("❌ No refresh token found");
                     throw new Error("No refresh token");
                 }
-
-                console.log("📡 Calling refresh endpoint...");
 
                 // Call refresh endpoint
                 const response = await axios.post(
@@ -62,11 +53,11 @@ api.interceptors.response.use(
                 if (response.data.success) {
                     const { accessToken, refreshToken: newRefreshToken } = response.data.data;
 
-                    console.log("✅ Token refresh successful");
-
                     // Store new tokens
                     await SecureStore.setItemAsync("access_token", accessToken);
-                    await SecureStore.setItemAsync("refresh_token", newRefreshToken);
+                    if (newRefreshToken) {
+                        await SecureStore.setItemAsync("refresh_token", newRefreshToken);
+                    }
 
                     // Update original request with new token
                     originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -75,7 +66,7 @@ api.interceptors.response.use(
                     return api(originalRequest);
                 }
             } catch (refreshError) {
-                console.log("❌ Token refresh failed:", refreshError.message);
+                // Refresh failed - logout user
 
                 // Refresh failed - logout user
                 await SecureStore.deleteItemAsync("access_token");

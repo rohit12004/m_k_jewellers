@@ -159,7 +159,7 @@ export default function VerifyOtp() {
                         className={`w-full bg-blue-600 py-4 rounded-xl items-center flex-row justify-center shadow-lg shadow-blue-200 ${verifyOtpMutation.isPending ? 'opacity-70' : ''}`}
                     >
                         {verifyOtpMutation.isPending ? <ActivityIndicator color="#fff" className="mr-2" /> : null}
-                        <Text className="text-white font-bold text-base">
+                        <Text className="text-white font-bold">
                             Verify
                         </Text>
                     </TouchableOpacity>

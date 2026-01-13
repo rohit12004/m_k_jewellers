@@ -11,7 +11,7 @@ export default function Button({ text, onPress, loading, className }) {
             {loading ? (
                 <ActivityIndicator color="#fff" />
             ) : (
-                <Text className="text-white font-bold text-lg text-center">{text}</Text>
+                <Text className="text-white font-bold text-center">{text}</Text>
             )}
         </TouchableOpacity>
     );

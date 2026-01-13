@@ -64,37 +64,12 @@ const MyAccount = () => {
 
   const ordersData = ordersResponse || null
 
-  // Handle Authentication & Restoration
+  // Handle Authentication & Form Pre-fill
   useEffect(() => {
-    // If not authenticated in Redux, try to fetch session from server (Middleware let us in, so cookie likely exists)
-    const checkSession = async () => {
-      if (!auth && !isLoggingOut && !sessionChecked) {
-        try {
-          const { data } = await api.get('/api/auth/session'); // Use api service with auto-refresh
-          if (data.success && data.data) {
-            dispatch(login(data.data)); // Restore Redux
-            setSessionChecked(true); // Mark session as checked
-            return; // Stay on page
-          }
-          // If really no session, then redirect
-          setSessionChecked(true);
-          router.push(WEBSITE_LOGIN)
-        } catch (error) {
-          console.error('Session check error:', error);
-          setSessionChecked(true);
-          // Only redirect if it's a real auth error (not a network error)
-          if (error.response?.status === 401 || error.response?.status === 403) {
-            router.push(WEBSITE_LOGIN)
-          }
-        }
-      }
-    }
-
     if (auth) {
-      // Mark session as checked if we already have auth
-      if (!sessionChecked) {
-        setSessionChecked(true);
-      }
+      // Auth exists, mark session as checked and pre-fill form
+      console.log('[MyAccount] Auth exists, pre-filling form');
+      setSessionChecked(true);
 
       // Pre-fill form with user data
       setValue('name', auth.name || '')
@@ -115,10 +90,25 @@ const MyAccount = () => {
           setValue('street', auth.address || '')
         }
       }
-    } else {
-      checkSession();
+    } else if (!isLoggingOut) {
+      // No auth yet - give GlobalProvider time to restore session
+      console.log('[MyAccount] No auth, waiting for session restoration...');
+      const timer = setTimeout(() => {
+        console.log('[MyAccount] Session check timeout complete');
+        setSessionChecked(true);
+      }, 3000); // 3 seconds to allow for token refresh
+
+      return () => clearTimeout(timer);
     }
-  }, [auth, router, setValue, isLoggingOut, dispatch, sessionChecked])
+  }, [auth, setValue, isLoggingOut])
+
+  // Redirect to login only after session check is complete
+  useEffect(() => {
+    if (sessionChecked && !auth && !isLoggingOut) {
+      console.log('[MyAccount] Session checked, no auth found, redirecting to login');
+      router.push(WEBSITE_LOGIN)
+    }
+  }, [sessionChecked, auth, isLoggingOut, router])
 
   const onSubmit = async (data) => {
     try {

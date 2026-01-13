@@ -451,24 +451,6 @@ export const orderNotification = (data) => {
 															</td>
 														</tr>
 													</table>
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="button_block block-3" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;"
-														width="100%">
-														<tr>
-															<td class="pad" style="text-align:center;">
-																<div align="center" class="alignment"><a
-																		href="${data.orderDetailsUrl}"
-																		style="color:#ffffff;text-decoration:none;"
-																		target="_blank"> <span class="button"
-																			style="background-color: #9502f5; border-bottom: 0px solid #f65c03; border-left: 0px solid #f65c03; border-radius: 30px; border-right: 0px solid #f65c03; border-top: 0px solid #f65c03; color: #ffffff; display: inline-block; font-family: TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif; font-size: 16px; font-weight: 700; mso-border-alt: none; padding-bottom: 5px; padding-top: 5px; padding-left: 30px; padding-right: 30px; text-align: center; width: auto; word-break: keep-all; letter-spacing: 1px;"><span
-																				style="word-break: break-word; line-height: 32px;">VIEW
-																				MY
-																				ORDER</span></span> </a>
-																</div>
-															</td>
-														</tr>
-													</table>
 												</td>
 											</tr>
 										</tbody>

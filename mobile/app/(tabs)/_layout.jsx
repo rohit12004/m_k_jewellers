@@ -1,8 +1,11 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { Platform } from "react-native";
+import { Platform, View, Text } from "react-native";
+import { useSelector } from "react-redux";
 
 export default function TabLayout() {
+    const cartCount = useSelector(state => state.cartStore.count);
+
     return (
         <Tabs
             screenOptions={{
@@ -46,7 +49,29 @@ export default function TabLayout() {
                 options={{
                     title: "Cart",
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="cart" size={size} color={color} />
+                        <View>
+                            <Ionicons name="cart" size={size} color={color} />
+                            {cartCount > 0 && (
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        right: -8,
+                                        top: -4,
+                                        backgroundColor: '#EF4444',
+                                        borderRadius: 10,
+                                        minWidth: 18,
+                                        height: 18,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        paddingHorizontal: 4
+                                    }}
+                                >
+                                    <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold' }}>
+                                        {cartCount > 99 ? '99+' : cartCount}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
                     ),
                 }}
             />

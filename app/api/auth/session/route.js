@@ -3,10 +3,9 @@ import { getUserSession } from "@/lib/authentication";
 
 export async function GET(request) {
     try {
-        console.log("🔍 [SESSION API] Called");
         // Get user session from HTTP-only cookie (JWT payload)
         const session = await getUserSession();
-        console.log("🔍 [SESSION API] JWT Session:", session);
+
 
         if (!session) {
             return response(false, 401, 'No active session');

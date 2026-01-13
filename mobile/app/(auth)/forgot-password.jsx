@@ -237,7 +237,7 @@ export default function ForgotPassword() {
                                 }`}
                         >
                             {verifyOtpMutation.isPending ? <ActivityIndicator color="#fff" className="mr-2" /> : null}
-                            <Text className="text-white font-bold text-base">Verify OTP</Text>
+                            <Text className="text-white font-bold">Verify OTP</Text>
                         </TouchableOpacity>
 
                         <View className="items-center mt-6 space-y-3">

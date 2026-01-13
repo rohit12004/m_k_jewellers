@@ -71,14 +71,10 @@ export default function Profile() {
 
     // Pull-to-refresh handler
     const onRefresh = async () => {
-        console.log("🔄 Pull-to-refresh triggered on Profile");
         setRefreshing(true);
         try {
             // Refresh is handled by the parent layout's session check
             await new Promise(resolve => setTimeout(resolve, 500));
-            console.log("✅ Profile refresh complete");
-        } catch (error) {
-            console.error("❌ Profile refresh error:", error);
         } finally {
             setRefreshing(false);
         }
@@ -110,7 +106,6 @@ export default function Profile() {
 
                 // Save new access token to SecureStore (backend returns new token)
                 if (data.data.accessToken) {
-                    console.log("💾 Saving new access token to SecureStore");
                     await SecureStore.setItemAsync("access_token", data.data.accessToken);
                 }
 

@@ -47,7 +47,6 @@ export default function Signup() {
             }
         },
         onError: (error) => {
-            console.log("Signup Error:", error);
             const msg = error.response?.data?.message || error.message || "Registration failed";
             showToast("error", "Error", msg);
         }

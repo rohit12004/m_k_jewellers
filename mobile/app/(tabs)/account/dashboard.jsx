@@ -34,13 +34,9 @@ export default function Dashboard() {
 
     // Pull-to-refresh handler
     const onRefresh = async () => {
-        console.log("🔄 Pull-to-refresh triggered on Dashboard");
         setRefreshing(true);
         try {
             await refetchOrders();
-            console.log("✅ Dashboard refresh complete");
-        } catch (error) {
-            console.error("❌ Dashboard refresh error:", error);
         } finally {
             setRefreshing(false);
         }

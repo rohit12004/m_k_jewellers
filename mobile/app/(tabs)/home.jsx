@@ -1,48 +1,42 @@
-import { View, Text, TouchableOpacity } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import { logout } from "../../store/slices/authSlice";
-import { persistor } from "../../store";
-import { ROUTES } from "../../constants/routes";
+import { ScrollView, RefreshControl, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import SubcategoriesGrid from "../../components/home/SubcategoriesGrid";
+import PromotionalBanner from "../../components/home/PromotionalBanner";
+
+import { VideoBanner } from "../../components/home/VideoBanner";
 
 export default function Home() {
-    const dispatch = useDispatch();
-    const router = useRouter();
-    const user = useSelector((state) => state.authStore.auth);
+    const [refreshing, setRefreshing] = useState(false);
+    const queryClient = useQueryClient();
 
-    const handleLogout = async () => {
-        // Clear persisted Redux state
-        await persistor.purge();
-
-        // Clear token from SecureStore
-        await SecureStore.deleteItemAsync("access_token");
-
-        // Dispatch logout action
-        dispatch(logout());
-
-        // Redirect to login
-        router.replace(ROUTES.LOGIN);
+    const onRefresh = async () => {
+        setRefreshing(true);
+        // Invalidate all queries to refetch data
+        await queryClient.invalidateQueries({ queryKey: ["subcategories"] });
+        setRefreshing(false);
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white items-center justify-center p-6">
-            <Text className="text-2xl font-bold mb-4">Welcome Home!</Text>
-
-            {user && (
-                <View className="mb-8 items-center">
-                    <Text className="text-lg">Hello, {user.name || "User"}</Text>
-                    <Text className="text-gray-500">{user.email}</Text>
-                </View>
-            )}
-
-            <TouchableOpacity
-                onPress={handleLogout}
-                className="bg-red-500 py-3 px-8 rounded-xl"
+        <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+            <ScrollView
+                className="flex-1"
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={["#7c3aed"]}
+                        tintColor="#7c3aed"
+                    />
+                }
             >
-                <Text className="text-white font-bold">Logout</Text>
-            </TouchableOpacity>
+                <VideoBanner />
+                <SubcategoriesGrid />
+                <PromotionalBanner />
+                <View className="h-4" />
+            </ScrollView>
         </SafeAreaView>
     );
 }

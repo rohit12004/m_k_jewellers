@@ -113,9 +113,7 @@ export async function GET(request) {
             finalQuery = {};
         }
 
-        // Debug: Log the query for troubleshooting
-        console.log('Orders API Query:', JSON.stringify(finalQuery, null, 2));
-        console.log('Global Filter:', globalFilter);
+
 
         const [orders, totalRowCount] = await Promise.all([
             prisma.order.findMany({
@@ -136,7 +134,7 @@ export async function GET(request) {
             prisma.order.count({ where: finalQuery })
         ]);
 
-        console.log('Orders found:', orders.length);
+
 
         return NextResponse.json({
             success: true,

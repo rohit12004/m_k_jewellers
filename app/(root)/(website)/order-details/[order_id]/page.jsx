@@ -1,19 +1,22 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { API_ORDER_DETAILS } from '@/routes/websiteRoutes'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { CheckCircle, Package, Truck, MapPin, Phone, Mail, CreditCard } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { CheckCircle, Package, Truck, MapPin, Phone, Mail, CreditCard, Download } from 'lucide-react'
 import Image from 'next/image'
 import imgPlaceholder from '@/public/assets/img-placeholder.jpg'
 import OrderTimeline from '@/components/Application/website/OrderTimeline'
+import { toast } from 'sonner'
 
 const OrderDetailsPage = () => {
     const params = useParams()
     const orderId = params.order_id
+    const [downloading, setDownloading] = useState(false)
 
     // Fetch order details using TanStack Query
     const { data: order, isLoading, error } = useQuery({
@@ -27,10 +30,37 @@ const OrderDetailsPage = () => {
         },
         enabled: !!orderId,
         staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
-        cacheTime: 1000 * 60 * 30, // Keep in cache for 30 minutes
-        refetchOnMount: 'always', // Always refetch on manual refresh
-        refetchOnWindowFocus: true, // Refetch when user returns to tab
+        gcTime: 1000 * 60 * 30, // Keep in cache for 30 minutes (renamed from cacheTime)
+        refetchOnMount: false, // Don't refetch on mount
+        refetchOnWindowFocus: false, // Don't refetch when window gains focus
     })
+
+    const downloadReceipt = async () => {
+        setDownloading(true)
+        try {
+            const response = await axios.get(`/api/order/receipt/${orderId}`, {
+                responseType: 'blob', // Important for PDF download
+            })
+
+            // Create a blob URL and trigger download
+            const blob = new Blob([response.data], { type: 'application/pdf' })
+            const url = window.URL.createObjectURL(blob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = `MK_Jewellers_Receipt_${orderId}.pdf`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            window.URL.revokeObjectURL(url)
+
+            toast.success('Receipt downloaded successfully')
+        } catch (error) {
+            console.error('Download error:', error)
+            toast.error(error.response?.data?.message || 'Failed to download receipt')
+        } finally {
+            setDownloading(false)
+        }
+    }
 
     if (isLoading) {
         return (
@@ -123,6 +153,28 @@ const OrderDetailsPage = () => {
                                         {order.paymentStatus}
                                     </span>
                                 </div>
+
+                                <Separator className='my-2' />
+
+                                {/* Download Receipt Button */}
+                                <Button
+                                    onClick={downloadReceipt}
+                                    disabled={downloading}
+                                    className='w-full'
+                                    variant='default'
+                                >
+                                    {downloading ? (
+                                        <>
+                                            <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                                            Downloading...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Download className='mr-2' size={16} />
+                                            Download Receipt
+                                        </>
+                                    )}
+                                </Button>
                             </CardContent>
                         </Card>
                     </div>

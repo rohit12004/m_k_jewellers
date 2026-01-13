@@ -63,8 +63,28 @@ export async function middleware(request) {
                 return addCorsHeaders(NextResponse.next(), request);
             }
 
+
             // Allow refresh endpoint without valid access token
             if (pathname === '/api/auth/refresh') {
+                return addCorsHeaders(NextResponse.next(), request);
+            }
+
+            // Public website routes that don't require authentication
+            const publicWebsiteRoutes = [
+                '/',
+                '/shop',
+                '/product',
+                '/about',
+                '/contact',
+                '/privacy-policy',
+                '/terms',
+            ];
+
+            const isPublicWebsitePage = publicWebsiteRoutes.some(route =>
+                pathname === route || pathname.startsWith(route + '/')
+            );
+
+            if (isPublicWebsitePage) {
                 return addCorsHeaders(NextResponse.next(), request);
             }
 
@@ -100,6 +120,11 @@ export async function middleware(request) {
                     return NextResponse.next();
                 }
 
+                // Allow GET request for session check
+                if (request.method === 'GET' && pathname === '/api/auth/session') {
+                    return NextResponse.next();
+                }
+
                 // For other methods (GET, DELETE, etc.), block them or return JSON
                 return NextResponse.json({ success: false, message: "You are already logged in" }, { status: 400 });
             }
@@ -123,7 +148,59 @@ export async function middleware(request) {
         return addCorsHeaders(NextResponse.next(), request);
 
     } catch (error) {
-        console.log("Middleware Error:", error);
+        // Check if it's a JWT expiration error
+        const isJWTExpired = error.code === 'ERR_JWT_EXPIRED';
+
+        if (isJWTExpired) {
+            // Try to refresh the token
+            const refreshToken = request.cookies.get('refresh_token')?.value;
+
+            if (refreshToken) {
+                try {
+                    // Call the refresh endpoint
+                    const refreshResponse = await fetch(new URL('/api/auth/refresh', request.nextUrl).toString(), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Cookie': `refresh_token=${refreshToken}`
+                        },
+                        credentials: 'include'
+                    });
+
+                    if (refreshResponse.ok) {
+                        const refreshData = await refreshResponse.json();
+
+                        if (refreshData.success && refreshData.data?.access_token) {
+                            // Create response with new access token
+                            const response = NextResponse.next();
+
+                            // Set new access token cookie
+                            response.cookies.set('access_token', refreshData.data.access_token, {
+                                httpOnly: true,
+                                secure: process.env.NODE_ENV === 'production',
+                                sameSite: 'lax',
+                                maxAge: 15 * 60 // 15 minutes
+                            });
+
+                            // If new refresh token provided, update it
+                            if (refreshData.data.refresh_token) {
+                                response.cookies.set('refresh_token', refreshData.data.refresh_token, {
+                                    httpOnly: true,
+                                    secure: process.env.NODE_ENV === 'production',
+                                    sameSite: 'lax',
+                                    maxAge: 30 * 24 * 60 * 60 // 30 days
+                                });
+                            }
+
+                            return addCorsHeaders(response, request);
+                        }
+                    }
+                } catch (refreshError) {
+                }
+            }
+        }
+
+        // If refresh failed or not a JWT expiration, redirect/return error
         if (pathname.startsWith('/api')) {
             return NextResponse.json({ success: false, message: "Invalid or expired token" }, { status: 401 });
         }

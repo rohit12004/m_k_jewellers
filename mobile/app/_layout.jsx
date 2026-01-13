@@ -30,13 +30,13 @@ const InitialLayout = () => {
 
         if (sessionAge > SESSION_DURATION) {
           // Session expired - logout user
-          console.log("Session expired, logging out...");
 
           // Clear persisted state
           await persistor.purge();
 
-          // Clear token from SecureStore
+          // Clear BOTH tokens from SecureStore
           await SecureStore.deleteItemAsync("access_token");
+          await SecureStore.deleteItemAsync("refresh_token");
 
           // Dispatch logout
           dispatch(logout());
@@ -55,13 +55,11 @@ const InitialLayout = () => {
 
   const inAuthGroup = segments[0] === "(auth)";
   const isAuthCallback = segments[0] === "auth-callback";
+  const inTabsGroup = segments[0] === "(tabs)";
+  const inAdminGroup = segments[0] === "(admin)";
+  const inRootGroup = segments[0] === "(root)";
 
-  // 🚫 Not logged in → force auth pages
-  if (!auth && !inAuthGroup && !isAuthCallback) {
-    return <Redirect href="/(auth)/login" />;
-  }
-
-  // ✅ Logged in → block auth pages
+  // ✅ Logged in → block auth pages, redirect to appropriate home
   if (auth && (inAuthGroup || isAuthCallback)) {
     if (auth.role === "admin") {
       return <Redirect href="/(admin)/dashboard" />;
@@ -69,7 +67,17 @@ const InitialLayout = () => {
     return <Redirect href="/(tabs)/home" />;
   }
 
-  // ✅ Normal render
+  // 🔒 Admin routes require admin auth
+  if (inAdminGroup && (!auth || auth.role !== "admin")) {
+    return <Redirect href="/(auth)/login" />;
+  }
+
+  // 🏠 Default route - redirect to home tabs (works for both logged in and logged out)
+  if (!inAuthGroup && !isAuthCallback && !inTabsGroup && !inAdminGroup && !inRootGroup) {
+    return <Redirect href="/(tabs)/home" />;
+  }
+
+  // ✅ Normal render - allow access to tabs (auth check happens in Account tab)
   return (
     <>
       <Stack screenOptions={{ headerShown: false }} />

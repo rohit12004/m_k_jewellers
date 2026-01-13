@@ -25,7 +25,6 @@ export async function POST(request) {
                 await deleteRefreshToken(refreshToken);
             } catch (error) {
                 // Token might not exist, continue with logout
-                console.log("Refresh token not found in database");
             }
         }
 

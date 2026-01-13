@@ -14,12 +14,12 @@ const PriceBreakdown = ({ pricing }) => {
                         <span className="text-gray-600 dark:text-gray-400">Metal Cost</span>
                         <span className="font-medium">₹{pricing.metalCost.toLocaleString('en-IN')}</span>
                     </div>
-                )}
+                ))}
 
-                {pricing.labourCost && (
+                {pricing.labourCharge && (
                     <div className="flex justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">Labour Charges</span>
-                        <span className="font-medium">₹{pricing.labourCost.toLocaleString('en-IN')}</span>
+                        <span className="font-medium">₹{pricing.labourCharge.toLocaleString('en-IN')}</span>
                     </div>
                 )}
 
@@ -30,10 +30,10 @@ const PriceBreakdown = ({ pricing }) => {
                     </div>
                 )}
 
-                {pricing.gstAmount && (
+                {pricing.gst && (
                     <div className="flex justify-between text-sm">
                         <span className="text-gray-600 dark:text-gray-400">GST</span>
-                        <span className="font-medium">₹{pricing.gstAmount.toLocaleString('en-IN')}</span>
+                        <span className="font-medium">₹{pricing.gst.toLocaleString('en-IN')}</span>
                     </div>
                 )}
 

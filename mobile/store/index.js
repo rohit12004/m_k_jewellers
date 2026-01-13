@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import * as SecureStore from "expo-secure-store";
 import authReducer from "./slices/authSlice";
+import cartReducer from "./slices/cartSlice";
 
 // SECURITY: Use SecureStore instead of AsyncStorage for encrypted persistence
 // SecureStore keys must only contain alphanumeric, ".", "-", and "_"
@@ -24,19 +25,28 @@ const secureStorage = {
     },
 };
 
-// Redux Persist configuration
-const persistConfig = {
-    key: 'root',
+// Redux Persist configuration for Auth
+const authPersistConfig = {
+    key: 'auth', // Changed from 'root' to 'auth' to avoid conflicts
     storage: secureStorage, // Use encrypted SecureStore
     whitelist: ['auth', 'lastLogin'], // Persist auth and lastLogin timestamp
 };
 
-// Create persisted reducer
-const persistedAuthReducer = persistReducer(persistConfig, authReducer);
+// Redux Persist configuration for Cart
+const cartPersistConfig = {
+    key: 'cart',
+    storage: secureStorage,
+    whitelist: ['products', 'count'],
+};
+
+// Create persisted reducers
+const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
+const persistedCartReducer = persistReducer(cartPersistConfig, cartReducer);
 
 export const store = configureStore({
     reducer: {
         authStore: persistedAuthReducer,
+        cartStore: persistedCartReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

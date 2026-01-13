@@ -22,33 +22,37 @@ export default function AccountLayout() {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [isCheckingSession, setIsCheckingSession] = useState(true);
 
-    // Session restoration
+    // Session restoration - only if user is already logged in
     useEffect(() => {
         const checkSession = async () => {
-            if (!auth && !isLoggingOut) {
-                try {
-                    const token = await SecureStore.getItemAsync("access_token");
-                    if (token) {
-                        // Fetch user session from server
-                        const { data } = await api.get("/api/auth/session");
-                        if (data.success && data.data) {
-                            dispatch(login(data.data));
-                            setIsCheckingSession(false);
-                            return;
-                        }
-                    }
-                    router.replace(ROUTES.LOGIN);
-                } catch (error) {
-                    console.error("Session check error:", error);
-                    router.replace(ROUTES.LOGIN);
-                }
-            } else {
+            if (auth) {
+                // User is logged in, no need to check session
                 setIsCheckingSession(false);
+                return;
             }
+
+            // Not logged in - check if we have a token to restore session
+            try {
+                const token = await SecureStore.getItemAsync("access_token");
+                if (token) {
+                    // Try to restore session from token
+                    const { data } = await api.get("/api/auth/session");
+                    if (data.success && data.data) {
+                        dispatch(login(data.data));
+                        setIsCheckingSession(false);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error("Session check error:", error);
+            }
+
+            // No valid session - show login prompt (don't auto-redirect)
+            setIsCheckingSession(false);
         };
 
         checkSession();
-    }, [auth, isLoggingOut, dispatch, router]);
+    }, [auth, dispatch]);
 
     // Logout handler
     const handleLogout = async () => {
@@ -66,20 +70,76 @@ export default function AccountLayout() {
             dispatch(logout());
 
             showToast("success", "Success", "Logged out successfully");
-            router.replace(ROUTES.LOGIN);
         } catch (error) {
             console.error("Logout error:", error);
             showToast("error", "Error", error.message || "Failed to logout");
+        } finally {
             setIsLoggingOut(false);
         }
     };
 
-    if (!auth || isLoggingOut || isCheckingSession) {
+    // Show loading while checking session
+    if (isCheckingSession) {
         return (
             <SafeAreaView className="flex-1 bg-gray-50">
                 <View className="flex-1 items-center justify-center">
-                    <ActivityIndicator size="large" color="#3b82f6" />
+                    <ActivityIndicator size="large" color="#7c3aed" />
                     <Text className="text-gray-600 mt-4">Loading...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Show login prompt if not authenticated
+    if (!auth && !isLoggingOut) {
+        return (
+            <SafeAreaView className="flex-1 bg-gray-50">
+                <View className="flex-1 items-center justify-center px-6">
+                    <View className="bg-white rounded-2xl p-8 shadow-lg w-full max-w-sm">
+                        <View className="items-center mb-6">
+                            <View className="bg-purple-100 rounded-full p-4 mb-4">
+                                <Ionicons name="person-outline" size={48} color="#7c3aed" />
+                            </View>
+                            <Text className="text-2xl font-bold text-gray-900 mb-2">
+                                Account Required
+                            </Text>
+                            <Text className="text-gray-600 text-center">
+                                Please log in to view your account, orders, and profile
+                            </Text>
+                        </View>
+
+                        <TouchableOpacity
+                            onPress={() => router.push(ROUTES.LOGIN)}
+                            className="bg-purple-600 py-4 rounded-xl mb-3"
+                            activeOpacity={0.8}
+                        >
+                            <Text className="text-white text-center font-bold text-lg">
+                                Log In
+                            </Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            onPress={() => router.push(ROUTES.REGISTER)}
+                            className="bg-gray-100 py-4 rounded-xl"
+                            activeOpacity={0.8}
+                        >
+                            <Text className="text-gray-700 text-center font-semibold text-lg">
+                                Create Account
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // User is logged in - show account screens
+    if (isLoggingOut) {
+        return (
+            <SafeAreaView className="flex-1 bg-gray-50">
+                <View className="flex-1 items-center justify-center">
+                    <ActivityIndicator size="large" color="#7c3aed" />
+                    <Text className="text-gray-600 mt-4">Logging out...</Text>
                 </View>
             </SafeAreaView>
         );
