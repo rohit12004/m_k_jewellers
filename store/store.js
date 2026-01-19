@@ -15,7 +15,7 @@ const rootReducer = combineReducers({
 const persistConfig = {
     key: 'root',
     storage: localStorage,
-    whitelist: ['cartStore', 'authStore']  // Persist both cart and auth state
+    whitelist: ['cartStore']  // Only persist cart - auth managed via HTTP-only cookies
 }
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

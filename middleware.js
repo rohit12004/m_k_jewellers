@@ -74,10 +74,9 @@ export async function middleware(request) {
                 '/',
                 '/shop',
                 '/product',
-                '/about',
-                '/contact',
+                '/cart',
+                '/about-us',
                 '/privacy-policy',
-                '/terms',
             ];
 
             const isPublicWebsitePage = publicWebsiteRoutes.some(route =>
@@ -105,6 +104,11 @@ export async function middleware(request) {
         if (pathname.startsWith('/auth') || pathname.startsWith('/api/auth')) {
             // Exception: Allow email verification page even if logged in
             if (pathname.startsWith('/auth/verify-email')) {
+                return NextResponse.next();
+            }
+
+            // Exception: Allow refresh endpoint even if logged in
+            if (pathname === '/api/auth/refresh') {
                 return NextResponse.next();
             }
 
@@ -145,6 +149,11 @@ export async function middleware(request) {
             return forbiddenParams("Access denied", WEBSITE_LOGIN);
         }
 
+        // Protect Checkout and Order Details (require user to be logged in)
+        if ((pathname.startsWith('/checkout') || pathname.startsWith('/order-details')) && role !== 'user') {
+            return forbiddenParams("Please login to continue", WEBSITE_LOGIN);
+        }
+
         return addCorsHeaders(NextResponse.next(), request);
 
     } catch (error) {
@@ -152,10 +161,13 @@ export async function middleware(request) {
         const isJWTExpired = error.code === 'ERR_JWT_EXPIRED';
 
         if (isJWTExpired) {
+            console.log('🔄 [MIDDLEWARE] Access token expired, attempting refresh...');
+
             // Try to refresh the token
             const refreshToken = request.cookies.get('refresh_token')?.value;
 
             if (refreshToken) {
+                console.log('✅ [MIDDLEWARE] Refresh token found, calling refresh endpoint...');
                 try {
                     // Call the refresh endpoint
                     const refreshResponse = await fetch(new URL('/api/auth/refresh', request.nextUrl).toString(), {
@@ -170,12 +182,14 @@ export async function middleware(request) {
                     if (refreshResponse.ok) {
                         const refreshData = await refreshResponse.json();
 
-                        if (refreshData.success && refreshData.data?.access_token) {
+                        if (refreshData.success && refreshData.data?.accessToken) {
+                            console.log('✅ [MIDDLEWARE] Token refreshed successfully');
+
                             // Create response with new access token
                             const response = NextResponse.next();
 
                             // Set new access token cookie
-                            response.cookies.set('access_token', refreshData.data.access_token, {
+                            response.cookies.set('access_token', refreshData.data.accessToken, {
                                 httpOnly: true,
                                 secure: process.env.NODE_ENV === 'production',
                                 sameSite: 'lax',
@@ -183,8 +197,8 @@ export async function middleware(request) {
                             });
 
                             // If new refresh token provided, update it
-                            if (refreshData.data.refresh_token) {
-                                response.cookies.set('refresh_token', refreshData.data.refresh_token, {
+                            if (refreshData.data.refreshToken) {
+                                response.cookies.set('refresh_token', refreshData.data.refreshToken, {
                                     httpOnly: true,
                                     secure: process.env.NODE_ENV === 'production',
                                     sameSite: 'lax',
@@ -194,9 +208,14 @@ export async function middleware(request) {
 
                             return addCorsHeaders(response, request);
                         }
+                    } else {
+                        console.log('❌ [MIDDLEWARE] Refresh failed:', refreshResponse.status);
                     }
                 } catch (refreshError) {
+                    console.error('❌ [MIDDLEWARE] Refresh error:', refreshError.message);
                 }
+            } else {
+                console.log('❌ [MIDDLEWARE] No refresh token found');
             }
         }
 
@@ -220,5 +239,5 @@ function addCorsHeaders(response, request) {
 
 
 export const config = {
-    matcher: ['/admin/:path*', '/my-account/:path*', '/auth/:path*', '/api/:path*']
+    matcher: ['/admin/:path*', '/my-account/:path*', '/checkout/:path*', '/order-details/:path*', '/auth/:path*', '/api/:path*']
 }

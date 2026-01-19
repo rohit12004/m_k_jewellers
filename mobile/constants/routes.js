@@ -46,5 +46,5 @@ export const ROUTES = {
     ACCOUNT: "/(tabs)/account",
     CHECKOUT: "/(root)/checkout",
     ORDER_DETAILS: (orderId) => `/(root)/order/${orderId}`,
-    ADMIN_DASHBOARD: "/(admin)/dashboard",
 };
+

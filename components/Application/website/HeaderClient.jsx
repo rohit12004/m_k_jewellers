@@ -4,9 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { VscAccount } from "react-icons/vsc";
+import { UserCheck } from 'lucide-react'
 import { useSelector } from 'react-redux'
-import { Avatar, AvatarImage } from '@/components/ui/avatar'
-import userIcon from '@/public/assets/user.png'
 import { IoMdClose } from "react-icons/io";
 import { HiMiniBars3 } from "react-icons/hi2";
 import logo from '@/public/assets/mk_logo.jpg'
@@ -120,7 +119,7 @@ const HeaderClient = ({ categories = [] }) => {
                             {/* Cart */}
                             <Cart />
 
-                            {/* Account/Avatar */}
+                            {/* Account Icon */}
                             {!auth ? (
                                 <div
                                     onClick={() => router.push(WEBSITE_LOGIN)}
@@ -134,11 +133,13 @@ const HeaderClient = ({ categories = [] }) => {
                             ) : (
                                 <Link
                                     href={USER_DASHBOARD}
-                                    className='ring-2 ring-primary/20 hover:ring-primary/40 rounded-full transition-all duration-300'
+                                    className='p-2 rounded-full hover:bg-primary/10 transition-all duration-300 group'
+                                    title={`Logged in as ${auth?.name}`}
                                 >
-                                    <Avatar className='w-9 h-9'>
-                                        <AvatarImage src={auth?.avatarUrl || userIcon.src} />
-                                    </Avatar>
+                                    <UserCheck
+                                        className='text-green-600 dark:text-green-600 group-hover:text-primary transition-colors duration-300'
+                                        size={25}
+                                    />
                                 </Link>
                             )}
 

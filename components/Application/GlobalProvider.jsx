@@ -33,11 +33,13 @@ const SessionRestoration = ({ children }) => {
         const restoreSession = async () => {
             try {
                 const { data } = await api.get('/api/auth/session');
-                if (data.success && data.data) {
+                if (data?.success && data?.data) {
                     dispatch(login(data.data));
                 }
             } catch (error) {
-                // Silent fail - user is not logged in
+                // Silent fail - user is not logged in, token expired, or database unreachable
+                // The axios interceptor will handle token refresh automatically
+                // If refresh fails, user will be redirected to login by middleware
             } finally {
                 setInitialized(true);
             }

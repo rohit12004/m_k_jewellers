@@ -56,24 +56,17 @@ const InitialLayout = () => {
   const inAuthGroup = segments[0] === "(auth)";
   const isAuthCallback = segments[0] === "auth-callback";
   const inTabsGroup = segments[0] === "(tabs)";
-  const inAdminGroup = segments[0] === "(admin)";
   const inRootGroup = segments[0] === "(root)";
 
-  // ✅ Logged in → block auth pages, redirect to appropriate home
+  // ✅ Logged in → block auth pages, redirect to home
   if (auth && (inAuthGroup || isAuthCallback)) {
-    if (auth.role === "admin") {
-      return <Redirect href="/(admin)/dashboard" />;
-    }
     return <Redirect href="/(tabs)/home" />;
   }
 
-  // 🔒 Admin routes require admin auth
-  if (inAdminGroup && (!auth || auth.role !== "admin")) {
-    return <Redirect href="/(auth)/login" />;
-  }
+
 
   // 🏠 Default route - redirect to home tabs (works for both logged in and logged out)
-  if (!inAuthGroup && !isAuthCallback && !inTabsGroup && !inAdminGroup && !inRootGroup) {
+  if (!inAuthGroup && !isAuthCallback && !inTabsGroup && !inRootGroup) {
     return <Redirect href="/(tabs)/home" />;
   }
 
