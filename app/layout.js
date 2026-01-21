@@ -4,6 +4,7 @@ import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import "../lib/cron"
 import GlobalProvider from "@/components/Application/GlobalProvider";
+import ChatWidget from "@/components/Chatbot/ChatWidget";
 
 const assistantFont = Assistant({
   weight: ["400", "500", "600", "700", "800"],
@@ -25,8 +26,10 @@ export default function RootLayout({ children }) {
         <GlobalProvider>
           {children}
           <ToastContainer />
+          <ChatWidget />
         </GlobalProvider>
       </body>
     </html>
   );
 }
+
