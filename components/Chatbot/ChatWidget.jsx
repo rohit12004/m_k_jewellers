@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Sparkles } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import ProductCard from './ProductCard'
 
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false)
@@ -42,7 +43,9 @@ export default function ChatWidget() {
             if (data.success) {
                 setMessages(prev => [...prev, {
                     role: 'assistant',
-                    content: data.data.reply
+                    content: data.data.reply,
+                    products: data.data.products || [], // Add products from agent
+                    toolsUsed: data.data.toolsUsed || [] // Track which tools were used
                 }])
 
                 if (!conversationId) {
@@ -132,6 +135,15 @@ export default function ChatWidget() {
                                             {msg.content}
                                         </ReactMarkdown>
                                     </div>
+
+                                    {/* Product Cards - Show if agent returned products */}
+                                    {msg.products && msg.products.length > 0 && (
+                                        <div className="mt-3 space-y-2">
+                                            {msg.products.map((product, pIdx) => (
+                                                <ProductCard key={product.id || pIdx} product={product} />
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}

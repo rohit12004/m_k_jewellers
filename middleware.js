@@ -13,6 +13,7 @@ const PUBLIC_API_ROUTES = [
     '/api/product/details',
     '/api/category/get-featured-categories',
     '/api/cart/calculate-prices',
+    '/api/chatbot', // Allow chatbot access for all users
 ];
 
 export async function middleware(request) {

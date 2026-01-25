@@ -18,7 +18,7 @@ export async function POST(request) {
 
         const getUser = await findUserByEmail(email)
         if (!getUser) {
-            return response(false, 404, 'User not found')
+            return response(false, 404, 'Email not registered')
         }
 
         await deleteOTPByEmail(email)

@@ -45,7 +45,8 @@ const ResetPassword = () => {
             setOtpEmail(values.email)
             showToast('success', sendOtpResponse.message)
         } catch (error) {
-            showToast('error', error.message)
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to send OTP'
+            showToast('error', errorMessage)
         } finally {
             setEmailVerificationLoading(false)
         }
@@ -63,7 +64,8 @@ const ResetPassword = () => {
             showToast('success', otpResponse.message)
             setisOtpVerified(true)
         } catch (error) {
-            showToast('error', error.message)
+            const errorMessage = error.response?.data?.message || error.message || 'OTP verification failed'
+            showToast('error', errorMessage)
         } finally {
             setotpVerificationLoading(false)
         }
