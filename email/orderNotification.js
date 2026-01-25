@@ -1,5 +1,5 @@
 export const orderNotification = (data) => {
-  const html = `
+	const html = `
         <!DOCTYPE html>
   <html lang="en-US" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:v="urn:schemas-microsoft-com:vml">
 <head>
@@ -211,7 +211,7 @@ export const orderNotification = (data) => {
 																<div align="center" class="alignment">
 																	<div style="max-width: 248px;"><img alt="Logo"
 																			height="auto" 
-																			src="https://res.cloudinary.com/dxh3hcxav/image/upload/v1761031401/mk_email_verification_h0w3ha.webp"
+																			src="https://res.cloudinary.com/dxh3hcxav/image/upload/v1769352656/mk_email_verification_roeu7b.webp"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="Logo" width="248" /></div>
 																</div>
@@ -286,7 +286,7 @@ export const orderNotification = (data) => {
 																style="width:100%;padding-right:0px;padding-left:0px;">
 																<div align="center" class="alignment">
 																	<div style="max-width: 13px;"><img alt="Check"
-																			height="auto" src="https://res.cloudinary.com/do7xdfl3y/image/upload/v1746551738/next-ecommerce/check-orange_g480te.png"
+																			height="auto" src="https://res.cloudinary.com/dxh3hcxav/image/upload/v1769354311/check-orange_jgram8.webp"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="Check" width="13" /></div>
 																</div>
@@ -427,7 +427,7 @@ export const orderNotification = (data) => {
 																<div align="center" class="alignment">
 																	<div style="max-width: 130px;"><img
 																			alt="a hand with a star" height="auto"
-																			src="https://res.cloudinary.com/do7xdfl3y/image/upload/v1746551738/next-ecommerce/order-conf-icon_ljhxtd.png"
+																			src="https://res.cloudinary.com/dxh3hcxav/image/upload/v1769354312/order-conf-icon_kdafx1.webp"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="a hand with a star" width="130" />
 																	</div>
@@ -459,274 +459,7 @@ export const orderNotification = (data) => {
 							</tr>
 						</tbody>
 					</table>
-					<table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-5"
-						role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-						<tbody>
-							<tr>
-								<td>
-									<table align="center" border="0" cellpadding="0" cellspacing="0"
-										class="row-content stack" role="presentation"
-										style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000; border-radius: 20px 20px 0 0; color: #000000; padding-bottom: 20px; padding-left: 60px; padding-top: 20px; width: 680px; margin: 0 auto;"
-										width="680">
-										<tbody>
-											<tr>
-												<td class="column column-1"
-													style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-top: 20px; vertical-align: top;"
-													width="58.333333333333336%">
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="paragraph_block block-1" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:5px;padding-left:10px;padding-right:10px;padding-top:5px;">
-																<div
-																	style="color:#f7f1ed;direction:ltr;font-family:TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;font-size:14px;font-weight:700;letter-spacing:3px;line-height:1.2;text-align:left;mso-line-height-alt:17px;">
-																	<p style="margin: 0;">FUEL FOR YOUR INNER GLOW</p>
-																</div>
-															</td>
-														</tr>
-													</table>
-												</td>
-												<td class="column column-2"
-													style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-right: 50px; padding-top: 20px; vertical-align: top;"
-													width="41.666666666666664%">
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="social_block block-1" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="text-align:right;padding-right:0px;padding-left:0px;">
-																<div align="right" class="alignment">
-																	<table border="0" cellpadding="0" cellspacing="0"
-																		class="social-table" role="presentation"
-																		style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block;"
-																		width="108px">
-																		<tr>
-																			<td style="padding:0 0 0 4px;"><a
-																					href="https://www.facebook.com/"
-																					target="_blank"><img alt="facebook"
-																						height="auto"
-																						src="https://res.cloudinary.com/do7xdfl3y/image/upload/v1746551738/next-ecommerce/facebook2x_i55n3x.png"
-																						style="display: block; height: auto; border: 0;"
-																						title="facebook"
-																						width="32" /></a></td>
-																			<td style="padding:0 0 0 4px;"><a
-																					href="https://www.twitter.com/"
-																					target="_blank"><img alt="twitter"
-																						height="auto"
-																						src="https://res.cloudinary.com/do7xdfl3y/image/upload/v1746551738/next-ecommerce/twitter2x_mw4wta.png"
-																						style="display: block; height: auto; border: 0;"
-																						title="twitter"
-																						width="32" /></a></td>
-																			<td style="padding:0 0 0 4px;"><a
-																					href="https://www.instagram.com/"
-																					target="_blank"><img alt="instagram"
-																						height="auto"
-																						src="https://res.cloudinary.com/do7xdfl3y/image/upload/v1746551738/next-ecommerce/instagram2x_te7lqu.png"
-																						style="display: block; height: auto; border: 0;"
-																						title="instagram"
-																						width="32" /></a></td>
-																		</tr>
-																	</table>
-																</div>
-															</td>
-														</tr>
-													</table>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					<table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-6"
-						role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-						<tbody>
-							<tr>
-								<td>
-									<table align="center" border="0" cellpadding="0" cellspacing="0"
-										class="row-content stack" role="presentation"
-										style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000; border-radius: 0; color: #000000; padding: 5px 60px; width: 680px; margin: 0 auto;"
-										width="680">
-										<tbody>
-											<tr>
-												<td class="column column-1"
-													style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top;"
-													width="100%">
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="divider_block block-1" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:10px;padding-top:10px;">
-																<div align="center" class="alignment">
-																	<table border="0" cellpadding="0" cellspacing="0"
-																		role="presentation"
-																		style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;"
-																		width="100%">
-																		<tr>
-																			<td class="divider_inner"
-																				style="font-size: 1px; line-height: 1px; border-top: 1px solid #3a3a3a;">
-																				<span
-																					style="word-break: break-word;"> </span>
-																			</td>
-																		</tr>
-																	</table>
-																</div>
-															</td>
-														</tr>
-													</table>
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="paragraph_block block-2" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:20px;padding-top:20px;">
-																<div
-																	style="color:#ffffff;direction:ltr;font-family:TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:22px;">
-																	<p style="margin: 0;"><strong>Have a
-																			question?</strong> We love curiosity. <a
-																			href="contact-us.com" rel="noopener"
-																			style="text-decoration: underline; color: #ffffff;"
-																			target="_blank">contact us</a></p>
-																</div>
-															</td>
-														</tr>
-													</table>
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="divider_block block-3" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:10px;padding-top:10px;">
-																<div align="center" class="alignment">
-																	<table border="0" cellpadding="0" cellspacing="0"
-																		role="presentation"
-																		style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;"
-																		width="100%">
-																		<tr>
-																			<td class="divider_inner"
-																				style="font-size: 1px; line-height: 1px; border-top: 1px solid #3a3a3a;">
-																				<span
-																					style="word-break: break-word;"> </span>
-																			</td>
-																		</tr>
-																	</table>
-																</div>
-															</td>
-														</tr>
-													</table>
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="paragraph_block block-4" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:5px;padding-top:15px;">
-																<div
-																	style="color:#ffffff;direction:ltr;font-family:TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;font-size:15px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:left;mso-line-height-alt:18px;">
-																	<p style="margin: 0;">How much do you want to hear
-																		from us?</p>
-																</div>
-															</td>
-														</tr>
-													</table>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					<table align="center" border="0" cellpadding="0" cellspacing="0" class="row row-7"
-						role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;" width="100%">
-						<tbody>
-							<tr>
-								<td>
-									<table align="center" border="0" cellpadding="0" cellspacing="0" class="row-content"
-										role="presentation"
-										style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000; border-radius: 0; color: #000000; width: 680px; margin: 0 auto;"
-										width="680">
-										<tbody>
-											<tr>
-												<td class="column column-1"
-													style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-left: 20px; padding-top: 5px; vertical-align: top;"
-													width="33.333333333333336%">
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="paragraph_block block-1" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:20px;padding-top:15px;">
-																<div
-																	style="color:#f7f1ed;direction:ltr;font-family:TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;font-size:13px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:center;mso-line-height-alt:16px;">
-																	<p style="margin: 0;"><a
-																			href="https://www.example.com"
-																			rel="noopener"
-																			style="text-decoration: underline; color: #f7f1ed;"
-																			target="_blank">Give me everything!</a></p>
-																</div>
-															</td>
-														</tr>
-													</table>
-												</td>
-												<td class="column column-2"
-													style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-left: 20px; padding-right: 20px; padding-top: 5px; vertical-align: top;"
-													width="33.333333333333336%">
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="paragraph_block block-1" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:20px;padding-top:15px;">
-																<div
-																	style="color:#f7f1ed;direction:ltr;font-family:TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;font-size:13px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:center;mso-line-height-alt:16px;">
-																	<p style="margin: 0;"><a
-																			href="https://www.example.com"
-																			rel="noopener"
-																			style="text-decoration: underline; color: #f7f1ed;"
-																			target="_blank">Just the essentials.</a></p>
-																</div>
-															</td>
-														</tr>
-													</table>
-												</td>
-												<td class="column column-3"
-													style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-right: 20px; padding-top: 5px; vertical-align: top;"
-													width="33.333333333333336%">
-													<table border="0" cellpadding="0" cellspacing="0"
-														class="paragraph_block block-1" role="presentation"
-														style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;"
-														width="100%">
-														<tr>
-															<td class="pad"
-																style="padding-bottom:20px;padding-top:15px;">
-																<div
-																	style="color:#f7f1ed;direction:ltr;font-family:TimesNewRoman, 'Times New Roman', Times, Baskerville, Georgia, serif;font-size:13px;font-weight:400;letter-spacing:0px;line-height:1.2;text-align:center;mso-line-height-alt:16px;">
-																	<p style="margin: 0;"><a href="" target="_blank">M.K.Jewellers</a></p>
-																</div>
-															</td>
-														</tr>
-													</table>
-												</td>
-											</tr>
-										</tbody>
-									</table>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-
-				</td>
+					</td>
 			</tr>
 		</tbody>
 	</table> 
@@ -735,5 +468,5 @@ export const orderNotification = (data) => {
 </html>
 `;
 
-  return html;
+	return html;
 };

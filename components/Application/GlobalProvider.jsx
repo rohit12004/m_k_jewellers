@@ -12,8 +12,8 @@ import { usePathname } from 'next/navigation';
 
 const queryClient = new QueryClient();
 
-// Session restoration component - Industry standard approach
-const SessionRestoration = ({ children }) => {
+// Session restoration component - Optimized with server-side session
+const SessionRestoration = ({ children, initialSession }) => {
     const dispatch = useDispatch();
     const pathname = usePathname();
     const [initialized, setInitialized] = useState(false);
@@ -21,15 +21,18 @@ const SessionRestoration = ({ children }) => {
     useEffect(() => {
         // Skip session restoration on auth pages to prevent infinite loop
         if (pathname?.startsWith('/auth')) {
+            setInitialized(true);
             return;
         }
 
-        // Only restore session once per app load
-        if (initialized) {
+        // If we have initial session from server, use it immediately
+        if (initialSession && !initialized) {
+            dispatch(login(initialSession));
+            setInitialized(true);
             return;
         }
 
-        // Restore session from HTTP-only cookie
+        // Fallback: Restore session from HTTP-only cookie (for client-side navigation)
         const restoreSession = async () => {
             try {
                 const { data } = await api.get('/api/auth/session');
@@ -38,26 +41,27 @@ const SessionRestoration = ({ children }) => {
                 }
             } catch (error) {
                 // Silent fail - user is not logged in, token expired, or database unreachable
-                // The axios interceptor will handle token refresh automatically
-                // If refresh fails, user will be redirected to login by middleware
             } finally {
                 setInitialized(true);
             }
         };
 
-        restoreSession();
-    }, [dispatch, pathname, initialized]);
+        // Run immediately on mount if no initial session
+        if (!initialized) {
+            restoreSession();
+        }
+    }, [dispatch, pathname, initialized, initialSession]);
 
     return <>{children}</>;
 };
 
-const GlobalProvider = ({ children }) => {
+const GlobalProvider = ({ children, initialSession }) => {
     return (
         <QueryClientProvider client={queryClient}>
 
             <Provider store={store}>
                 <PersistGate persistor={persistor} loading={<Loading />}>
-                    <SessionRestoration>
+                    <SessionRestoration initialSession={initialSession}>
                         {children}
                     </SessionRestoration>
                 </PersistGate>

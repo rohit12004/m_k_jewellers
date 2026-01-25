@@ -28,15 +28,15 @@ const HeaderClient = ({ categories = [] }) => {
     }, [])
 
     return (
-        <header className={`sticky top-0 z-50 bg-white/95 dark:bg-white/95 backdrop-blur-md transition-all duration-300 ${isScrolled ? 'shadow-md' : 'shadow-sm border-b'}`}>
+        <header className={`sticky top-0 z-50 bg-transparent backdrop-blur-sm transition-all duration-300 ${isScrolled ? 'shadow- border-b border-grey/20' : 'border-b border-white/20'}`}>
             <div className='lg:px-10 px-4 max-w-full overflow-hidden'>
                 <div className='flex justify-between items-center lg:py-3 py-4 w-full'>
                     {/* Logo */}
                     <Link href={WEBSITE_HOME} className='flex items-center group flex-shrink-0'>
                         <Image
                             src={logo}
-                            width={60}
-                            height={60}
+                            width={50}
+                            height={50}
                             alt='M&K Jewellers'
                             className='rounded-full ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300'
                             priority
@@ -70,7 +70,7 @@ const HeaderClient = ({ categories = [] }) => {
                                 <li className='group relative'>
                                     <Link
                                         href={WEBSITE_HOME}
-                                        className='block py-3 lg:py-2 text-gray-700 dark:text-gray-700 hover:text-primary font-medium transition-colors duration-300'
+                                        className={`block py-3 lg:py-2 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
                                         onClick={() => setIsMobileMenu(false)}
                                     >
                                         Home
@@ -80,7 +80,7 @@ const HeaderClient = ({ categories = [] }) => {
                                 <li className='group relative'>
                                     <Link
                                         href="/about-us"
-                                        className='block py-3 lg:py-2 text-gray-700 dark:text-gray-700 hover:text-primary font-medium transition-colors duration-300'
+                                        className={`block py-3 lg:py-2 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
                                         onClick={() => setIsMobileMenu(false)}
                                     >
                                         About
@@ -90,7 +90,7 @@ const HeaderClient = ({ categories = [] }) => {
                                 <li className='group relative'>
                                     <Link
                                         href={WEBSITE_SHOP}
-                                        className='block py-3 lg:py-2 text-gray-700 dark:text-gray-700 hover:text-primary font-medium transition-colors duration-300'
+                                        className={`block py-3 lg:py-2 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
                                         onClick={() => setIsMobileMenu(false)}
                                     >
                                         Shop
@@ -103,7 +103,7 @@ const HeaderClient = ({ categories = [] }) => {
                                     <li key={category.id} className='group relative'>
                                         <Link
                                             href={`${WEBSITE_SHOP}?category=${category.slug}`}
-                                            className='block py-3 lg:py-2 text-gray-700 dark:text-gray-700 hover:text-primary font-medium transition-colors duration-300'
+                                            className={`block py-3 lg:py-2 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
                                             onClick={() => setIsMobileMenu(false)}
                                         >
                                             {category.name}

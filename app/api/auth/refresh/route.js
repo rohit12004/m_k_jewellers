@@ -46,11 +46,11 @@ export async function POST(request) {
             avatarUrl: user.avatarUrl,
         };
 
-        // Generate new access token (15 minutes)
+        // Generate new access token (1 day)
         const secret = new TextEncoder().encode(process.env.SECRET_KEY);
         const newAccessToken = await new SignJWT(userData)
             .setIssuedAt()
-            .setExpirationTime('15m')
+            .setExpirationTime('1d') // 1 day
             .setProtectedHeader({ alg: 'HS256' })
             .sign(secret);
 
@@ -65,7 +65,7 @@ export async function POST(request) {
             path: '/',
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 15 * 60, // 15 minutes
+            maxAge: 24 * 60 * 60, // 1 day
         });
 
         cookieStore.set({

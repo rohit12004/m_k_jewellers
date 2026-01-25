@@ -101,39 +101,42 @@ export async function middleware(request) {
         const { payload } = await jwtVerify(access_token, new TextEncoder().encode(process.env.SECRET_KEY))
         const role = payload.role
 
-        // Block logged-in users from accessing auth pages (Web only mainly, API doesn't care much but good to block)
-        if (pathname.startsWith('/auth') || pathname.startsWith('/api/auth')) {
+        // Block logged-in users from accessing auth pages
+        if (pathname.startsWith('/auth')) {
             // Exception: Allow email verification page even if logged in
             if (pathname.startsWith('/auth/verify-email')) {
                 return NextResponse.next();
             }
 
+            // Redirect logged-in users to their dashboard
+            return NextResponse.redirect(new URL(role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD, request.nextUrl));
+        }
+
+        // Handle API auth routes separately
+        if (pathname.startsWith('/api/auth')) {
             // Exception: Allow refresh endpoint even if logged in
             if (pathname === '/api/auth/refresh') {
                 return NextResponse.next();
             }
 
-            if (pathname.startsWith('/api')) {
-                // Allow POST requests to auth endpoints even if logged in (e.g. switching accounts, or stale token)
-                // specifically for register/login/verify-otp/reset-password
-                if (request.method === 'POST') {
-                    return NextResponse.next();
-                }
-
-                // Allow PUT requests for reset-password routes (update password)
-                if (request.method === 'PUT' && pathname.startsWith('/api/auth/reset-password')) {
-                    return NextResponse.next();
-                }
-
-                // Allow GET request for session check
-                if (request.method === 'GET' && pathname === '/api/auth/session') {
-                    return NextResponse.next();
-                }
-
-                // For other methods (GET, DELETE, etc.), block them or return JSON
-                return NextResponse.json({ success: false, message: "You are already logged in" }, { status: 400 });
+            // Allow POST requests to auth endpoints even if logged in (e.g. switching accounts, or stale token)
+            // specifically for register/login/verify-otp/reset-password
+            if (request.method === 'POST') {
+                return NextResponse.next();
             }
-            return NextResponse.redirect(new URL(role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD, request.nextUrl))
+
+            // Allow PUT requests for reset-password routes (update password)
+            if (request.method === 'PUT' && pathname.startsWith('/api/auth/reset-password')) {
+                return NextResponse.next();
+            }
+
+            // Allow GET request for session check
+            if (request.method === 'GET' && pathname === '/api/auth/session') {
+                return NextResponse.next();
+            }
+
+            // For other methods (GET, DELETE, etc.), block them or return JSON
+            return NextResponse.json({ success: false, message: "You are already logged in" }, { status: 400 });
         }
 
         // Protect Admin Routes
@@ -194,7 +197,7 @@ export async function middleware(request) {
                                 httpOnly: true,
                                 secure: process.env.NODE_ENV === 'production',
                                 sameSite: 'lax',
-                                maxAge: 15 * 60 // 15 minutes
+                                maxAge: 24 * 60 * 60 // 1 day
                             });
 
                             // If new refresh token provided, update it

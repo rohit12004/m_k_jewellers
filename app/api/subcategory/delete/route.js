@@ -64,13 +64,14 @@ export async function DELETE(request) {
       return response(false, 400, "Invalid delete type for this route")
     }
 
-    try {
-      const result = await deleteManySubCategory(ids)
-      revalidateTag('subcategories') // Clear cache after permanent delete
-      return response(true, 200, "Subcategory permanently deleted successfully", result)
-    } catch (err) {
-      return response(false, 500, "Failed to delete Subcategory. Transaction rolled back.")
+    const result = await deleteManySubCategory(ids)
+
+    if (!result.success) {
+      return response(false, result.statusCode, result.message)
     }
+
+    revalidateTag('subcategories') // Clear cache after permanent delete
+    return response(true, 200, result.message, result.data)
 
   } catch (error) {
     return catchError(error)
