@@ -14,7 +14,7 @@ const PriceBreakdown = ({ pricing }) => {
                         <span className="text-gray-600 dark:text-gray-400">Metal Cost</span>
                         <span className="font-medium">₹{pricing.metalCost.toLocaleString('en-IN')}</span>
                     </div>
-                ))}
+                )}
 
                 {pricing.labourCharge && (
                     <div className="flex justify-between text-sm">
