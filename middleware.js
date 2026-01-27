@@ -190,7 +190,23 @@ export async function middleware(request) {
                             console.log('✅ [MIDDLEWARE] Token refreshed successfully');
 
                             // Create response with new access token
-                            const response = NextResponse.next();
+                            let response = NextResponse.next();
+
+                            // FIX: If user is on an auth page (login/register) and token refreshes successfully,
+                            // they are now logged in and should be redirected to dashboard
+                            if (request.nextUrl.pathname.startsWith('/auth')) {
+                                try {
+                                    // Verify new token to get role
+                                    const { payload } = await jwtVerify(refreshData.data.accessToken, new TextEncoder().encode(process.env.SECRET_KEY));
+                                    const role = payload.role;
+
+                                    const targetUrl = role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD;
+                                    response = NextResponse.redirect(new URL(targetUrl, request.nextUrl));
+                                    console.log(`🔀 [MIDDLEWARE] Redirecting refreshed user to ${targetUrl}`);
+                                } catch (e) {
+                                    console.error('❌ [MIDDLEWARE] Failed to decode new token for redirect:', e.message);
+                                }
+                            }
 
                             // Set new access token cookie
                             response.cookies.set('access_token', refreshData.data.accessToken, {

@@ -132,15 +132,17 @@ export default function ChatWidget() {
                                                 li: ({ node, ...props }) => <li className="my-0.5" {...props} />
                                             }}
                                         >
-                                            {msg.content}
+                                            {typeof msg.content === 'string' ? msg.content : ''}
                                         </ReactMarkdown>
                                     </div>
 
                                     {/* Product Cards - Show if agent returned products */}
                                     {msg.products && msg.products.length > 0 && (
-                                        <div className="mt-3 space-y-2">
+                                        <div className="mt-3 flex gap-3 overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide snap-x">
                                             {msg.products.map((product, pIdx) => (
-                                                <ProductCard key={product.id || pIdx} product={product} />
+                                                <div key={product.id || pIdx} className="snap-center shrink-0 w-[170px]">
+                                                    <ProductCard product={product} />
+                                                </div>
                                             ))}
                                         </div>
                                     )}

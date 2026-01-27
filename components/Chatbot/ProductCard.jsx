@@ -20,6 +20,7 @@ export default function ProductCard({ product }) {
         image,
         imageAlt,
         productUrl,
+        shopUrl, // New shop URL with filters
         purity,
         weight
     } = product;
@@ -32,77 +33,71 @@ export default function ProductCard({ product }) {
     }).format(price);
 
     return (
-        <div className="group bg-white border-2 border-amber-100 rounded-xl overflow-hidden hover:border-amber-300 hover:shadow-lg transition-all duration-300">
-            <div className="flex gap-3 p-3">
-                {/* Product Image */}
-                <div className="relative w-24 h-24 flex-shrink-0 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg overflow-hidden">
+        <div className="group bg-white border border-amber-100 rounded-xl overflow-hidden hover:border-amber-300 hover:shadow-lg transition-all duration-300 w-full h-full flex flex-col">
+            {/* Product Image - Top - Link to Product Details */}
+            <div className="relative w-full h-32 flex-shrink-0 bg-gradient-to-br from-amber-50 to-yellow-50 overflow-hidden">
+                <Link href={shopUrl || `/shop`} className="block w-full h-full">
                     {image ? (
                         <Image
                             src={image}
                             alt={imageAlt || name}
                             fill
-                            className="object-cover group-hover:scale-110 transition-transform duration-300"
-                            sizes="96px"
+                            className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            sizes="220px"
                         />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center">
                             <Tag className="w-8 h-8 text-amber-300" />
                         </div>
                     )}
+                </Link>
 
-                    {/* Category Badge */}
-                    {category && (
-                        <div className="absolute top-1 right-1 bg-amber-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                            {category}
-                        </div>
-                    )}
-                </div>
+                {/* Category Badge */}
+                {category && (
+                    <div className="absolute top-2 right-2 bg-amber-600/90 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full backdrop-blur-sm pointer-events-none">
+                        {category}
+                    </div>
+                )}
+            </div>
 
-                {/* Product Details */}
-                <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    {/* Name and Description */}
-                    <div>
-                        <h4 className="font-semibold text-gray-800 text-sm line-clamp-1 group-hover:text-amber-700 transition-colors">
-                            {name}
-                        </h4>
-                        {description && (
-                            <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">
-                                {description}
-                            </p>
+            {/* Product Details - Bottom */}
+            <div className="p-3 flex flex-col flex-1 gap-2">
+                {/* Name - Link to Product Details */}
+
+                <h4 className="font-semibold text-gray-800 text-sm line-clamp-2 group-hover:text-amber-700 transition-colors leading-tight min-h-[2.5em]">
+                    {name}
+                </h4>
+
+
+                {/* Specifications */}
+                {(purity || weight) && (
+                    <div className="flex flex-wrap gap-1.5 text-[10px] text-gray-500">
+                        {purity && (
+                            <span className="bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
+                                {purity}
+                            </span>
                         )}
-
-                        {/* Specifications */}
-                        {(purity || weight) && (
-                            <div className="flex gap-2 mt-1 text-xs text-gray-600">
-                                {purity && (
-                                    <span className="bg-amber-50 px-2 py-0.5 rounded">
-                                        {purity}
-                                    </span>
-                                )}
-                                {weight && (
-                                    <span className="bg-amber-50 px-2 py-0.5 rounded">
-                                        {weight}g
-                                    </span>
-                                )}
-                            </div>
+                        {weight && (
+                            <span className="bg-amber-50 px-1.5 py-0.5 rounded border border-amber-100">
+                                {weight}g
+                            </span>
                         )}
                     </div>
+                )}
 
-                    {/* Price and Link */}
-                    <div className="flex items-center justify-between mt-2">
-                        <div className="font-bold text-amber-700 text-base">
-                            {formattedPrice}
-                        </div>
-
-                        <Link
-                            href={productUrl || `/products/${slug}`}
-                            target="_blank"
-                            className="flex items-center gap-1 text-xs font-semibold text-amber-600 hover:text-amber-700 hover:gap-2 transition-all"
-                        >
-                            View Details
-                            <ExternalLink size={12} />
-                        </Link>
+                <div className="mt-auto pt-2 flex items-center justify-between border-t border-amber-50">
+                    <div className="font-bold text-amber-700 text-sm">
+                        {formattedPrice}
                     </div>
+
+                    {/* Arrow Button - Link to SHOP with Filters */}
+                    <Link
+                        href={shopUrl || `/shop`}
+                        className="bg-amber-100 p-1.5 rounded-full text-amber-600 hover:bg-amber-600 hover:text-white transition-all transform hover:scale-105"
+                        title="View similar items in Shop"
+                    >
+                        <ExternalLink size={14} />
+                    </Link>
                 </div>
             </div>
         </div>

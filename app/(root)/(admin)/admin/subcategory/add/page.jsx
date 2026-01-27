@@ -1,21 +1,19 @@
 'use client'
 import BreadCrumb from '@/components/Application/Admin/BreadCrumb'
 import ButtonLoading from '@/components/Application/ButtonLoading'
-import Select from '@/components/Application/Select'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { showToast } from '@/lib/showToast'
 import { zSchema } from '@/lib/zodSchema'
-import { ADMIN_SUB_CATEGORY_SHOW, ADMIN_SUB_CATEGORY_ADD, ADMIN_DASHBOARD } from '@/routes/adminPanelRoutes'
+import { ADMIN_SUB_CATEGORY_SHOW, ADMIN_DASHBOARD } from '@/routes/adminPanelRoutes'
 import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import slugify from 'slugify'
 import MediaModal from '@/components/Application/Admin/MediaModal'
 import Image from 'next/image'
 import { useCategories } from '@/hooks/useAdminData'
+import { useCreateSubCategory } from '@/hooks/useCategoryMutations'
 
 const breadcrumbData = [
   { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -24,10 +22,10 @@ const breadcrumbData = [
 ]
 
 const AddSubCategory = () => {
-  const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState([])
   const [open, setOpen] = useState(false)
   const [selectedMedia, setSelectedMedia] = useState([])
+  const { mutateAsync: createSubCategory, isPending } = useCreateSubCategory()
 
   const formSchema = zSchema.pick({ name: true, slug: true }).extend({ categoryIds: zSchema.shape.categoryIds })
   const form = useForm({
@@ -55,22 +53,18 @@ const AddSubCategory = () => {
   }, [form])
 
   const onSubmit = async (values) => {
-    setLoading(true)
     try {
       // Add mediaId if media is selected
       if (selectedMedia && selectedMedia.length > 0) {
         values.mediaId = selectedMedia[0].id
       }
 
-      const { data: response } = await axios.post('/api/subcategory/create', values)
-      if (!response.success) throw new Error(response.message)
-      form.reset()
+      await createSubCategory(values)
+
+      form.reset({ name: '', slug: '', categoryIds: [] })
       setSelectedMedia([])
-      showToast('success', response.message)
     } catch (error) {
-      showToast('error', error.message)
-    } finally {
-      setLoading(false)
+      console.error("Failed to create subcategory:", error);
     }
   }
 
@@ -185,7 +179,7 @@ const AddSubCategory = () => {
               </div>
 
               <div className='mb-3'>
-                <ButtonLoading loading={loading} type="submit" text="Add Sub-Category" className="cursor-pointer" />
+                <ButtonLoading loading={isPending} type="submit" text="Add Sub-Category" className="cursor-pointer" />
               </div>
 
             </form>

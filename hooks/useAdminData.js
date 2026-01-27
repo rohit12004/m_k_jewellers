@@ -15,8 +15,10 @@ export const useCategories = () => {
             }
             return data;
         },
-        staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
-        gcTime: 10 * 60 * 1000,   // Cache persists for 10 minutes (formerly cacheTime)
+        staleTime: 1000 * 60 * 60, // 1 hour - data stays fresh
+        gcTime: 1000 * 60 * 60 * 2, // 2 hours - cache garbage collection
+        refetchOnWindowFocus: false, // Don't refetch on window focus
+        refetchOnMount: false, // Don't refetch if data exists
         retry: 2, // Retry failed requests twice
     });
 };
@@ -35,8 +37,10 @@ export const useSubcategories = () => {
             }
             return data;
         },
-        staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
-        gcTime: 10 * 60 * 1000,   // Cache persists for 10 minutes
+        staleTime: 1000 * 60 * 60, // 1 hour - data stays fresh (matches categories)
+        gcTime: 1000 * 60 * 60 * 2, // 2 hours - cache garbage collection
+        refetchOnWindowFocus: false, // Don't refetch on window focus
+        refetchOnMount: false, // Don't refetch if data exists
         retry: 2,
     });
 };

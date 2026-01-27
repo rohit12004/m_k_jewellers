@@ -1,10 +1,7 @@
 'use client'
 import React, { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { showToast } from '@/lib/showToast'
 import {
     Table,
@@ -14,36 +11,17 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
+import { useMetalRates } from '@/hooks/useMetalRates'
+import { useUpdateMetalRates } from '@/hooks/useMetalRateMutations'
 
 const MetalRatesPage = () => {
-    const queryClient = useQueryClient()
     const [editingRates, setEditingRates] = useState({})
 
     // Fetch metal rates
-    const { data, isLoading } = useQuery({
-        queryKey: ['metalRates'],
-        queryFn: async () => {
-            const { data } = await axios.get('/api/admin/metal-rates')
-            return data.data
-        }
-    })
+    const { data: rates, isLoading } = useMetalRates()
 
     // Update mutation
-    const updateRates = useMutation({
-        mutationFn: async (rates) => {
-            const { data } = await axios.post('/api/admin/metal-rates', { rates })
-            return data
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries(['metalRates'])
-            queryClient.invalidateQueries(['cart-prices']) // Invalidate cart prices to reflect new rates
-            showToast('success', 'Metal rates updated successfully!')
-            setEditingRates({})
-        },
-        onError: (error) => {
-            showToast('error', error.response?.data?.message || 'Failed to update rates')
-        }
-    })
+    const updateRates = useUpdateMetalRates()
 
     const handleRateChange = (id, value) => {
         setEditingRates(prev => ({
@@ -52,9 +30,9 @@ const MetalRatesPage = () => {
         }))
     }
 
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
         // Only send rates that were actually changed
-        const ratesToUpdate = data
+        const ratesToUpdate = rates
             .filter(rate => editingRates.hasOwnProperty(rate.id)) // Only changed rates
             .map(rate => ({
                 categoryName: rate.categoryName,
@@ -67,7 +45,12 @@ const MetalRatesPage = () => {
             return
         }
 
-        updateRates.mutate(ratesToUpdate)
+        try {
+            await updateRates.mutateAsync(ratesToUpdate)
+            setEditingRates({})
+        } catch (error) {
+            // Error handling is inside the hook
+        }
     }
 
     const formatDateTime = (date) => {
@@ -92,7 +75,7 @@ const MetalRatesPage = () => {
 
             {/* Mobile Card View */}
             <div className="md:hidden space-y-3">
-                {data?.map((rate) => (
+                {rates?.map((rate) => (
                     <div key={rate.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
                         <div className="flex justify-between items-start mb-3">
                             <div>
@@ -129,7 +112,7 @@ const MetalRatesPage = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {data?.map((rate) => (
+                        {rates?.map((rate) => (
                             <TableRow key={rate.id}>
                                 <TableCell className="font-medium">
                                     {rate.categoryName}

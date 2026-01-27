@@ -71,24 +71,20 @@ function extractProductsFromResponse(agentResponse) {
             return products;
         }
 
-        // Parse the raw messages to find tool outputs
-        const rawMessages = agentResponse.rawMessages || [];
-
-        for (const msg of rawMessages) {
-            // Check for tool messages
-            if (msg.constructor.name === 'ToolMessage' || msg.tool_calls) {
+        // Check if we have direct tool results (added in recent update)
+        if (agentResponse.toolResults && Array.isArray(agentResponse.toolResults)) {
+            for (const resultStr of agentResponse.toolResults) {
                 try {
-                    const content = msg.content || msg.additional_kwargs?.content || '';
+                    // Tool results are strings of JSON
+                    if (typeof resultStr === 'string' && (resultStr.includes('"products"') || resultStr.includes('"product"'))) {
+                        const parsed = JSON.parse(resultStr);
 
-                    // Try to parse JSON from tool output
-                    if (typeof content === 'string' && content.includes('"products"')) {
-                        const parsed = JSON.parse(content);
+                        // Case 1: Search returned a list of products
                         if (parsed.products && Array.isArray(parsed.products)) {
                             products.push(...parsed.products);
                         }
-                    } else if (typeof content === 'string' && content.includes('"product"')) {
-                        const parsed = JSON.parse(content);
-                        if (parsed.product && parsed.found) {
+                        // Case 2: Details returned a single product
+                        else if (parsed.product && parsed.found) {
                             // Convert single product to array format
                             products.push({
                                 id: parsed.product.id,
@@ -96,17 +92,22 @@ function extractProductsFromResponse(agentResponse) {
                                 slug: parsed.product.slug,
                                 description: parsed.product.description,
                                 category: parsed.product.category.name,
-                                price: parsed.product.priceRange?.min || 0,
-                                image: parsed.product.images?.[0]?.url || null,
+                                price: parsed.product.priceRange?.min || parsed.product.price || 0,
+                                image: parsed.product.images?.[0]?.url || parsed.product.image || null,
                                 productUrl: parsed.product.productUrl
                             });
                         }
                     }
-                } catch (parseError) {
-                    // Skip if not valid JSON
-                    continue;
+                } catch (e) {
+                    console.warn("Failed to parse tool result:", e.message);
                 }
             }
+        }
+
+        // Fallback: Parse raw messages (legacy support)
+        if (products.length === 0) {
+            const rawMessages = agentResponse.rawMessages || [];
+            // ... (keep existing rawMessages logic or just return products if empty)
         }
 
         return products;

@@ -293,7 +293,9 @@ const CheckoutPage = () => {
             rzp.open()
 
         } catch (error) {
-            showToast('error', error.message || 'Failed to initiate payment')
+            console.error("Payment Initiation Failed:", error);
+            const msg = error.response?.data?.message || error.message || 'Failed to initiate payment';
+            showToast('error', msg)
         } finally {
             setPlacingOrder(false)
         }

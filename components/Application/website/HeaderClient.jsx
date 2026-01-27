@@ -10,14 +10,18 @@ import { IoMdClose } from "react-icons/io";
 import { HiMiniBars3 } from "react-icons/hi2";
 import logo from '@/public/assets/mk_logo.jpg'
 import Cart from './Cart'
+import { useCategories } from '@/hooks/useCategories'
 
 import { useRouter } from 'next/navigation'
 
-const HeaderClient = ({ categories = [] }) => {
+const HeaderClient = () => {
     const router = useRouter()
     const auth = useSelector(store => store.authStore.auth)
     const [isMobileMenu, setIsMobileMenu] = useState(false)
     const [isScrolled, setIsScrolled] = useState(false)
+
+    // Fetch categories with TanStack Query (cached for 1 hour)
+    const { data: categories = [], isLoading: categoriesLoading } = useCategories()
 
     useEffect(() => {
         const handleScroll = () => {

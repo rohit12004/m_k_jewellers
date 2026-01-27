@@ -10,12 +10,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { use, useEffect, useState } from 'react'
 import slugify from 'slugify'
-import { showToast } from '@/lib/showToast'
-import axios from 'axios'
 import { useCategories } from '@/hooks/useAdminData'
 import MediaModal from '@/components/Application/Admin/MediaModal'
 import Image from 'next/image'
 import useFetch from '@/hooks/useFetch'
+import { useUpdateSubCategory } from '@/hooks/useCategoryMutations'
 
 const breadcrumbData = [
     { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -28,8 +27,8 @@ const EditSubCategory = ({ params }) => {
     const { id } = use(params)
     const { data: subCategoryData } = useFetch(`/api/subcategory/get/${id}`)
     const { data: categoriesData } = useCategories()
+    const { mutateAsync: updateSubCategory, isPending } = useUpdateSubCategory()
 
-    const [loading, setLoading] = useState(false)
     const [categories, setCategories] = useState([])
     const [open, setOpen] = useState(false)
     const [selectedMedia, setSelectedMedia] = useState([])
@@ -90,7 +89,6 @@ const EditSubCategory = ({ params }) => {
     }, [form])
 
     const onSubmit = async (values) => {
-        setLoading(true)
         try {
             // Add mediaId if media is selected
             if (selectedMedia && selectedMedia.length > 0) {
@@ -100,14 +98,10 @@ const EditSubCategory = ({ params }) => {
                 values.mediaId = null
             }
 
-            const { data: response } = await axios.put('/api/subcategory/update', values)
-            if (!response.success) throw new Error(response.message)
+            await updateSubCategory(values)
 
-            showToast('success', response.message)
         } catch (error) {
-            showToast('error', error.message)
-        } finally {
-            setLoading(false)
+            console.error("Failed to update subcategory:", error);
         }
     }
 
@@ -233,7 +227,7 @@ const EditSubCategory = ({ params }) => {
                             </div>
 
                             <div className='mb-3'>
-                                <ButtonLoading loading={loading} type="submit" text="Update Subcategory" />
+                                <ButtonLoading loading={isPending} type="submit" text="Update Subcategory" />
                             </div>
 
                         </form>

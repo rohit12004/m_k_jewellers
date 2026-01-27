@@ -148,7 +148,7 @@ const Footer = () => {
             </div>
 
 
-            <div className='py-6 bg-gray-800 dark:bg-gray-800 border-t border-gray-700' >
+            <div className='py-3 bg-gray-800 dark:bg-gray-800 border-t border-gray-700' >
                 <p className='text-center text-gray-300 dark:text-gray-300 text-sm'>All Rights Reserved.</p>
             </div>
 

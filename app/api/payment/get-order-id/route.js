@@ -14,6 +14,12 @@ export async function POST(request) {
 
         const payload = await request.json()
 
+        // Check for Razorpay keys
+        if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+            console.error("Missing Razorpay Keys");
+            return response(false, 500, "Payment gateway not configured (Missing Keys)")
+        }
+
         // Validate amount and PAN card
         const schema = z.object({
             amount: z.number()
@@ -54,6 +60,18 @@ export async function POST(request) {
         return response(true, 200, 'Order id generated.', order_id)
 
     } catch (error) {
+        console.error("Razorpay Order Error:", error); // Log the full error on server
+
+        // Specific checks for common Razorpay errors
+        if (error.statusCode === 401) {
+            return response(false, 500, "Payment configuration error: Invalid Key ID or Secret")
+        }
+
+        // Handle Razorpay business limits (e.g. "Amount exceeds maximum amount allowed")
+        if (error.error && error.error.description) {
+            return response(false, 400, `Payment Failed: ${error.error.description}`)
+        }
+
         return catchError(error)
     }
 }

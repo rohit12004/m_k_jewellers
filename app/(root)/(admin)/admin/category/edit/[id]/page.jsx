@@ -10,11 +10,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { use, useEffect, useState } from 'react'
 import slugify from 'slugify'
-import { showToast } from '@/lib/showToast'
-import axios from 'axios'
 import useFetch from '@/hooks/useFetch'
 import MediaModal from '@/components/Application/Admin/MediaModal'
 import Image from 'next/image'
+import { useUpdateCategory } from '@/hooks/useCategoryMutations'
+
 const breadcrumbData = [
     { href: ADMIN_DASHBOARD, label: 'Home' },
     { href: ADMIN_CATEGORY_SHOW, label: 'Category' },
@@ -25,9 +25,8 @@ const EditCategory = ({ params }) => {
 
     const { id } = use(params)
     const { data: categoryData } = useFetch(`/api/category/get/${id}`)
+    const { mutateAsync: updateCategory, isPending } = useUpdateCategory()
 
-
-    const [loading, setLoading] = useState(false)
     const [open, setOpen] = useState(false)
     const [selectedMedia, setSelectedMedia] = useState([])
 
@@ -80,7 +79,6 @@ const EditCategory = ({ params }) => {
     }, [form])
 
     const onSubmit = async (values) => {
-        setLoading(true)
         try {
             // Add mediaId if media is selected
             if (selectedMedia && selectedMedia.length > 0) {
@@ -89,17 +87,10 @@ const EditCategory = ({ params }) => {
                 values.mediaId = null // Remove media if deselected
             }
 
-            const { data: response } = await axios.put('/api/category/update', values)
-            if (!response.success) {
-                throw new Error(response.message)
-            }
+            await updateCategory(values)
 
-            showToast('success', response.message)
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || 'An error occurred'
-            showToast('error', errorMessage)
-        } finally {
-            setLoading(false)
+            console.error("Failed to update category:", error);
         }
     }
 
@@ -186,7 +177,7 @@ const EditCategory = ({ params }) => {
                             </div>
 
                             <div className='mb-3'>
-                                <ButtonLoading loading={loading} type="submit" text="Update Category" className="cursor-pointer" />
+                                <ButtonLoading loading={isPending} type="submit" text="Update Category" className="cursor-pointer" />
                             </div>
 
                         </form>

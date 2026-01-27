@@ -4,16 +4,15 @@ import ButtonLoading from '@/components/Application/ButtonLoading'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { showToast } from '@/lib/showToast'
 import { zSchema } from '@/lib/zodSchema'
 import { ADMIN_CATEGORY_SHOW, ADMIN_DASHBOARD } from '@/routes/adminPanelRoutes'
 import { zodResolver } from '@hookform/resolvers/zod'
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import slugify from 'slugify'
 import MediaModal from '@/components/Application/Admin/MediaModal'
 import Image from 'next/image'
+import { useCreateCategory } from '@/hooks/useCategoryMutations'
 
 const breadcrumbData = [
     { href: ADMIN_DASHBOARD, label: 'Home' },
@@ -23,9 +22,9 @@ const breadcrumbData = [
 
 const AddCategory = () => {
 
-    const [loading, setLoading] = useState(false)
     const [open, setOpen] = useState(false)
     const [selectedMedia, setSelectedMedia] = useState([])
+    const { mutateAsync: createCategory, isPending } = useCreateCategory()
 
     const formSchema = zSchema.pick({
         name: true, slug: true
@@ -49,26 +48,18 @@ const AddCategory = () => {
     }, [form])
 
     const onSubmit = async (values) => {
-        setLoading(true)
         try {
             // Add mediaId if media is selected
             if (selectedMedia && selectedMedia.length > 0) {
                 values.mediaId = selectedMedia[0].id
             }
 
-            const { data: response } = await axios.post('/api/category/create', values)
-            if (!response.success) {
-                throw new Error(response.message)
-            }
+            await createCategory(values)
 
             form.reset()
             setSelectedMedia([])
-            showToast('success', response.message)
         } catch (error) {
-            const errorMessage = error.response?.data?.message || error.message || 'An error occurred'
-            showToast('error', errorMessage)
-        } finally {
-            setLoading(false)
+            console.error("Failed to create category:", error);
         }
     }
     return (
@@ -144,7 +135,7 @@ const AddCategory = () => {
                             </div>
 
                             <div className='mb-3'>
-                                <ButtonLoading loading={loading} type="submit" text="Add Category" className="cursor-pointer" />
+                                <ButtonLoading loading={isPending} type="submit" text="Add Category" className="cursor-pointer" />
                             </div>
 
                         </form>

@@ -23,10 +23,18 @@ const useDeleteMutation = (queryKey, deleteEndpoint) => {
     onSuccess: (data) => {
       showToast('success', data.message);
       queryClient.invalidateQueries([queryKey]);
+
+      // Also invalidate related caches
+      if (queryKey === 'category-data') {
+        queryClient.invalidateQueries({ queryKey: ['categories'] });
+      }
+      if (queryKey === 'subcategory-data') {
+        queryClient.invalidateQueries({ queryKey: ['subcategories'] });
+      }
     },
 
     onError: (error) => {
-        showToast('error', error.message || 'Something went wrong');
+      showToast('error', error.message || 'Something went wrong');
     }
   });
 };
