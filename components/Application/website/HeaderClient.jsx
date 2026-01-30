@@ -14,14 +14,14 @@ import { useCategories } from '@/hooks/useCategories'
 
 import { useRouter } from 'next/navigation'
 
-const HeaderClient = () => {
+const HeaderClient = ({ initialCategories = [] }) => {
     const router = useRouter()
     const auth = useSelector(store => store.authStore.auth)
     const [isMobileMenu, setIsMobileMenu] = useState(false)
     const [isScrolled, setIsScrolled] = useState(false)
 
-    // Fetch categories with TanStack Query (cached for 1 hour)
-    const { data: categories = [], isLoading: categoriesLoading } = useCategories()
+    // ✅ Use server-fetched categories as initial data - no client-side fetch needed
+    const { data: categories = initialCategories } = useCategories(initialCategories)
 
     useEffect(() => {
         const handleScroll = () => {

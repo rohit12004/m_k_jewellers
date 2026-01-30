@@ -18,6 +18,14 @@ const SessionRestoration = ({ children, initialSession }) => {
     const pathname = usePathname();
     const [initialized, setInitialized] = useState(false);
 
+    // ✅ Dispatch login synchronously BEFORE browser paint if we have server session
+    React.useLayoutEffect(() => {
+        if (initialSession && !pathname?.startsWith('/auth') && !initialized) {
+            dispatch(login(initialSession));
+            setInitialized(true);
+        }
+    }, [initialSession, dispatch, pathname, initialized]);
+
     useEffect(() => {
         // Skip session restoration on auth pages to prevent infinite loop
         if (pathname?.startsWith('/auth')) {
@@ -25,29 +33,26 @@ const SessionRestoration = ({ children, initialSession }) => {
             return;
         }
 
-        // If we have initial session from server, use it immediately
-        if (initialSession && !initialized) {
-            dispatch(login(initialSession));
-            setInitialized(true);
+        // If we have initial session, useLayoutEffect already handled it
+        if (initialSession) {
             return;
         }
 
         // Fallback: Restore session from HTTP-only cookie (for client-side navigation)
-        const restoreSession = async () => {
-            try {
-                const { data } = await api.get('/api/auth/session');
-                if (data?.success && data?.data) {
-                    dispatch(login(data.data));
+        // Only runs if no initial session was provided
+        if (!initialized && !initialSession) {
+            const restoreSession = async () => {
+                try {
+                    const { data } = await api.get('/api/auth/session');
+                    if (data?.success && data?.data) {
+                        dispatch(login(data.data));
+                    }
+                } catch (error) {
+                    // Silent fail - user is not logged in, token expired, or database unreachable
+                } finally {
+                    setInitialized(true);
                 }
-            } catch (error) {
-                // Silent fail - user is not logged in, token expired, or database unreachable
-            } finally {
-                setInitialized(true);
-            }
-        };
-
-        // Run immediately on mount if no initial session
-        if (!initialized) {
+            };
             restoreSession();
         }
     }, [dispatch, pathname, initialized, initialSession]);
@@ -60,7 +65,8 @@ const GlobalProvider = ({ children, initialSession }) => {
         <QueryClientProvider client={queryClient}>
 
             <Provider store={store}>
-                <PersistGate persistor={persistor} loading={<Loading />}>
+                {/* ✅ Remove blocking loading screen - cart hydrates in background */}
+                <PersistGate persistor={persistor} loading={null}>
                     <SessionRestoration initialSession={initialSession}>
                         {children}
                     </SessionRestoration>
