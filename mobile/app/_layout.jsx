@@ -10,6 +10,7 @@ import Toast from "react-native-toast-message";
 import { store, persistor } from "../store";
 import { logout } from "../store/slices/authSlice";
 import { showToast } from "../utils/toast";
+import { useSessionRestoration } from "../hooks/useSessionRestoration";
 import "../global.css";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,9 @@ const InitialLayout = () => {
   const navigationState = useRootNavigationState();
   const dispatch = useDispatch();
 
+  // 🔄 Restore session on app startup (similar to web's GlobalProvider)
+  const { isRestoring, sessionRestored } = useSessionRestoration();
+
   // 🔒 Check session expiration on mount
   useEffect(() => {
     const checkSessionExpiration = async () => {
@@ -30,6 +34,7 @@ const InitialLayout = () => {
 
         if (sessionAge > SESSION_DURATION) {
           // Session expired - logout user
+          console.log('🔒 [SESSION] Session expired after 30 days');
 
           // Clear persisted state
           await persistor.purge();
@@ -50,8 +55,18 @@ const InitialLayout = () => {
     checkSessionExpiration();
   }, [auth, lastLogin]);
 
+
   // ⏳ Wait until navigation is ready
   if (!navigationState?.key) return null;
+
+  // ⏳ Show loading while restoring session
+  if (isRestoring) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#2563EB" />
+      </View>
+    );
+  }
 
   const inAuthGroup = segments[0] === "(auth)";
   const isAuthCallback = segments[0] === "auth-callback";

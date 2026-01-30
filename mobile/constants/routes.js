@@ -36,8 +36,8 @@ export const API_ROUTES = {
 
 export const ROUTES = {
     LOGIN: "/(auth)/login",
-    REGISTER: "/(auth)/register",
-    SIGNUP: "/(auth)/register",
+    REGISTER: "/(auth)/signup",
+    SIGNUP: "/(auth)/signup",
     VERIFY_OTP: "/(auth)/verify-otp",
     FORGOT_PASSWORD: "/(auth)/forgot-password",
     HOME: "/(tabs)/home",

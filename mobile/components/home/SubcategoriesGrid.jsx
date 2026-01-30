@@ -1,37 +1,45 @@
 import React from "react";
-import { View, Text, ActivityIndicator, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../services/api";
 import SubcategoryCard from "./SubcategoryCard";
+import SubcategoriesGridSkeleton from "./SubcategorySkeleton";
 import { API_ROUTES } from "../../constants/routes";
 
 const SubcategoriesGrid = () => {
-    const { data, isLoading, isError, refetch } = useQuery({
+    const { data, isLoading, isError, error, refetch } = useQuery({
         queryKey: ["subcategories"],
         queryFn: async () => {
-            const response = await api.get(API_ROUTES.GET_ALL_SUBCATEGORIES);
-            if (!response.data.success) {
-                throw new Error(response.data.message || "Failed to fetch subcategories");
+            try {
+                console.log('🔍 Fetching subcategories from:', API_ROUTES.GET_ALL_SUBCATEGORIES);
+                const response = await api.get(API_ROUTES.GET_ALL_SUBCATEGORIES);
+                console.log('✅ Subcategories response:', response.data);
+
+                if (!response.data.success) {
+                    throw new Error(response.data.message || "Failed to fetch subcategories");
+                }
+                return response.data.data;
+            } catch (err) {
+                console.error('❌ Subcategories error:', err);
+                console.error('❌ Error details:', err.response?.data || err.message);
+                throw err;
             }
-            return response.data.data;
         },
         staleTime: 1000 * 60 * 60, // 1 hour
     });
 
     if (isLoading) {
-        return (
-            <View className="py-8 items-center">
-                <ActivityIndicator size="large" color="#7c3aed" />
-                <Text className="text-gray-500 mt-2">Loading...</Text>
-            </View>
-        );
+        return <SubcategoriesGridSkeleton />;
     }
 
     if (isError) {
         return (
             <View className="py-8 items-center px-6">
-                <Text className="text-gray-600 mb-4 text-center">
+                <Text className="text-gray-600 mb-2 text-center font-semibold">
                     Failed to load subcategories
+                </Text>
+                <Text className="text-gray-500 mb-4 text-center text-sm">
+                    {error?.response?.data?.message || error?.message || 'Unknown error'}
                 </Text>
                 <TouchableOpacity
                     onPress={() => refetch()}

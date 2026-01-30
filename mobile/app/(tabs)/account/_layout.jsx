@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withLayoutContext } from "expo-router";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -93,43 +93,68 @@ export default function AccountLayout() {
     // Show login prompt if not authenticated
     if (!auth && !isLoggingOut) {
         return (
-            <SafeAreaView className="flex-1 bg-gray-50">
-                <View className="flex-1 items-center justify-center px-6">
-                    <View className="bg-white rounded-2xl p-8 shadow-lg w-full max-w-sm">
-                        <View className="items-center mb-6">
-                            <View className="bg-purple-100 rounded-full p-4 mb-4">
-                                <Ionicons name="person-outline" size={48} color="#7c3aed" />
-                            </View>
-                            <Text className="text-2xl font-bold text-gray-900 mb-2">
-                                Account Required
-                            </Text>
-                            <Text className="text-gray-600 text-center">
-                                Please log in to view your account, orders, and profile
-                            </Text>
-                        </View>
-
-                        <TouchableOpacity
-                            onPress={() => router.push(ROUTES.LOGIN)}
-                            className="bg-purple-600 py-4 rounded-xl mb-3"
-                            activeOpacity={0.8}
-                        >
-                            <Text className="text-white text-center font-bold text-lg">
-                                Log In
-                            </Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={() => router.push(ROUTES.REGISTER)}
-                            className="bg-gray-100 py-4 rounded-xl"
-                            activeOpacity={0.8}
-                        >
-                            <Text className="text-gray-700 text-center font-semibold text-lg">
-                                Create Account
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+            <View className="flex-1 bg-white" key="unauth-view-v4">
+                {/* Faded Background Logo - Using absolute positioning */}
+                <View 
+                    style={{ 
+                        position: 'absolute', 
+                        top: 0, 
+                        left: 0, 
+                        right: 0, 
+                        bottom: 0, 
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        zIndex: 0 
+                    }} 
+                    pointerEvents="none"
+                >
+                    <Image
+                        source={require("../../../assets/images/mk_logo.jpg")}
+                        style={{ width: "80%", height: "80%", opacity: 0.1 }}
+                        resizeMode="contain"
+                    />
                 </View>
-            </SafeAreaView>
+
+                <SafeAreaView className="flex-1 bg-transparent" style={{ zIndex: 1 }}>
+                    <View className="flex-1 items-center justify-center px-6 bg-transparent">
+                        <View className="bg-white rounded-2xl p-8 shadow-lg w-full max-w-sm">
+                            {/* Logo and Title Section */}
+                            <View className="items-center mb-8">
+                                <View className="bg-purple-100 rounded-full p-5 mb-5">
+                                    <Ionicons name="person-outline" size={56} color="#7c3aed" />
+                                </View>
+                                <Text className="text-2xl font-bold text-gray-900 mb-3 text-center">
+                                    Account Required
+                                </Text>
+                                <Text className="text-gray-600 text-center text-base leading-6">
+                                    Please log in to view your orders and profile
+                                </Text>
+                            </View>
+
+                            {/* Buttons */}
+                            <TouchableOpacity
+                                onPress={() => router.push(ROUTES.LOGIN)}
+                                className="bg-purple-600 py-4 rounded-xl mb-3 shadow-md"
+                                activeOpacity={0.8}
+                            >
+                                <Text className="text-white text-center font-bold text-lg">
+                                    Log In
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                onPress={() => router.push(ROUTES.REGISTER)}
+                                className="bg-gray-100 py-4 rounded-xl"
+                                activeOpacity={0.8}
+                            >
+                                <Text className="text-gray-700 text-center font-semibold text-lg">
+                                    Create Account
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </SafeAreaView>
+            </View>
         );
     }
 

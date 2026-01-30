@@ -238,7 +238,7 @@ export default function Shop() {
                 ) : (
                     <View className="px-4 py-4">
                         {/* Product Grid */}
-                        <View className="flex-row flex-wrap justify-between">
+                        <View className="flex-row flex-wrap justify-start gap-4">
                             {products.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}

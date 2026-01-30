@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 
 const { width: screenWidth } = Dimensions.get("window");
-const cardWidth = (screenWidth - 64) / 3; // 3 columns with 16px padding on sides + gaps
+const cardWidth = (screenWidth - 64) / 3; // 3 columns with 16px padding on sides + 16px gap
 
 
 const ProductCard = ({ product }) => {

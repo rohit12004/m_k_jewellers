@@ -18,6 +18,10 @@ api.interceptors.request.use(
         const accessToken = await SecureStore.getItemAsync("access_token");
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
+            // Only log for non-public routes
+            if (!config.url?.includes('/get-all') && !config.url?.includes('/get-featured')) {
+                console.log(`🔐 [API] ${config.method?.toUpperCase()} ${config.url} - Using access token`);
+            }
         }
         return config;
     },
@@ -37,12 +41,17 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
+                console.log('🔄 [API] Access token expired, attempting refresh...');
+
                 // Get refresh token
                 const refreshToken = await SecureStore.getItemAsync("refresh_token");
 
                 if (!refreshToken) {
+                    console.log('❌ [API] No refresh token found');
                     throw new Error("No refresh token");
                 }
+
+                console.log('✅ [API] Refresh token found, calling refresh endpoint...');
 
                 // Call refresh endpoint
                 const response = await axios.post(
@@ -52,6 +61,8 @@ api.interceptors.response.use(
 
                 if (response.data.success) {
                     const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+
+                    console.log('✅ [API] Token refresh successful');
 
                     // Store new tokens
                     await SecureStore.setItemAsync("access_token", accessToken);
@@ -64,17 +75,34 @@ api.interceptors.response.use(
 
                     // Retry original request
                     return api(originalRequest);
+                } else {
+                    console.log('❌ [API] Refresh endpoint returned failure');
+                    throw new Error("Refresh failed");
                 }
             } catch (refreshError) {
                 // Refresh failed - logout user
+                console.error('❌ [API] Token refresh failed:', refreshError.message);
 
-                // Refresh failed - logout user
+                // Clear tokens
                 await SecureStore.deleteItemAsync("access_token");
                 await SecureStore.deleteItemAsync("refresh_token");
+
+                // Dispatch logout
                 store.dispatch(logout());
-                showToast("error", "Session Expired", "Please login again");
+
+                // Show user-friendly error message
+                const errorMsg = refreshError.response?.data?.message || "Session expired";
+                showToast("error", "Session Expired", errorMsg);
+
                 return Promise.reject(refreshError);
             }
+        }
+
+        // Log other API errors for debugging
+        if (error.response) {
+            console.log(`❌ [API] ${error.config?.method?.toUpperCase()} ${error.config?.url} - ${error.response.status}`);
+        } else if (error.request) {
+            console.log(`❌ [API] Network error - ${error.config?.url}`);
         }
 
         return Promise.reject(error);

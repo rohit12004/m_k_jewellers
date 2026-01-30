@@ -9,6 +9,7 @@ import { USER_DASHBOARD, WEBSITE_LOGIN } from "./routes/websiteRoutes"
 const PUBLIC_API_ROUTES = [
     '/api/subcategory/get-all',
     '/api/product/get-by-subcategory',
+    '/api/product/get-featured-products', // ✅ Added for mobile app compatibility
     '/api/product/filter-options',
     '/api/product/details',
     '/api/category/get-featured-categories',
@@ -54,22 +55,20 @@ export async function middleware(request) {
             return NextResponse.redirect(new URL(redirectUrl, request.nextUrl));
         }
 
+        // ✅ Check if it's a public API route FIRST (before token verification)
+        const isPublicApi = PUBLIC_API_ROUTES.some(route => pathname.startsWith(route));
+
+        if (isPublicApi) {
+            // Allow public API access without authentication (even with expired token)
+            return addCorsHeaders(NextResponse.next(), request);
+        }
+
+        // Allow refresh endpoint without valid access token
+        if (pathname === '/api/auth/refresh') {
+            return addCorsHeaders(NextResponse.next(), request);
+        }
 
         if (!access_token) {
-            // Check if it's a public API route
-            const isPublicApi = PUBLIC_API_ROUTES.some(route => pathname.startsWith(route));
-
-            if (isPublicApi) {
-                // Allow public API access without authentication
-                return addCorsHeaders(NextResponse.next(), request);
-            }
-
-
-            // Allow refresh endpoint without valid access token
-            if (pathname === '/api/auth/refresh') {
-                return addCorsHeaders(NextResponse.next(), request);
-            }
-
             // Public website routes that don't require authentication
             const publicWebsiteRoutes = [
                 '/',

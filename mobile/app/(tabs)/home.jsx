@@ -1,4 +1,4 @@
-import { ScrollView, RefreshControl, View } from "react-native";
+import { ScrollView, RefreshControl, View, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,6 +34,17 @@ export default function Home() {
             >
                 <VideoBanner />
                 <SubcategoriesGrid />
+
+                {/* Design Image - matches website layout */}
+                <View className="px-4 pt-2 pb-4">
+                    <Image
+                        source={require("../../assets/images/design_image.png")}
+                        className="w-full rounded-lg"
+                        resizeMode="cover"
+                        style={{ height: 150 }}
+                    />
+                </View>
+
                 <PromotionalBanner />
                 <View className="h-4" />
             </ScrollView>
