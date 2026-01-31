@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import { API_BASE_URL } from "../constants/routes";
+import { API_BASE_URL, API_ROUTES } from "../constants/routes";
 import { store } from "../store";
 import { logout } from "../store/slices/authSlice";
 import { showToast } from "../utils/toast";
@@ -108,5 +108,18 @@ api.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+export const sendChatMessage = async (message, conversationId) => {
+    try {
+        const response = await api.post(API_ROUTES.CHATBOT_MESSAGE, {
+            message,
+            conversationId,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Chatbot API Error:", error);
+        throw error;
+    }
+};
 
 export default api;

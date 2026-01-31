@@ -14,6 +14,9 @@ export const API_ROUTES = {
     FORGOT_PASSWORD_VERIFY_OTP: "/api/auth/reset-password/verify-otp",
     FORGOT_PASSWORD_UPDATE: "/api/auth/reset-password/update-password",
 
+    // Chatbot
+    CHATBOT_MESSAGE: "/api/chatbot/message",
+
     // User
     UPDATE_PROFILE: "/api/user/update-profile",
     GET_USER_ORDERS: "/api/user/get-user-orders",
