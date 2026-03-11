@@ -12,11 +12,11 @@ import { formatINR, formatCompactINR } from '@/lib/formatters';
 import { FaIndianRupeeSign } from "react-icons/fa6";
 import { AiOutlineRise } from "react-icons/ai";
 
-const CountOverview = () => {
+const CountOverview = ({ range }) => {
     const { data: analyticsData } = useQuery({
-        queryKey: ['adminDashboardAnalytics'],
+        queryKey: ['adminDashboardAnalytics', range],
         queryFn: async () => {
-            const { data } = await axios.get('/api/dashboard/admin/analytics')
+            const { data } = await axios.get(`/api/dashboard/admin/analytics?range=${range}`)
             return data
         },
         staleTime: 5 * 60 * 1000 // 5 minutes
@@ -45,10 +45,12 @@ const CountOverview = () => {
                                 {formatINR(kpis.totalRevenue, false)}
                             </span>
                         </div>
-                        <p className='text-xs text-gray-400 mt-1'>Lifetime completed orders</p>
+                        <p className='text-xs text-gray-400 mt-1'>
+                            {range === '30d' ? 'Last 30 days' : range === '12m' ? 'Past 12 months' : 'Lifetime'} completed orders
+                        </p>
                     </div>
                     <div className='ml-4'>
-                        <span className='md:w-14 md:h-14 w-10 h-10 border flex justify-center items-center rounded-2xl bg-indigo-500 text-white md:text-2xl text-lg shadow-lg shadow-indigo-200 dark:shadow-none'>
+                        <span className='md:w-14 md:h-14 w-10 h-10 border flex justify-center items-center rounded-2xl bg-indigo-500 text-white md:text-2xl text-lg'>
                             <FaIndianRupeeSign />
                         </span>
                     </div>
@@ -62,10 +64,12 @@ const CountOverview = () => {
                                 {formatINR(kpis.aov, false)}
                             </span>
                         </div>
-                        <p className='text-xs text-gray-400 mt-1'>Average spend per customer</p>
+                        <p className='text-xs text-gray-400 mt-1'>
+                            Avg. spend {range === '30d' ? 'this month' : range === '12m' ? 'this year' : 'per customer'}
+                        </p>
                     </div>
                     <div className='ml-4'>
-                        <span className='md:w-14 md:h-14 w-10 h-10 border flex justify-center items-center rounded-2xl bg-rose-500 text-white md:text-2xl text-lg shadow-lg shadow-rose-200 dark:shadow-none'>
+                        <span className='md:w-14 md:h-14 w-10 h-10 border flex justify-center items-center rounded-2xl bg-rose-500 text-white md:text-2xl text-lg'>
                             <AiOutlineRise />
                         </span>
                     </div>

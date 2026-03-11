@@ -10,11 +10,11 @@ import { formatINR } from '@/lib/formatters';
 
 const COLORS = ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#8b5cf6'];
 
-const AnalyticsCharts = () => {
+const AnalyticsCharts = ({ range }) => {
   const { data: analyticsData, isLoading: loading } = useQuery({
-    queryKey: ['adminDashboardAnalytics'],
+    queryKey: ['adminDashboardAnalytics', range],
     queryFn: async () => {
-      const { data } = await axios.get('/api/dashboard/admin/analytics')
+      const { data } = await axios.get(`/api/dashboard/admin/analytics?range=${range}`)
       return data
     },
     staleTime: 5 * 60 * 1000
@@ -30,7 +30,9 @@ const AnalyticsCharts = () => {
     <div className='grid lg:grid-cols-2 grid-cols-1 gap-6 mt-6'>
       {/* Sales Trend Area Chart */}
       <div className='bg-white dark:bg-card p-5 rounded-xl border shadow-sm dark:border-gray-800'>
-        <h3 className='text-lg font-bold mb-4 text-gray-800 dark:text-white'>30-Day Sales Trend (₹)</h3>
+        <h3 className='text-lg font-bold mb-4 text-gray-800 dark:text-white'>
+          {range === '30d' ? '30-Day Sales Trend' : range === '12m' ? 'Yearly Performance' : 'Lifetime Growth'} (₹)
+        </h3>
         <div className='h-[300px] w-full'>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={salesTrend}>
@@ -45,8 +47,16 @@ const AnalyticsCharts = () => {
                 dataKey="date" 
                 tick={{fontSize: 10}} 
                 tickFormatter={(str) => {
-                  const date = new Date(str);
-                  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+                  const granularity = charts.granularity;
+                  if (granularity === 'day') {
+                    const date = new Date(str);
+                    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+                  } else {
+                    // month format: 2024-03
+                    const [year, month] = str.split('-');
+                    const date = new Date(year, month - 1);
+                    return date.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+                  }
                 }}
               />
               <YAxis 

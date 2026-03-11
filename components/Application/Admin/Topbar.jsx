@@ -13,17 +13,19 @@ import mklogo from '@/public/assets/mk_logo.jpg'
 const Topbar = () => {
     const { toggleSidebar } = useSidebar()
     return (
-        <div className='fixed border h-16 w-full top-0 left-0 z-30 md:ps-64 md:pe-8 px-5 flex justify-between items-center gap-4 bg-yellow-400 dark:bg-card'>
+        <div className='fixed border-b h-16 w-full top-0 left-0 z-30 md:ps-64 md:pe-8 px-5 flex justify-between items-center gap-4 bg-white/80 dark:bg-card/80 backdrop-blur-md'>
 
             <div className='flex items-center md:hidden'>
                 <Image src={mklogo.src} height={50} width={50} className="h-[50px] w-[50px] rounded-full" alt="M.K. Jewellers" />
             </div>
 
-            <div className='md:block hidden flex-1 max-w-2xl ml-64'>
+            {/* Centered Search Bar */}
+            <div className='hidden md:flex absolute left-1/2 -translate-x-1/2 items-center justify-center w-full max-w-md'>
                 <AdminSearch />
             </div>
 
-            <div className='flex items-center gap-2 flex-shrink-0'>
+            {/* Right side items */}
+            <div className='flex items-center gap-2 flex-shrink-0 ml-auto'>
                 <AdminMobileSearch />
                 <ThemeSwitch />
                 <UserDropdown />

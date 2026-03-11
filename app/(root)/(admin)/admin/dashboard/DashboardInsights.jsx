@@ -5,11 +5,11 @@ import axios from 'axios';
 import { formatINR } from '@/lib/formatters';
 import { FaAward, FaChartLine } from "react-icons/fa6";
 
-const DashboardInsights = () => {
+const DashboardInsights = ({ range }) => {
     const { data: analyticsData, isLoading: loading } = useQuery({
-        queryKey: ['adminDashboardAnalytics'],
+        queryKey: ['adminDashboardAnalytics', range],
         queryFn: async () => {
-            const { data } = await axios.get('/api/dashboard/admin/analytics')
+            const { data } = await axios.get(`/api/dashboard/admin/analytics?range=${range}`)
             return data
         },
         staleTime: 5 * 60 * 1000
@@ -28,7 +28,9 @@ const DashboardInsights = () => {
             <div className='bg-white dark:bg-card p-5 rounded-xl border shadow-sm dark:border-gray-800 transition-all'>
                 <div className='flex items-center gap-2 mb-4'>
                     <FaAward className='text-yellow-500 text-xl' />
-                    <h3 className='text-lg font-bold text-gray-800 dark:text-white'>Top Selling Products</h3>
+                    <h3 className='text-lg font-bold text-gray-800 dark:text-white'>
+                        Top Products {range === '30d' ? '(30d)' : range === '12m' ? '(Yearly)' : '(Lifetime)'}
+                    </h3>
                 </div>
                 <div className='space-y-4'>
                     {topProducts.length > 0 ? topProducts.map((product, index) => (
@@ -53,7 +55,9 @@ const DashboardInsights = () => {
             <div className='bg-white dark:bg-card p-5 rounded-xl border shadow-sm dark:border-gray-800'>
                 <div className='flex items-center gap-2 mb-4'>
                     <FaChartLine className='text-indigo-500 text-xl' />
-                    <h3 className='text-lg font-bold text-gray-800 dark:text-white'>Order Status Overview</h3>
+                    <h3 className='text-lg font-bold text-gray-800 dark:text-white'>
+                        Order Snapshot {range === '30d' ? '(30d)' : range === '12m' ? '(Yearly)' : '(Lifetime)'}
+                    </h3>
                 </div>
                 <div className='grid grid-cols-2 gap-4'>
                     {orderStatus.length > 0 ? orderStatus.map((status, index) => (
