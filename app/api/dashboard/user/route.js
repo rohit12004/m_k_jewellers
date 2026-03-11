@@ -1,14 +1,9 @@
 import { isAuthenticated } from "@/lib/authentication";
-import { connectDB } from "@/lib/databaseConnection";
 import { catchError, response } from "@/lib/helperFunction";
-import OrderModel from "@/models/Order.model";
-import MediaModel from "@/models/Media.model";
-import ProductModel from "@/models/Product.model";
-import ProductVariantModel from "@/models/ProductVariant.model";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
-        await connectDB()
         const auth = await isAuthenticated('user')
         if (!auth.isAuth) {
             return response(false, 401, 'Unauthorized')
@@ -17,13 +12,19 @@ export async function GET() {
         const userId = auth.userId
 
         // get recent orders 
-        const recentOrders = await OrderModel.find({ user: userId }).populate('products.productId', 'name slug').populate({
-            path: 'products.variantId',
-            populate: { path: 'media' }
-        }).limit(10).lean()
+        const recentOrders = await prisma.order.findMany({
+            where: { userId: userId },
+            include: {
+                products: true
+            },
+            take: 10,
+            orderBy: { createdAt: 'desc' }
+        });
 
         // get total order count 
-        const totalOrder = await OrderModel.countDocuments({ user: userId })
+        const totalOrder = await prisma.order.count({
+            where: { userId: userId }
+        });
 
         return response(true, 200, 'Dashboard info.', { recentOrders, totalOrder })
 

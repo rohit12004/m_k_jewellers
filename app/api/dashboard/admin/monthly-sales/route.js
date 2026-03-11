@@ -1,7 +1,6 @@
 import { isAuthenticated } from "@/lib/authentication";
-import { connectDB } from "@/lib/databaseConnection";
 import { catchError, response } from "@/lib/helperFunction";
-import OrderModel from "@/models/Order.model";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
@@ -9,32 +8,31 @@ export async function GET() {
         if (!auth.isAuth) {
             return response(false, 403, 'Unauthorized.')
         }
-        await connectDB()
 
-        const monthlySales = await OrderModel.aggregate([
-            {
-                $match: {
-                    deletedAt: null,
-                    status: { $in: ['processing', 'shipped', 'delivered'] }
-                }
+        // Using Prisma to aggregate monthly sales
+        const monthlySales = await prisma.order.findMany({
+            where: {
+                paymentStatus: 'COMPLETED',
+                orderStatus: { in: ['PROCESSING', 'SHIPPED', 'DELIVERED'] }
             },
-            {
-                $group: {
-                    _id: {
-                        year: { $year: "$createdAt" },
-                        month: { $month: "$createdAt" },
-                    },
-                    totalSales: { $sum: '$totalAmount' },
-                }
-            },
-            {
-                $sort: { "_id.year": 1, "_id.month": 1 }
+            select: {
+                total: true,
+                createdAt: true
             }
-        ])
+        });
 
-        return response(true, 200, 'Data found', monthlySales)
+        // Grouping logic in JS since Prisma aggregation for dates is database-specific
+        const grouped = monthlySales.reduce((acc, order) => {
+            const date = new Date(order.createdAt);
+            const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
+            if (!acc[key]) acc[key] = 0;
+            acc[key] += Number(order.total);
+            return acc;
+        }, {});
 
-    } catch {
+        return response(true, 200, 'Data found', grouped)
+
+    } catch (error) {
         return catchError(error)
     }
 }

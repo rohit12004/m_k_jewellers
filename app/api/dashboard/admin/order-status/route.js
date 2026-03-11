@@ -1,7 +1,6 @@
 import { isAuthenticated } from "@/lib/authentication";
-import { connectDB } from "@/lib/databaseConnection";
 import { catchError, response } from "@/lib/helperFunction";
-import OrderModel from "@/models/Order.model";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
     try {
@@ -9,28 +8,22 @@ export async function GET() {
         if (!auth.isAuth) {
             return response(false, 403, 'Unauthorized.')
         }
-        await connectDB()
 
-        const orderStatus = await OrderModel.aggregate([
-            {
-                $match: {
-                    deletedAt: null,
-                }
-            },
-            {
-                $group: {
-                    _id: "$status",
-                    count: { $sum: 1 },
-                }
-            },
-            {
-                $sort: { count: 1 }
+        const orderStatusCounts = await prisma.order.groupBy({
+            by: ['orderStatus'],
+            _count: {
+                id: true
             }
-        ])
+        });
 
-        return response(true, 200, 'Data found', orderStatus)
+        const formatted = orderStatusCounts.map(item => ({
+            status: item.orderStatus,
+            count: item._count.id
+        }));
 
-    } catch {
+        return response(true, 200, 'Data found', formatted)
+
+    } catch (error) {
         return catchError(error)
     }
 }
