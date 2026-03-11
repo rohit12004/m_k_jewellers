@@ -1,31 +1,13 @@
-import axios from 'axios'
+import { getProductBySlug } from '@/lib/product.service'
 import Link from 'next/link'
 import ProductDetails from '@/components/Application/Website/ProductDetails'
-import { API_PRODUCT_DETAILS } from '@/routes/websiteRoutes'
-
-// Helper to get base URL for server-side fetching
-const getBaseUrl = () => {
-    return process.env.NEXT_PUBLIC_BASE_URL
-}
 
 const ProductPage = async ({ params, searchParams }) => {
     const { slug } = await params
-    const { purity, size, weight } = await searchParams
-
-    // Build API URL with optional query params
-    let url = `${getBaseUrl()}${API_PRODUCT_DETAILS(slug)}`
-
-    const queryParams = new URLSearchParams()
-    if (purity) queryParams.set('purity', purity)
-    if (size) queryParams.set('size', size)
-    if (weight) queryParams.set('weight', weight)
-
-    if (queryParams.toString()) {
-        url += `?${queryParams.toString()}`
-    }
+    const filters = await searchParams
 
     try {
-        const { data: response } = await axios.get(url)
+        const response = await getProductBySlug(slug, filters)
 
         if (!response.success) {
             return (
@@ -69,7 +51,7 @@ const ProductPage = async ({ params, searchParams }) => {
                         Error Loading Product
                     </h1>
                     <p className='text-gray-600 dark:text-gray-400 mb-6'>
-                        {error.response?.data?.message || 'Failed to load product details. Please try again.'}
+                        {error.message || 'Failed to load product details. Please try again.'}
                     </p>
                     <Link
                         href={`/product/${slug}`}

@@ -5,6 +5,7 @@ import { sendMail } from "@/lib/sendMail";
 import { emailVerificationLink } from "@/email/emailVerificationLink";
 import { catchError } from "@/lib/helperFunction";
 import { SignJWT } from "jose";
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
 export async function POST(request) {
     try {
@@ -47,7 +48,7 @@ export async function POST(request) {
             .sign(secret);
 
         const mailResponse = await sendMail('EMail Verification request from M K Jewellers',
-            email, emailVerificationLink(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/verify-email/${token}`))
+            email, emailVerificationLink(`${getBaseUrl()}/auth/verify-email/${token}`))
 
         if (!mailResponse.success) {
             return response(false, 500, "User created but failed to send email", mailResponse.message);

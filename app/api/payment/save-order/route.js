@@ -5,6 +5,7 @@ import { orderNotification } from "@/email/orderNotification";
 import { verifyCartPrices, createOrderWithProducts } from "@/lib/order.service";
 import { validatePaymentVerification } from "razorpay/dist/utils/razorpay-utils";
 import { z } from "zod";
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
 export async function POST(request) {
     try {
@@ -103,7 +104,7 @@ export async function POST(request) {
         try {
             const mailData = {
                 order_id: validatedData.razorpay_order_id,
-                orderDetailsUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/order-details/${validatedData.razorpay_order_id}`
+                orderDetailsUrl: `${getBaseUrl()}/order-details/${validatedData.razorpay_order_id}`
             }
 
             await sendMail('Order placed successfully.', validatedData.email, orderNotification(mailData))

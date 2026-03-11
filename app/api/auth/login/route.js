@@ -7,6 +7,7 @@ import { zSchema } from "@/lib/zodSchema";
 import { SignJWT } from "jose";
 import z from "zod";
 import { otpEmail } from "@/email/otpEmail";
+import { getBaseUrl } from "@/lib/getBaseUrl";
 
 export async function POST(request) {
     try {
@@ -57,7 +58,7 @@ export async function POST(request) {
                 .sign(secret);
 
             const mailResponse = await sendMail('EMail Verification request from M K Jewellers',
-                email, emailVerificationLink(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/verify-email/${token}`))
+                email, emailVerificationLink(`${getBaseUrl()}/auth/verify-email/${token}`))
 
             return response(false, 403, "Please verify your email to login. Verification link has been sent to your email.");
         }
