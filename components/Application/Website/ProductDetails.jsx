@@ -218,7 +218,7 @@ const ProductDetails = ({
             </div>
 
             {/* Main Product Section */}
-            <div className="md:flex justify-between items-start lg:gap-10 gap-5 mb-20">
+            <div className="md:flex justify-between items-start lg:gap-10 gap-5 mb-10 md:mb-16">
                 {/* Image Gallery */}
                 <div className="md:w-1/2 md:sticky md:top-0">
                     <ProductImageGallery media={media} productName={product.name} />
@@ -320,7 +320,7 @@ const ProductDetails = ({
                     <div className="mb-6">
                         <Button
                             onClick={handleAddToCart}
-                            className="w-full py-6 text-lg rounded-full"
+                            className="w-full py-4 md:py-6 text-base md:text-lg rounded-full"
                             disabled={!currentVariant}
                         >
                             Add to Cart
@@ -365,11 +365,11 @@ const ProductDetails = ({
                 <div className="mb-10">
                     <div className="shadow rounded border">
                         <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b">
-                            <h2 className="font-semibold text-2xl">Product Description</h2>
+                            <h2 className="font-semibold text-lg">Product Description</h2>
                         </div>
                         <div className="p-4">
                             <div
-                                className="prose dark:prose-invert max-w-none"
+                                className="prose dark:prose-invert max-w-none text-sm"
                                 dangerouslySetInnerHTML={{ __html: product.description }}
                             />
                         </div>
@@ -381,50 +381,50 @@ const ProductDetails = ({
             <div className="mb-10">
                 <div className="shadow rounded border">
                     <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b">
-                        <h2 className="font-semibold text-2xl">Product Specifications</h2>
+                        <h2 className="font-semibold text-lg">Product Specifications</h2>
                     </div>
                     <div className="p-4">
                         <table className="w-full">
                             <tbody>
                                 <tr className="border-b">
-                                    <td className="py-3 font-semibold text-gray-700 dark:text-gray-300 w-1/3">
+                                    <td className="py-2 sm:py-3 font-semibold text-gray-700 dark:text-gray-300 w-1/3 text-xs sm:text-sm">
                                         Purity
                                     </td>
-                                    <td className="py-3 text-gray-600 dark:text-gray-400">
+                                    <td className="py-2 sm:py-3 text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
                                         {currentVariant.purity}
                                     </td>
                                 </tr>
                                 <tr className="border-b">
-                                    <td className="py-3 font-semibold text-gray-700 dark:text-gray-300">
+                                    <td className="py-2 sm:py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs sm:text-sm">
                                         Weight
                                     </td>
-                                    <td className="py-3 text-gray-600 dark:text-gray-400">
+                                    <td className="py-2 sm:py-3 text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
                                         {currentVariant.weight} grams
                                     </td>
                                 </tr>
                                 {currentVariant.size && (
                                     <tr className="border-b">
-                                        <td className="py-3 font-semibold text-gray-700 dark:text-gray-300">
+                                        <td className="py-2 sm:py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs sm:text-sm">
                                             Size
                                         </td>
-                                        <td className="py-3 text-gray-600 dark:text-gray-400">
+                                        <td className="py-2 sm:py-3 text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
                                             {currentVariant.size}
                                         </td>
                                     </tr>
                                 )}
                                 <tr className="border-b">
-                                    <td className="py-3 font-semibold text-gray-700 dark:text-gray-300">
+                                    <td className="py-2 sm:py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs sm:text-sm">
                                         GST
                                     </td>
-                                    <td className="py-3 text-gray-600 dark:text-gray-400">
+                                    <td className="py-2 sm:py-3 text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
                                         {currentVariant.gst}%
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="py-3 font-semibold text-gray-700 dark:text-gray-300">
+                                    <td className="py-2 sm:py-3 font-semibold text-gray-700 dark:text-gray-300 text-xs sm:text-sm">
                                         Gender
                                     </td>
-                                    <td className="py-3 text-gray-600 dark:text-gray-400">
+                                    <td className="py-2 sm:py-3 text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
                                         {product.gender}
                                     </td>
                                 </tr>

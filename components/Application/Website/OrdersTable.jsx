@@ -42,36 +42,36 @@ const OrdersTable = ({ orders }) => {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Order ID</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Items</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Payment Status</TableHead>
-                        <TableHead>Order Status</TableHead>
-                        <TableHead className='text-right'>Actions</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Order ID</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Date</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Items</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Amount</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Payment Status</TableHead>
+                        <TableHead className="text-xs sm:text-sm">Order Status</TableHead>
+                        <TableHead className='text-right text-xs sm:text-sm'>Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {orders.map((order) => (
                         <TableRow key={order.id}>
-                            <TableCell className='font-medium'>{order.orderId}</TableCell>
-                            <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
-                            <TableCell>{order.itemCount}</TableCell>
-                            <TableCell>{order.total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</TableCell>
+                            <TableCell className='font-medium text-xs sm:text-sm'>{order.orderId}</TableCell>
+                            <TableCell className="text-xs sm:text-sm">{new Date(order.createdAt).toLocaleDateString()}</TableCell>
+                            <TableCell className="text-xs sm:text-sm">{order.itemCount}</TableCell>
+                            <TableCell className="text-xs sm:text-sm">{order.total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</TableCell>
                             <TableCell>
-                                <Badge className={getStatusColor(order.paymentStatus)}>
+                                <Badge className={`${getStatusColor(order.paymentStatus)} text-[10px] sm:text-xs px-1.5 py-0 sm:px-2.5 sm:py-0.5`}>
                                     {order.paymentStatus}
                                 </Badge>
                             </TableCell>
                             <TableCell>
-                                <Badge className={getOrderStatusColor(order.orderStatus)}>
+                                <Badge className={`${getOrderStatusColor(order.orderStatus)} text-[10px] sm:text-xs px-1.5 py-0 sm:px-2.5 sm:py-0.5`}>
                                     {order.orderStatus}
                                 </Badge>
                             </TableCell>
                             <TableCell className='text-right'>
                                 <Link href={`/order-details/${order.orderId}`}>
-                                    <Button variant='outline' size='sm' className='gap-1'>
-                                        <Eye size={16} /> View
+                                    <Button variant='outline' size='sm' className='gap-1 h-7 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm'>
+                                        <Eye size={14} className="sm:w-4 sm:h-4" /> View
                                     </Button>
                                 </Link>
                             </TableCell>

@@ -74,7 +74,7 @@ export default function ChatWidget() {
             {!isOpen && (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="fixed bottom-6 right-6 bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 text-white p-4 rounded-full shadow-2xl hover:shadow-amber-500/50 hover:scale-110 transition-all duration-300 z-50 group"
+                    className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 text-white p-3 sm:p-4 rounded-full shadow-2xl hover:shadow-amber-500/50 hover:scale-110 transition-all duration-300 z-50 group"
                     aria-label="Open chat"
                 >
                     <MessageCircle size={24} className="group-hover:rotate-12 transition-transform" />
@@ -84,7 +84,7 @@ export default function ChatWidget() {
 
             {/* Chat Window - Premium Jewelry Theme */}
             {isOpen && (
-                <div className="fixed bottom-6 right-6 w-[400px] h-[600px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-amber-100 overflow-hidden">
+                <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 sm:w-[360px] max-w-[calc(100vw-2rem)] h-[500px] sm:h-[550px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 border border-amber-100 overflow-hidden text-sm mx-auto sm:mx-0">
                     {/* Header - Elegant Gold Gradient */}
                     <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-b border-amber-200 p-5">
                         <div className="flex justify-between items-start">
@@ -100,7 +100,7 @@ export default function ChatWidget() {
                             </div>
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="hover:bg-amber-100 rounded-lg p-2 transition-colors text-gray-600 hover:text-gray-800"
+                                className="hover:bg-amber-100 rounded-lg p-2 transition-colors text-gray-600 hover:text-gray-800 focus:outline-none"
                                 aria-label="Close chat"
                             >
                                 <X size={20} />
@@ -178,7 +178,7 @@ export default function ChatWidget() {
                                 onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
                                 placeholder="Ask about our jewelry..."
                                 disabled={isTyping}
-                                className="flex-1 border-2 border-amber-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-50 bg-white placeholder:text-gray-400 text-sm"
+                                className="flex-1 border-2 border-amber-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:opacity-50 bg-white placeholder:text-gray-400 text-sm appearance-none"
                             />
                             <button
                                 onClick={handleSend}

@@ -182,15 +182,16 @@ const MyAccount = () => {
     <div className='min-h-screen bg-gray-50 dark:bg-gray-50 py-8 px-4 sm:px-6 lg:px-8'>
       <div className='max-w-6xl mx-auto'>
         {/* Header */}
-        <div className='flex justify-between items-center mb-6'>
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6'>
           <div>
-            <h1 className='text-3xl font-bold text-gray-900 dark:text-gray-900'>My Account</h1>
-            <p className='text-gray-600 dark:text-gray-600 mt-1'>Manage your account and view your orders</p>
+            <h1 className='text-xl sm:text-3xl font-bold text-gray-900'>My Account</h1>
+            <p className='text-xs sm:text-gray-600 mt-0.5 sm:mt-1'>Manage your account and view your orders</p>
           </div>
           <Button
             variant='outline'
+            size="sm"
             onClick={handleLogout}
-            className='flex items-center gap-2 cursor-pointer'
+            className='flex items-center gap-2 cursor-pointer text-xs sm:text-sm'
           >
             <LogOut size={18} />
             Logout
@@ -199,13 +200,13 @@ const MyAccount = () => {
 
         {/* Tabs */}
         <Tabs defaultValue='dashboard' className='space-y-6'>
-          <TabsList className='grid w-full grid-cols-2 max-w-md'>
-            <TabsTrigger value='dashboard' className='cursor-pointer'>
-              <LayoutDashboard size={16} className='mr-2' />
+          <TabsList className='grid w-full grid-cols-2 max-w-[280px] sm:max-w-md h-9 sm:h-10'>
+            <TabsTrigger value='dashboard' className='cursor-pointer text-xs sm:text-sm px-2'>
+              <LayoutDashboard size={16} className='mr-1.5 sm:mr-2' />
               Dashboard
             </TabsTrigger>
-            <TabsTrigger value='profile' className='cursor-pointer'>
-              <User size={16} className='mr-2' />
+            <TabsTrigger value='profile' className='cursor-pointer text-xs sm:text-sm px-2'>
+              <User size={16} className='mr-1.5 sm:mr-2' />
               Profile
             </TabsTrigger>
           </TabsList>
@@ -213,7 +214,7 @@ const MyAccount = () => {
           {/* Dashboard Tab */}
           <TabsContent value='dashboard' className='space-y-6'>
             {/* Summary Stats */}
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+            <div className='grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4'>
               <StatCard
                 title='Cart Items'
                 value={cartItemCount}
@@ -242,11 +243,11 @@ const MyAccount = () => {
 
             {/* Orders List */}
             <Card>
-              <CardHeader>
-                <CardTitle>Order History</CardTitle>
-                <CardDescription>View and manage your orders</CardDescription>
+              <CardHeader className="p-4 sm:p-6 space-y-0.5 sm:space-y-1.5">
+                <CardTitle className="text-lg sm:text-2xl">Order History</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">View and manage your orders</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
                 {loadingOrders ? (
                   <div className='space-y-3'>
                     <Skeleton className='h-12 w-full' />
@@ -263,12 +264,12 @@ const MyAccount = () => {
           {/* Profile Tab */}
           <TabsContent value='profile'>
             {/* Info Alert */}
-            <div className='bg-blue-50 dark:bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
-              <div className='flex items-start gap-3'>
-                <ShoppingCart className='text-blue-600 mt-0.5' size={20} />
+            <div className='bg-blue-50 dark:bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6'>
+              <div className='flex items-start gap-2 sm:gap-3'>
+                <ShoppingCart className='text-blue-600 mt-0.5 sm:w-5 sm:h-5 shrink-0' size={24} />
                 <div>
-                  <h3 className='font-semibold text-blue-900 dark:text-blue-900'>Complete Your Profile</h3>
-                  <p className='text-sm text-blue-700 dark:text-blue-700 mt-1'>
+                  <h2 className='text-sm sm:text-base font-semibold text-blue-900'>Complete Your Profile</h2>
+                  <p className='text-[10px] sm:text-sm text-blue-700 mt-0.5 sm:mt-1'>
                     Update your profile details to ensure smooth checkout. After updating, you can return to your cart to complete your purchase.
                   </p>
                 </div>
@@ -277,21 +278,21 @@ const MyAccount = () => {
 
             {/* Profile Form */}
             <Card>
-              <CardHeader>
-                <CardTitle className='flex items-center gap-2'>
-                  <User size={20} />
+              <CardHeader className="space-y-0.5 sm:space-y-1.5">
+                <CardTitle className='flex items-center gap-2 text-lg sm:text-2xl'>
+                  <User size={18} className="sm:w-5 sm:h-5" />
                   Profile Information
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   Update your personal details below
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6 pt-2 sm:pt-6">
                 <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
                   {/* Name */}
-                  <div className='space-y-2'>
-                    <Label htmlFor='name' className='flex items-center gap-2'>
-                      <User size={16} />
+                  <div className='space-y-1.5 sm:space-y-2'>
+                    <Label htmlFor='name' className='flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold'>
+                      <User size={14} className="sm:w-4 sm:h-4" />
                       Full Name *
                     </Label>
                     <Input
@@ -302,17 +303,17 @@ const MyAccount = () => {
                         required: 'Name is required',
                         minLength: { value: 2, message: 'Name must be at least 2 characters' }
                       })}
-                      className={errors.name ? 'border-red-500' : ''}
+                      className={`h-9 sm:h-10 text-xs sm:text-sm ${errors.name ? 'border-red-500' : ''}`}
                     />
                     {errors.name && (
-                      <p className='text-sm text-red-500'>{errors.name.message}</p>
+                      <p className='text-[10px] sm:text-sm text-red-500 font-medium'>{errors.name.message}</p>
                     )}
                   </div>
 
                   {/* Email (Read-only) */}
-                  <div className='space-y-2'>
-                    <Label htmlFor='email' className='flex items-center gap-2'>
-                      <Mail size={16} />
+                  <div className='space-y-1.5 sm:space-y-2'>
+                    <Label htmlFor='email' className='flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold'>
+                      <Mail size={14} className="sm:w-4 sm:h-4" />
                       Email Address
                     </Label>
                     <Input
@@ -320,15 +321,15 @@ const MyAccount = () => {
                       type='email'
                       {...register('email')}
                       disabled
-                      className='bg-gray-100 dark:bg-gray-100 cursor-not-allowed'
+                      className='bg-gray-100 cursor-not-allowed h-9 sm:h-10 text-xs sm:text-sm'
                     />
-                    <p className='text-xs text-gray-500 dark:text-gray-500'>Email cannot be changed</p>
+                    <p className='text-[10px] sm:text-xs text-gray-500'>Email cannot be changed</p>
                   </div>
 
                   {/* Phone */}
-                  <div className='space-y-2'>
-                    <Label htmlFor='phone' className='flex items-center gap-2'>
-                      <Phone size={16} />
+                  <div className='space-y-1.5 sm:space-y-2'>
+                    <Label htmlFor='phone' className='flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold'>
+                      <Phone size={14} className="sm:w-4 sm:h-4" />
                       Phone Number *
                     </Label>
                     <Input
@@ -342,23 +343,23 @@ const MyAccount = () => {
                           message: 'Please enter a valid 10-digit phone number'
                         }
                       })}
-                      className={errors.phone ? 'border-red-500' : ''}
+                      className={`h-9 sm:h-10 text-xs sm:text-sm ${errors.phone ? 'border-red-500' : ''}`}
                     />
                     {errors.phone && (
-                      <p className='text-sm text-red-500'>{errors.phone.message}</p>
+                      <p className='text-[10px] sm:text-sm text-red-500 font-medium'>{errors.phone.message}</p>
                     )}
                   </div>
 
                   {/* Address Section */}
-                  <div className='space-y-4'>
-                    <Label className='flex items-center gap-2 text-base font-semibold'>
-                      <MapPin size={18} />
+                  <div className='space-y-3 sm:space-y-4 pt-2'>
+                    <Label className='flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base font-bold'>
+                      <MapPin size={16} className="sm:w-[18px] sm:h-[18px]" />
                       Delivery Address
                     </Label>
 
                     {/* Street Address */}
-                    <div className='space-y-2'>
-                      <Label htmlFor='street'>Street Address *</Label>
+                    <div className='space-y-1.5 sm:space-y-2'>
+                      <Label htmlFor='street' className="text-xs sm:text-sm">Street Address *</Label>
                       <Input
                         id='street'
                         type='text'
@@ -367,28 +368,29 @@ const MyAccount = () => {
                           required: 'Street address is required',
                           minLength: { value: 3, message: 'Street address must be at least 3 characters' }
                         })}
-                        className={errors.street ? 'border-red-500' : ''}
+                        className={`h-9 sm:h-10 text-xs sm:text-sm ${errors.street ? 'border-red-500' : ''}`}
                       />
                       {errors.street && (
-                        <p className='text-sm text-red-500'>{errors.street.message}</p>
+                        <p className='text-[10px] sm:text-sm text-red-500 font-medium'>{errors.street.message}</p>
                       )}
                     </div>
 
                     {/* Street Address Line 2 */}
-                    <div className='space-y-2'>
-                      <Label htmlFor='street2'>Street Address Line 2</Label>
+                    <div className='space-y-1.5 sm:space-y-2'>
+                      <Label htmlFor='street2' className="text-xs sm:text-sm">Street Address Line 2</Label>
                       <Input
                         id='street2'
                         type='text'
                         placeholder='Apartment, suite, unit, etc. (optional)'
                         {...register('street2')}
+                        className='h-9 sm:h-10 text-xs sm:text-sm'
                       />
                     </div>
 
                     {/* City and State */}
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                      <div className='space-y-2'>
-                        <Label htmlFor='city'>City *</Label>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
+                      <div className='space-y-1.5 sm:space-y-2'>
+                        <Label htmlFor='city' className="text-xs sm:text-sm">City *</Label>
                         <Input
                           id='city'
                           type='text'
@@ -396,15 +398,15 @@ const MyAccount = () => {
                           {...register('city', {
                             required: 'City is required'
                           })}
-                          className={errors.city ? 'border-red-500' : ''}
+                          className={`h-9 sm:h-10 text-xs sm:text-sm ${errors.city ? 'border-red-500' : ''}`}
                         />
                         {errors.city && (
-                          <p className='text-sm text-red-500'>{errors.city.message}</p>
+                          <p className='text-[10px] sm:text-sm text-red-500 font-medium'>{errors.city.message}</p>
                         )}
                       </div>
 
-                      <div className='space-y-2'>
-                        <Label htmlFor='state'>State / Province *</Label>
+                      <div className='space-y-1.5 sm:space-y-2'>
+                        <Label htmlFor='state' className="text-xs sm:text-sm">State / Province *</Label>
                         <Input
                           id='state'
                           type='text'
@@ -412,17 +414,17 @@ const MyAccount = () => {
                           {...register('state', {
                             required: 'State/Province is required'
                           })}
-                          className={errors.state ? 'border-red-500' : ''}
+                          className={`h-9 sm:h-10 text-xs sm:text-sm ${errors.state ? 'border-red-500' : ''}`}
                         />
                         {errors.state && (
-                          <p className='text-sm text-red-500'>{errors.state.message}</p>
+                          <p className='text-[10px] sm:text-sm text-red-500 font-medium'>{errors.state.message}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Postal Code */}
-                    <div className='space-y-2'>
-                      <Label htmlFor='postalCode'>Postal / Zip Code *</Label>
+                    <div className='space-y-1.5 sm:space-y-2'>
+                      <Label htmlFor='postalCode' className="text-xs sm:text-sm">Postal / Zip Code *</Label>
                       <Input
                         id='postalCode'
                         type='text'
@@ -434,20 +436,20 @@ const MyAccount = () => {
                             message: 'Please enter a valid 6-digit postal code'
                           }
                         })}
-                        className={errors.postalCode ? 'border-red-500' : ''}
+                        className={`h-9 sm:h-10 text-xs sm:text-sm ${errors.postalCode ? 'border-red-500' : ''}`}
                       />
                       {errors.postalCode && (
-                        <p className='text-sm text-red-500'>{errors.postalCode.message}</p>
+                        <p className='text-[10px] sm:text-sm text-red-500 font-medium'>{errors.postalCode.message}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Submit Button */}
-                  <div className='flex gap-3 pt-4'>
+                  <div className='flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4'>
                     <Button
                       type='submit'
                       disabled={isLoading}
-                      className='flex-1 cursor-pointer'
+                      className='flex-1 cursor-pointer h-9 sm:h-10 text-xs sm:text-sm'
                     >
                       {isLoading ? 'Updating...' : 'Update Profile'}
                     </Button>
@@ -455,7 +457,7 @@ const MyAccount = () => {
                       type='button'
                       variant='outline'
                       onClick={() => router.push(WEBSITE_CART)}
-                      className='flex-1 cursor-pointer'
+                      className='flex-1 cursor-pointer h-9 sm:h-10 text-xs sm:text-sm'
                     >
                       Back to Cart
                     </Button>

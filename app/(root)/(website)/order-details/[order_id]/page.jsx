@@ -104,12 +104,12 @@ const OrderDetailsPage = () => {
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 {/* Success Message */}
                 <Card className='mb-2 border-green-200 bg-green-50'>
-                    <CardContent>
-                        <div className='flex items-center gap-3'>
-                            <CheckCircle className='text-green-600 flex-shrink-0' size={32} />
+                    <CardContent className='sm:p-6'>
+                        <div className='flex items-center gap-2 sm:gap-3'>
+                            <CheckCircle className='text-green-600 flex-shrink-0 sm:w-8 sm:h-8' size={24} />
                             <div>
-                                <h1 className='text-lg font-bold text-green-900'>Order Placed Successfully!</h1>
-                                <p className='text-sm text-green-700'>Thank you for your purchase. Your order has been confirmed.</p>
+                                <h1 className='text-sm sm:text-lg font-bold text-green-900'>Order Placed Successfully!</h1>
+                                <p className='text-[10px] sm:text-sm text-green-700'>Thank you for your purchase. Your order has been confirmed.</p>
                             </div>
                         </div>
                     </CardContent>
@@ -117,10 +117,10 @@ const OrderDetailsPage = () => {
 
                 {/* Order Status Timeline */}
                 <Card className='mb-2'>
-                    <CardHeader>
-                        <CardTitle>Order Status</CardTitle>
+                    <CardHeader className='sm:p-6 pb-0 sm:pb-3'>
+                        <CardTitle className='text-base sm:text-lg'>Order Status</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className='sm:p-6 sm:pt-6'>
                         <OrderTimeline currentStatus={order.orderStatus} />
                     </CardContent>
                 </Card>
@@ -136,20 +136,20 @@ const OrderDetailsPage = () => {
                             </CardHeader>
                             <CardContent className='space-y-4'>
                                 <div>
-                                    <p className='text-sm text-gray-600'>Order ID</p>
-                                    <p className='font-semibold'>{order.orderId}</p>
+                                    <p className='text-xs sm:text-sm text-gray-600'>Order ID</p>
+                                    <p className='text-sm sm:text-base font-semibold'>{order.orderId}</p>
                                 </div>
                                 <div>
-                                    <p className='text-sm text-gray-600'>Payment ID</p>
-                                    <p className='font-semibold text-sm'>{order.paymentId}</p>
+                                    <p className='text-xs sm:text-sm text-gray-600'>Payment ID</p>
+                                    <p className='text-xs sm:text-sm font-semibold truncate'>{order.paymentId}</p>
                                 </div>
                                 <div>
-                                    <p className='text-sm text-gray-600'>Order Date</p>
-                                    <p className='font-semibold'>{new Date(order.createdAt).toLocaleDateString()}</p>
+                                    <p className='text-xs sm:text-sm text-gray-600'>Order Date</p>
+                                    <p className='text-sm sm:text-base font-semibold'>{new Date(order.createdAt).toLocaleDateString()}</p>
                                 </div>
                                 <div>
-                                    <p className='text-sm text-gray-600'>Payment Status</p>
-                                    <span className='inline-block px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800'>
+                                    <p className='text-xs sm:text-sm text-gray-600 mb-1'>Payment Status</p>
+                                    <span className='inline-block px-1.5 py-0.5 text-[10px] sm:text-xs font-semibold rounded bg-green-100 text-green-800'>
                                         {order.paymentStatus}
                                     </span>
                                 </div>
@@ -160,17 +160,17 @@ const OrderDetailsPage = () => {
                                 <Button
                                     onClick={downloadReceipt}
                                     disabled={downloading}
-                                    className='w-full'
+                                    className='w-full h-9 sm:h-10 text-xs sm:text-sm'
                                     variant='default'
                                 >
                                     {downloading ? (
                                         <>
-                                            <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2'></div>
+                                            <div className='animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-2'></div>
                                             Downloading...
                                         </>
                                     ) : (
                                         <>
-                                            <Download className='mr-2' size={16} />
+                                            <Download className='mr-1.5 sm:mr-2' size={14} />
                                             Download Receipt
                                         </>
                                     )}
@@ -186,10 +186,10 @@ const OrderDetailsPage = () => {
                                 <CardTitle>Order Items ({order.products?.length || 0})</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className='space-y-4'>
+                                <div className='space-y-3 sm:space-y-4'>
                                     {order.products?.map((item) => (
-                                        <div key={item.id} className='flex gap-4 pb-4 border-b last:border-b-0'>
-                                            <div className='w-20 h-20 bg-gray-100 rounded flex-shrink-0 overflow-hidden'>
+                                        <div key={item.id} className='flex gap-2 sm:gap-4 pb-3 sm:pb-4 border-b last:border-b-0'>
+                                            <div className='w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded flex-shrink-0 overflow-hidden border'>
                                                 {item.media ? (
                                                     <Image
                                                         src={item.media}
@@ -199,40 +199,37 @@ const OrderDetailsPage = () => {
                                                         className='w-full h-full object-cover'
                                                     />
                                                 ) : (
-                                                    <Package className='w-full h-full p-4 text-gray-400' />
+                                                    <Package className='w-full h-full p-3 sm:p-4 text-gray-400' />
                                                 )}
                                             </div>
-                                            <div className='flex-1'>
-                                                <h3 className='font-semibold'>{item.name}</h3>
-                                                <div className='text-sm text-gray-600 space-y-1 mt-1'>
-                                                    {item.weight && <p>Weight: {item.weight}g</p>}
-                                                    {item.purity && <p>Purity: {item.purity}</p>}
-                                                    {item.color && <p>Color: {item.color}</p>}
-                                                    {item.size && <p>Size: {item.size}</p>}
-                                                    <p>Quantity: {item.qty}</p>
+                                            <div className='flex-1 min-w-0'>
+                                                <h3 className='text-sm sm:text-base font-semibold truncate'>{item.name}</h3>
+                                                <div className='text-[10px] sm:text-sm text-gray-600 mt-0.5'>
+                                                    {item.weight && <span>{item.weight}g</span>}
+                                                    {item.purity && <span> • {item.purity}</span>}
+                                                    {item.color && <span> • {item.color}</span>}
+                                                    <p className='mt-0.5'>{item.qty} Unit{item.qty > 1 ? 's' : ''}</p>
                                                 </div>
                                             </div>
-                                            <div className='text-right'>
-                                                <p className='font-semibold'>
+                                            <div className='text-right flex-shrink-0'>
+                                                <p className='text-sm sm:text-base font-semibold text-primary'>
                                                     {Number(item.totalPrice).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
                                                 </p>
-                                                <p className='text-sm text-gray-600'>
-                                                    {Number(item.unitPrice).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })} × {item.qty}
+                                                <p className='text-[10px] sm:text-xs text-gray-500'>
+                                                    {Number(item.unitPrice).toLocaleString('en-IN')} × {item.qty}
                                                 </p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
 
-                                <Separator className='my-4' />
+                                <Separator className='my-3 sm:my-4' />
 
-                                <div className='space-y-2'>
-                                    <div className='flex justify-between text-lg font-bold'>
-                                        <span>Total Amount Paid</span>
-                                        <span className='text-primary'>
-                                            {Number(order.total).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
-                                        </span>
-                                    </div>
+                                <div className='flex justify-between items-center bg-gray-50 p-2 sm:p-0 sm:bg-transparent rounded-lg'>
+                                    <span className='text-sm sm:text-lg font-bold text-gray-700'>Total Amount Paid</span>
+                                    <span className='text-base sm:text-2xl font-bold text-primary'>
+                                        {Number(order.total).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
+                                    </span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -241,30 +238,30 @@ const OrderDetailsPage = () => {
 
                 {/* Customer Information - Full Width */}
                 <Card className='mt-2'>
-                    <CardHeader>
-                        <CardTitle>Customer Information</CardTitle>
+                    <CardHeader className='p-3 sm:p-6 pb-2 sm:pb-3'>
+                        <CardTitle className='text-base sm:text-lg'>Customer Information</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                    <CardContent className='p-3 sm:p-6 pt-1 sm:pt-6'>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4'>
                             <div className='flex items-center gap-2'>
-                                <Mail size={18} className='text-gray-500' />
-                                <span className='text-sm'>{order.email}</span>
+                                <Mail size={16} className='text-gray-500 shrink-0' />
+                                <span className='text-xs sm:text-sm truncate'>{order.email}</span>
                             </div>
                             <div className='flex items-center gap-2'>
-                                <Phone size={18} className='text-gray-500' />
-                                <span className='text-sm'>{order.phone}</span>
+                                <Phone size={16} className='text-gray-500 shrink-0' />
+                                <span className='text-xs sm:text-sm'>{order.phone}</span>
                             </div>
-                            <div className='flex items-start gap-2 md:col-span-2 lg:col-span-1'>
-                                <MapPin size={18} className='text-gray-500 mt-1' />
-                                <div className='text-sm'>
+                            <div className='flex items-start gap-2 sm:col-span-2 lg:col-span-1'>
+                                <MapPin size={16} className='text-gray-500 mt-0.5 shrink-0' />
+                                <div className='text-xs sm:text-sm text-gray-700'>
                                     <p>{address.street}</p>
                                     {address.street2 && <p>{address.street2}</p>}
                                     <p>{address.city}, {address.state} - {address.postalCode}</p>
                                 </div>
                             </div>
                             <div className='flex items-center gap-2'>
-                                <CreditCard size={18} className='text-gray-500' />
-                                <span className='text-sm'>PAN: {order.panCard}</span>
+                                <CreditCard size={16} className='text-gray-500 shrink-0' />
+                                <span className='text-xs sm:text-sm font-medium'>PAN: {order.panCard}</span>
                             </div>
                         </div>
                     </CardContent>

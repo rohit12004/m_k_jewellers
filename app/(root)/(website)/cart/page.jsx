@@ -105,7 +105,7 @@ const CartPage = () => {
                     <div className='flex lg:flex-nowrap flex-wrap gap-6 my-10 mb-20'>
                         {/* Cart Items */}
                         <div className='lg:w-[60%] w-full'>
-                            <h2 className='text-2xl font-semibold mb-6'>My Shopping Cart ({cart.count} {cart.count === 1 ? 'Item' : 'Items'})</h2>
+                            <h2 className='text-lg sm:text-2xl font-semibold mb-6'>My Shopping Cart ({cart.count} {cart.count === 1 ? 'Item' : 'Items'})</h2>
 
                             {loadingPrices ? (
                                 <div className='space-y-4'>
@@ -120,10 +120,10 @@ const CartPage = () => {
                                             {/* Product Header */}
                                             <div className='flex justify-between items-start mb-4'>
                                                 <div className='flex-1'>
-                                                    <h3 className='text-lg sm:text-xl font-semibold mb-2'>{product.name}</h3>
+                                                    <h3 className='text-base sm:text-xl font-semibold mb-2'>{product.name}</h3>
                                                 </div>
                                                 <div className='text-right'>
-                                                    <p className='text-xl sm:text-2xl font-bold text-primary'>
+                                                    <p className='text-lg sm:text-2xl font-bold text-primary'>
                                                         {product.price > 0 ? (
                                                             product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
                                                         ) : (
@@ -213,10 +213,10 @@ const CartPage = () => {
                         {/* Order Summary */}
                         <div className='lg:w-[40%] w-full'>
                             <div className='rounded-lg border bg-white p-5 sm:p-6 lg:sticky lg:top-5'>
-                                <h3 className='text-xl font-semibold mb-6'>Order Summary</h3>
+                                <h3 className='text-lg sm:text-xl font-semibold mb-6'>Order Summary</h3>
 
                                 <div className='space-y-4 mb-6'>
-                                    <div className='flex justify-between items-center text-base'>
+                                    <div className='flex justify-between items-center text-sm sm:text-base'>
                                         <span className='text-gray-600'>Total ({cart.count} {cart.count === 1 ? 'Item' : 'Items'})</span>
                                         <span className='font-medium'>
                                             {total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
@@ -225,8 +225,8 @@ const CartPage = () => {
 
                                     <div className='pt-4 border-t'>
                                         <div className='flex justify-between items-center'>
-                                            <span className='text-lg font-semibold'>Total Payable</span>
-                                            <span className='text-2xl font-bold text-primary'>
+                                            <span className='text-base sm:text-lg font-semibold'>Total Payable</span>
+                                            <span className='text-xl sm:text-2xl font-bold text-primary'>
                                                 {total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
                                             </span>
                                         </div>

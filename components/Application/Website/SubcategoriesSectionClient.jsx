@@ -8,7 +8,7 @@ const SubcategoriesSectionClient = () => {
 
     if (isLoading) {
         return (
-            <section className='lg:px-32 px-4 sm:py-10 py-8 bg-gray-50 dark:bg-gray-900'>
+            <section className='lg:px-32 px-2 sm:px-4 sm:py-10 py-5 bg-gray-50 dark:bg-gray-900'>
                 <div className='grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-7 gap-3 sm:gap-4 md:gap-6'>
                     {/* Loading skeleton */}
                     {[...Array(7)].map((_, i) => (
@@ -27,7 +27,7 @@ const SubcategoriesSectionClient = () => {
     }
 
     return (
-        <section className='lg:px-32 px-4 sm:py-10 py-8 bg-gray-50 dark:bg-gray-900'>
+        <section className='lg:px-32 px-2 sm:px-4 sm:py-10 py-2 bg-gray-50 dark:bg-gray-900'>
             <div className='grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-7 gap-3 sm:gap-4 md:gap-6'>
                 {subcategories.map((subcategory) => (
                     <SubcategoryCard key={subcategory.id} subcategory={subcategory} />

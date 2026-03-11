@@ -272,6 +272,17 @@ const CheckoutPage = () => {
                         setSavingOrder(false)
                     }
                 },
+                "modal": {
+                    "ondismiss": function () {
+                        setPlacingOrder(false);
+                    },
+                    "confirm_close": true,
+                    "handleback": true
+                },
+                "retry": {
+                    "enabled": true,
+                    "max_count": 3
+                },
                 "prefill": {
                     "name": auth.name,
                     "email": auth.email,
@@ -314,26 +325,26 @@ const CheckoutPage = () => {
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 {/* Progress Indicator */}
                 <div className='mb-8'>
-                    <div className='flex items-center justify-center gap-4 sm:gap-8'>
-                        <div className='flex items-center gap-2'>
-                            <div className='w-8 h-8 rounded-full bg-primary flex items-center justify-center'>
-                                <Check className='text-white' size={16} />
+                    <div className='flex items-center justify-center gap-2 sm:gap-8'>
+                        <div className='flex items-center gap-1.5 sm:gap-2'>
+                            <div className='w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary flex items-center justify-center'>
+                                <Check className='text-white' size={14} />
                             </div>
-                            <span className='text-sm font-medium text-gray-900 dark:text-gray-900'>Cart</span>
+                            <span className='text-xs sm:text-sm font-medium text-gray-900'>Cart</span>
                         </div>
-                        <div className='h-0.5 w-12 sm:w-24 bg-primary'></div>
-                        <div className='flex items-center gap-2'>
-                            <div className='w-8 h-8 rounded-full bg-primary flex items-center justify-center'>
-                                <span className='text-white text-sm font-medium'>2</span>
+                        <div className='h-px w-8 sm:w-24 bg-primary'></div>
+                        <div className='flex items-center gap-1.5 sm:gap-2'>
+                            <div className='w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary flex items-center justify-center'>
+                                <span className='text-white text-xs sm:text-sm font-medium'>2</span>
                             </div>
-                            <span className='text-sm font-medium text-primary'>Delivery</span>
+                            <span className='text-xs sm:text-sm font-medium text-primary'>Delivery</span>
                         </div>
-                        <div className='h-0.5 w-12 sm:w-24 bg-gray-300'></div>
-                        <div className='flex items-center gap-2'>
-                            <div className='w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center'>
-                                <span className='text-gray-600 text-sm font-medium'>3</span>
+                        <div className='h-px w-8 sm:w-24 bg-gray-300'></div>
+                        <div className='flex items-center gap-1.5 sm:gap-2'>
+                            <div className='w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-300 flex items-center justify-center'>
+                                <span className='text-gray-600 text-xs sm:text-sm font-medium'>3</span>
                             </div>
-                            <span className='text-sm font-medium text-gray-500 dark:text-gray-500'>Payment</span>
+                            <span className='text-xs sm:text-sm font-medium text-gray-500'>Payment</span>
                         </div>
                     </div>
                 </div>
@@ -343,16 +354,16 @@ const CheckoutPage = () => {
                     {/* Left Panel - Delivery Details */}
                     <div className='lg:col-span-3'>
                         <Card>
-                            <CardHeader>
-                                <CardTitle>Your Details</CardTitle>
-                                <CardDescription>Required to Save Cart and Send Order Updates</CardDescription>
+                            <CardHeader className="sm:space-y-1.5">
+                                <CardTitle className="text-lg sm:text-2xl">Your Details</CardTitle>
+                                <CardDescription className="text-xs sm:text-sm">Required to Save Cart and Send Order Updates</CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                <div className='space-y-4'>
+                            <CardContent className="p-4 sm:p-6 pt-3 sm:pt-6">
+                                <div className='space-y-3 sm:space-y-4'>
                                     {/* Email */}
-                                    <div className='space-y-2'>
-                                        <Label htmlFor='email' className='flex items-center gap-2'>
-                                            <Mail size={16} />
+                                    <div className='space-y-1.5 sm:space-y-2'>
+                                        <Label htmlFor='email' className='flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold'>
+                                            <Mail size={14} className="sm:w-4 sm:h-4" />
                                             Email address
                                         </Label>
                                         <Input
@@ -360,14 +371,14 @@ const CheckoutPage = () => {
                                             type='email'
                                             value={auth.email || ''}
                                             readOnly
-                                            className='bg-gray-50 dark:bg-gray-50'
+                                            className='bg-gray-50 h-9 sm:h-10 text-xs sm:text-sm'
                                         />
                                     </div>
 
                                     {/* Mobile */}
-                                    <div className='space-y-2'>
-                                        <Label htmlFor='mobile' className='flex items-center gap-2'>
-                                            <Phone size={16} />
+                                    <div className='space-y-1.5 sm:space-y-2'>
+                                        <Label htmlFor='mobile' className='flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold'>
+                                            <Phone size={14} className="sm:w-4 sm:h-4" />
                                             Mobile number
                                         </Label>
                                         <Input
@@ -375,17 +386,17 @@ const CheckoutPage = () => {
                                             type='tel'
                                             value={auth.phone || ''}
                                             readOnly
-                                            className='bg-gray-50 dark:bg-gray-50'
+                                            className='bg-gray-50 h-9 sm:h-10 text-xs sm:text-sm'
                                         />
                                     </div>
 
                                     {/* Address */}
-                                    <div className='space-y-2'>
-                                        <Label htmlFor='address' className='flex items-center gap-2'>
-                                            <MapPin size={16} />
+                                    <div className='space-y-1.5 sm:space-y-2'>
+                                        <Label htmlFor='address' className='flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold'>
+                                            <MapPin size={14} className="sm:w-4 sm:h-4" />
                                             Delivery Address
                                         </Label>
-                                        <div className='p-3 bg-gray-50 dark:bg-gray-50 rounded-md border'>
+                                        <div className='p-2 sm:p-3 bg-gray-50 rounded-md border text-xs sm:text-sm'>
                                             {auth.address ? (
                                                 (() => {
                                                     try {
@@ -408,9 +419,9 @@ const CheckoutPage = () => {
                                     </div>
 
                                     {/* PAN Card */}
-                                    <div className='space-y-2'>
-                                        <Label htmlFor='panCard' className='flex items-center gap-2'>
-                                            <CreditCard size={16} />
+                                    <div className='space-y-1.5 sm:space-y-2'>
+                                        <Label htmlFor='panCard' className='flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold'>
+                                            <CreditCard size={14} className="sm:w-4 sm:h-4" />
                                             PAN Card Number <span className='text-red-500'>*</span>
                                         </Label>
                                         <Input
@@ -421,7 +432,7 @@ const CheckoutPage = () => {
                                             onChange={(e) => {
                                                 const value = e.target.value.toUpperCase()
                                                 setPanCard(value)
-
+ 
                                                 // Validate PAN format: 5 letters, 4 digits, 1 letter
                                                 const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/
                                                 if (value && !panRegex.test(value)) {
@@ -431,7 +442,7 @@ const CheckoutPage = () => {
                                                 }
                                             }}
                                             maxLength={10}
-                                            className={panError ? 'border-red-500' : ''}
+                                            className={`h-9 sm:h-10 text-xs sm:text-sm ${panError ? 'border-red-500' : ''}`}
                                             required
                                         />
                                         {panError && (
@@ -452,8 +463,8 @@ const CheckoutPage = () => {
                         <div className='sticky top-4 space-y-4'>
                             {/* Order Summary */}
                             <Card>
-                                <CardHeader>
-                                    <CardTitle className='text-lg'>ORDER SUMMARY</CardTitle>
+                                <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-3">
+                                    <CardTitle className='text-base sm:text-lg'>ORDER SUMMARY</CardTitle>
                                 </CardHeader>
                                 <CardContent className='space-y-4'>
                                     {/* Items Count */}
@@ -496,8 +507,8 @@ const CheckoutPage = () => {
 
                                     {/* Total Payable */}
                                     <div className='space-y-2'>
-                                        <h3 className='font-semibold text-lg'>Total Payable</h3>
-                                        <p className='text-2xl font-bold text-primary'>
+                                        <h3 className='font-semibold text-base sm:text-lg'>Total Payable</h3>
+                                        <p className='text-xl sm:text-2xl font-bold text-primary'>
                                             {total.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
                                         </p>
                                     </div>

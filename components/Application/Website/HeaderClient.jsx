@@ -34,15 +34,15 @@ const HeaderClient = ({ initialCategories = [] }) => {
     return (
         <header className={`sticky top-0 z-50 bg-transparent backdrop-blur-sm transition-all duration-300 ${isScrolled ? 'shadow- border-b border-grey/20' : 'border-b border-white/20'}`}>
             <div className='lg:px-10 px-4 max-w-full overflow-hidden'>
-                <div className='flex justify-between items-center lg:py-3 py-4 w-full'>
+                <div className='flex justify-between items-center lg:py-3 py-2 px-1 w-full'>
                     {/* Logo */}
                     <Link href={WEBSITE_HOME} className='flex items-center group flex-shrink-0'>
                         <Image
                             src={logo}
-                            width={50}
-                            height={50}
+                            width={40}
+                            height={40}
                             alt='M&K Jewellers'
-                            className='rounded-full ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300'
+                            className='rounded-full ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300 md:w-[50px] md:h-[50px]'
                             priority
                         />
                         <span className={`ml-2.5 text-base font-bold tracking-wide transition-colors duration-300 hidden sm:block ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'}`}>M. K. Jewellers</span>
@@ -71,33 +71,33 @@ const HeaderClient = ({ initialCategories = [] }) => {
                             </div>
 
                             {/* Navigation Links */}
-                            <ul className='lg:flex justify-between items-center gap-8 px-4 lg:px-0 pt-4 lg:pt-0'>
-                                <li className='group relative'>
-                                    <Link
-                                        href={WEBSITE_HOME}
-                                        className={`block py-3 lg:py-2 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
-                                        onClick={() => setIsMobileMenu(false)}
-                                    >
+                            <ul className='lg:flex justify-between items-center gap-8 px-4 lg:px-0 pt-4 lg:pt-0 flex flex-col lg:flex-row'>
+                                <li className='group relative w-full lg:w-auto border-b border-gray-500 lg:border-none last:border-none'>
+                                        <Link
+                                            href={WEBSITE_HOME}
+                                            className={`block py-1.5 lg:py-2 text-center lg:text-left text-sm lg:text-base ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
+                                            onClick={() => setIsMobileMenu(false)}
+                                        >
                                         Home
                                         <span className='absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300'></span>
                                     </Link>
                                 </li>
-                                <li className='group relative'>
-                                    <Link
-                                        href="/about-us"
-                                        className={`block py-3 lg:py-2 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
-                                        onClick={() => setIsMobileMenu(false)}
-                                    >
+                                <li className='group relative w-full lg:w-auto border-b border-gray-500 lg:border-none last:border-none'>
+                                        <Link
+                                            href="/about-us"
+                                            className={`block py-1.5 lg:py-2 text-center lg:text-left text-sm lg:text-base ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
+                                            onClick={() => setIsMobileMenu(false)}
+                                        >
                                         About
                                         <span className='absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300'></span>
                                     </Link>
                                 </li>
-                                <li className='group relative'>
-                                    <Link
-                                        href={WEBSITE_SHOP}
-                                        className={`block py-3 lg:py-2 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
-                                        onClick={() => setIsMobileMenu(false)}
-                                    >
+                                <li className='group relative w-full lg:w-auto border-b border-gray-500 lg:border-none last:border-none'>
+                                        <Link
+                                            href={WEBSITE_SHOP}
+                                            className={`block py-1.5 lg:py-2 text-center lg:text-left text-sm lg:text-base ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
+                                            onClick={() => setIsMobileMenu(false)}
+                                        >
                                         Shop
                                         <span className='absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300'></span>
                                     </Link>
@@ -105,10 +105,10 @@ const HeaderClient = ({ initialCategories = [] }) => {
 
                                 {/* Dynamic Categories from Database */}
                                 {categories.map((category) => (
-                                    <li key={category.id} className='group relative'>
+                                    <li key={category.id} className='group relative w-full lg:w-auto border-b border-gray-500 lg:border-none'>
                                         <Link
                                             href={`${WEBSITE_SHOP}?category=${category.slug}`}
-                                            className={`block py-3 lg:py-2 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
+                                            className={`block py-1.5 lg:py-2 text-center lg:text-left text-sm lg:text-base ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'} hover:text-primary font-medium transition-colors duration-300`}
                                             onClick={() => setIsMobileMenu(false)}
                                         >
                                             {category.name}
