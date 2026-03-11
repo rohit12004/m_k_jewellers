@@ -1,10 +1,10 @@
 import React from 'react'
-import MainSlider from '@/components/Application/website/MainSlider'
+import MainSlider from '@/components/Application/Website/MainSlider'
 import banner1 from '@/public/assets/banner1.jpg'
 import banner2 from '@/public/assets/banner2.jpg'
 import Link from 'next/link'
 import Image from 'next/image'
-import SubcategoriesSection from '@/components/Application/website/SubcategoriesSection'
+import SubcategoriesSection from '@/components/Application/Website/SubcategoriesSection'
 import advertisingBanner from '@/public/assets/advertising-banner.jpg'
 import designImage from '@/public/assets/deisgn_image.png'
 

@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { CheckCircle, Package, Truck, MapPin, Phone, Mail, CreditCard, Download } from 'lucide-react'
 import Image from 'next/image'
 import imgPlaceholder from '@/public/assets/img-placeholder.jpg'
-import OrderTimeline from '@/components/Application/website/OrderTimeline'
+import OrderTimeline from '@/components/Application/Website/OrderTimeline'
 import { toast } from 'sonner'
 
 const OrderDetailsPage = () => {

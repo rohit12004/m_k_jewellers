@@ -17,8 +17,8 @@ import { WEBSITE_LOGIN, WEBSITE_CART, WEBSITE_HOME, API_USER_ORDERS } from '@/ro
 import api from '@/lib/api' // Use new API service with auto-refresh
 import axios from 'axios' // Keep for non-authenticated calls if needed
 import { LogOut, User, Mail, Phone, MapPin, ShoppingCart, LayoutDashboard, Package, ShoppingBag, IndianRupee } from 'lucide-react'
-import StatCard from '@/components/Application/website/StatCard'
-import OrdersTable from '@/components/Application/website/OrdersTable'
+import StatCard from '@/components/Application/Website/StatCard'
+import OrdersTable from '@/components/Application/Website/OrdersTable'
 
 const MyAccount = () => {
   const auth = useSelector(store => store.authStore.auth)
