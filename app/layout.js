@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Assistant } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 // ❌ REMOVED: Cron job should not be imported here - causes multiple instances
@@ -7,10 +7,11 @@ import GlobalProvider from "@/components/Application/GlobalProvider";
 import ChatWidget from "@/components/Chatbot/ChatWidget";
 import { getServerSession } from "@/lib/serverSession";
 
-const assistantFont = Assistant({
-  weight: ["400", "500", "600", "700", "800"],
+const spaceGrotesk = Space_Grotesk({
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
-  display: "swap"
+  display: "swap",
+  variable: "--font-space-grotesk"
 })
 
 export const metadata = {
@@ -25,7 +26,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${assistantFont.className} antialiased`}
+        className={`${spaceGrotesk.variable} ${spaceGrotesk.className} antialiased`}
       >
         <GlobalProvider initialSession={session}>
           {children}

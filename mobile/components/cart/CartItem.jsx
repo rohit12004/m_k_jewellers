@@ -4,6 +4,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
 import { removeFromCart, increaseQuantity, decreaseQuantity } from "../../store/slices/cartSlice";
 
+// Keep in sync with web/lib/cartLimits.js
+const MAX_QTY_PER_ITEM = 5;
+
 export default function CartItem({ item }) {
     const dispatch = useDispatch();
 
@@ -102,7 +105,9 @@ export default function CartItem({ item }) {
 
                         <TouchableOpacity
                             onPress={handleIncrease}
+                            disabled={item.qty >= MAX_QTY_PER_ITEM}
                             className="bg-purple-600 w-8 h-8 rounded-full items-center justify-center"
+                            style={{ opacity: item.qty >= MAX_QTY_PER_ITEM ? 0.4 : 1 }}
                             activeOpacity={0.7}
                         >
                             <Ionicons name="add" size={18} color="white" />

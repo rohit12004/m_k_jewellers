@@ -9,7 +9,7 @@ import {
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { WEBSITE_SHOP } from "@/routes/websiteRoutes"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import ProductImageGallery from "./ProductImageGallery"
 import VariantSelector from "./VariantSelector"
@@ -20,8 +20,9 @@ import { toast } from "react-toastify"
 import imgPlaceholder from '@/public/assets/img-placeholder.jpg'
 import { RING_SIZES } from '@/lib/ringSizes'
 import Select from '@/components/Application/Select'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '@/store/reducer/cartReducer'
+import { MAX_UNIQUE_ITEMS, MAX_QTY_PER_ITEM, ADD_TO_CART_COOLDOWN_MS } from '@/lib/cartLimits'
 
 const ProductDetails = ({
     product,
@@ -38,6 +39,9 @@ const ProductDetails = ({
     // Store currently selected variant in state (client-side switching)
     const [currentVariant, setCurrentVariant] = useState(initialVariant)
     const [quantity, setQuantity] = useState(1)
+
+    // Anti-bot: track last add-to-cart timestamp for cooldown
+    const lastAddedAt = useRef(null)
 
     // Update current variant when initial variant changes (from URL navigation)
     useEffect(() => {
@@ -108,11 +112,43 @@ const ProductDetails = ({
     }
 
     const dispatch = useDispatch()
+    const cartProducts = useSelector(store => store.cartStore.products)
 
     const handleAddToCart = () => {
         // Validate that variant has a price
         if (!currentVariant.calculatedPrice?.finalPrice) {
             toast.error('Price not available for this variant', {
+                position: "top-right",
+                autoClose: 3000,
+            })
+            return
+        }
+
+        // ── Anti-bot: cooldown check ──────────────────────────────────────
+        const now = Date.now()
+        if (lastAddedAt.current && now - lastAddedAt.current < ADD_TO_CART_COOLDOWN_MS) {
+            toast.warning('Please wait a moment before adding another item.', {
+                position: "top-right",
+                autoClose: 2000,
+            })
+            return
+        }
+
+        // ── Anti-bot: max unique items check ─────────────────────────────
+        const isAlreadyInCart = cartProducts.some(item => item.variantId === currentVariant.id)
+        if (!isAlreadyInCart && cartProducts.length >= MAX_UNIQUE_ITEMS) {
+            toast.error(`Cart limit reached. You can add at most ${MAX_UNIQUE_ITEMS} different items.`, {
+                position: "top-right",
+                autoClose: 4000,
+            })
+            return
+        }
+
+        // ── Anti-bot: max qty per item check ─────────────────────────────
+        const existingItem = cartProducts.find(item => item.variantId === currentVariant.id)
+        const currentQtyInCart = existingItem?.qty || 0
+        if (currentQtyInCart + quantity > MAX_QTY_PER_ITEM) {
+            toast.warning(`You can only have up to ${MAX_QTY_PER_ITEM} of the same item in your cart.`, {
                 position: "top-right",
                 autoClose: 3000,
             })
@@ -136,8 +172,9 @@ const ProductDetails = ({
             // NO PRICE - Calculated fresh on cart page
         }
 
-        // Dispatch to Redux cart
+        // Dispatch to Redux cart & record timestamp
         dispatch(addToCart(cartItem))
+        lastAddedAt.current = Date.now()
 
         toast.success(`${product.name} added to cart`, {
             position: "top-right",
@@ -275,6 +312,7 @@ const ProductDetails = ({
                         <QuantitySelector
                             quantity={quantity}
                             onChange={handleQuantityChange}
+                            max={MAX_QTY_PER_ITEM}
                         />
                     </div>
 

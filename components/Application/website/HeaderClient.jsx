@@ -45,6 +45,7 @@ const HeaderClient = ({ initialCategories = [] }) => {
                             className='rounded-full ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300'
                             priority
                         />
+                        <span className={`ml-2.5 text-base font-bold tracking-wide transition-colors duration-300 hidden sm:block ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'}`}>M. K. Jewellers</span>
                     </Link>
 
                     <div className='flex justify-end items-center lg:gap-20 gap-4 flex-1'>

@@ -1,6 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { logout } from "./authSlice";
 
+// Cart limits — keep in sync with web/lib/cartLimits.js
+const MAX_UNIQUE_ITEMS = 10;
+const MAX_QTY_PER_ITEM = 5;
+
 const initialState = {
     products: [],
     count: 0
@@ -19,9 +23,14 @@ const cartSlice = createSlice({
             );
 
             if (existingProductIndex !== -1) {
-                // Update quantity if product already exists
-                state.products[existingProductIndex].qty += qty;
+                // Update quantity — cap at MAX_QTY_PER_ITEM
+                const newQty = state.products[existingProductIndex].qty + qty;
+                state.products[existingProductIndex].qty = Math.min(newQty, MAX_QTY_PER_ITEM);
             } else {
+                // Enforce max unique items limit
+                if (state.products.length >= MAX_UNIQUE_ITEMS) {
+                    return; // Silently reject
+                }
                 // Add new product to cart
                 state.products.push({
                     productId,
@@ -33,7 +42,7 @@ const cartSlice = createSlice({
                     purity,
                     color,
                     media,
-                    qty,
+                    qty: Math.min(qty, MAX_QTY_PER_ITEM), // Cap initial qty
                     subcategory,
                     category
                 });
@@ -67,8 +76,8 @@ const cartSlice = createSlice({
                     // Remove product if quantity is 0 or less
                     state.products.splice(productIndex, 1);
                 } else {
-                    // Update quantity
-                    state.products[productIndex].qty = qty;
+                    // Update quantity — cap at MAX_QTY_PER_ITEM
+                    state.products[productIndex].qty = Math.min(qty, MAX_QTY_PER_ITEM);
                 }
             }
 
@@ -84,7 +93,10 @@ const cartSlice = createSlice({
             );
 
             if (productIndex !== -1) {
-                state.products[productIndex].qty += 1;
+                // Enforce max qty per item limit
+                if (state.products[productIndex].qty < MAX_QTY_PER_ITEM) {
+                    state.products[productIndex].qty += 1;
+                }
             }
 
             // Update total count
