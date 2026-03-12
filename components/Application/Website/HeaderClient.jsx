@@ -45,7 +45,7 @@ const HeaderClient = ({ initialCategories = [] }) => {
                             className='rounded-full ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-300 md:w-[50px] md:h-[50px]'
                             priority
                         />
-                        <span className={`ml-2.5 text-2xl font-bold tracking-tight transition-colors duration-300 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'}`}>M. K. Jewellers</span>
+                        <span className={`ml-2.5 text-xl md:text-2xl font-bold tracking-tight transition-colors duration-300 ${isScrolled ? 'text-yellow-500 dark:text-gray-700' : 'text-gray-700'}`}>M. K. Jewellers</span>
                     </Link>
 
                     <div className='flex justify-end items-center lg:gap-20 gap-4 flex-1'>
@@ -62,7 +62,7 @@ const HeaderClient = ({ initialCategories = [] }) => {
                                         alt='M&K Jewellers'
                                         className='rounded-full ring-2 ring-primary/20'
                                     />
-                                    <span className='ml-3 text-2xl font-bold text-gray-800'>M. K. Jewellers</span>
+                                    <span className='ml-3 text-xl font-bold text-gray-800'>M. K. Jewellers</span>
                                 </div>
                                 <button
                                     type='button'

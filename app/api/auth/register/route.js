@@ -48,7 +48,7 @@ export async function POST(request) {
             .sign(secret);
 
         const mailResponse = await sendMail('EMail Verification request from M K Jewellers',
-            email, emailVerificationLink(`${getBaseUrl()}/auth/verify-email/${token}`))
+            email, emailVerificationLink(`${await getBaseUrl()}/auth/verify-email/${token}`))
 
         if (!mailResponse.success) {
             return response(false, 500, "User created but failed to send email", mailResponse.message);

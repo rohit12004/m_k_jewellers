@@ -42,11 +42,18 @@ const ProductCard = ({ product }) => {
                     </div>
                 </div>
 
-                {/* Product Name */}
+                {/* Product Name & Details */}
                 <div className='px-1'>
                     <h3 className='text-xs sm:text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:text-primary transition-colors duration-300 line-clamp-2 text-center'>
                         {product.name}
                     </h3>
+
+                    {/* Product Weight */}
+                    {product.variants && product.variants.length > 0 && (
+                        <p className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center mt-0.5 font-medium'>
+                            {product.variants[0].weight}g
+                        </p>
+                    )}
 
                     {/* Product Price */}
                     {product.variants && product.variants.length > 0 && product.variants[0].calculatedPrice ? (

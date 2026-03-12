@@ -65,7 +65,8 @@ const page = () => {
             form.reset()
             showToast('success', registerResponse.message)
         } catch (error) {
-            showToast('error', error.message)
+            const errorMessage = error.response?.data?.message || error.message || 'An error occurred during registration. Please try again.'
+            showToast('error', errorMessage)
         } finally {
             setLoading(false)
         }

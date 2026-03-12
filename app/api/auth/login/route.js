@@ -58,7 +58,7 @@ export async function POST(request) {
                 .sign(secret);
 
             const mailResponse = await sendMail('EMail Verification request from M K Jewellers',
-                email, emailVerificationLink(`${getBaseUrl()}/auth/verify-email/${token}`))
+                email, emailVerificationLink(`${await getBaseUrl()}/auth/verify-email/${token}`))
 
             return response(false, 403, "Please verify your email to login. Verification link has been sent to your email.");
         }

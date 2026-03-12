@@ -12,7 +12,7 @@ const SimilarProducts = ({ products }) => {
                 <span className="w-1.5 h-8 bg-primary rounded-full"></span>
                 Similar Products
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5">
+            <div className="grid grid-cols-5 gap-2 md:gap-5">
                 {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                 ))}
