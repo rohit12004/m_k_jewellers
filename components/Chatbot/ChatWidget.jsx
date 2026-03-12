@@ -3,8 +3,10 @@ import { useState, useRef, useEffect } from 'react'
 import { MessageCircle, X, Send, Sparkles } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import ProductCard from './ProductCard'
+import { usePathname } from 'next/navigation'
 
 export default function ChatWidget() {
+    const pathname = usePathname()
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState([
         { role: 'assistant', content: 'Welcome to M&K Jewellers! ✨ How may I assist you in finding the perfect piece today?' }
@@ -13,6 +15,10 @@ export default function ChatWidget() {
     const [isTyping, setIsTyping] = useState(false)
     const [conversationId, setConversationId] = useState(null)
     const messagesEndRef = useRef(null)
+
+    // Hide chat widget on auth and admin pages
+    const hideOnRoutes = ['/auth', '/admin']
+    const shouldHide = hideOnRoutes.some(route => pathname?.startsWith(route))
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -67,6 +73,8 @@ export default function ChatWidget() {
             setIsTyping(false)
         }
     }
+
+    if (shouldHide) return null
 
     return (
         <>

@@ -85,9 +85,9 @@ const page = () => {
 
             dispatch(login(otpResponse.data))
             if (searchParams.has('callback')) {
-                router.push(searchParams.get('callback'))
+                window.location.href = searchParams.get('callback')
             } else {
-                otpResponse.data.role === 'admin' ? router.push(ADMIN_DASHBOARD) : router.push(USER_DASHBOARD)
+                window.location.href = otpResponse.data.role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD
             }
         } catch (error) {
             const errorMessage = error.response?.data?.message || error.message || 'An error occurred during OTP verification. Please try again.'

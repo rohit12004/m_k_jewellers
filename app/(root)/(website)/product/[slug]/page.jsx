@@ -1,4 +1,4 @@
-import { getProductBySlug } from '@/lib/product.service'
+import { getProductBySlug, getSimilarProducts } from '@/lib/product.service'
 import Link from 'next/link'
 import ProductDetails from '@/components/Application/Website/ProductDetails'
 
@@ -28,6 +28,14 @@ const ProductPage = async ({ params, searchParams }) => {
             )
         }
 
+        // Fetch similar products in parallel with any other possible data needs
+        const similarProductsPromise = getSimilarProducts(
+            response.data.product.subCategory?.id,
+            response.data.product.id
+        )
+
+        const [similarProductsResponse] = await Promise.all([similarProductsPromise])
+
         return (
             <ProductDetails
                 product={response.data.product}
@@ -37,6 +45,7 @@ const ProductPage = async ({ params, searchParams }) => {
                 sizes={response.data.sizes}
                 weights={response.data.weights}
                 media={response.data.media}
+                similarProducts={similarProductsResponse.success ? similarProductsResponse.data : []}
             />
         )
 

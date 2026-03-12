@@ -11,8 +11,8 @@ const SubcategoryCard = ({ subcategory }) => {
     return (
         <Link href={`/shop?subcategory=${subcategory.slug}`} className='group block w-full'>
             <div className='flex flex-col items-center text-center w-full max-w-[140px] mx-auto'>
-                {/* Fixed size image container */}
-                <div className='w-full aspect-square rounded-xl bg-white dark:bg-gray-800 p-1.5 sm:p-2 mb-2 shadow-sm hover:shadow-md transition-all duration-300 group-hover:scale-105 overflow-hidden'>
+                {/* Clean image container without border/background */}
+                <div className='w-full aspect-square rounded-xl mb-2 transition-transform duration-300 group-hover:scale-105 overflow-hidden'>
                     <div className='w-full h-full relative'>
                         <Image
                             src={imageUrl}

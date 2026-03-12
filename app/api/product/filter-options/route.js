@@ -38,61 +38,74 @@ export async function GET(request) {
             }
         }
 
-        // Get all products matching base filters
-        const products = await prisma.product.findMany({
-            where: baseWhere,
-            include: {
-                category: true,
-                subCategory: true,
-                variants: true,
-            }
+        // Get total count matching base filters
+        const totalProducts = await prisma.product.count({
+            where: baseWhere
         })
 
-        // Extract unique categories with counts
-        const categoryMap = new Map()
-        products.forEach(product => {
-            if (product.category) {
-                const existing = categoryMap.get(product.category.id) || {
-                    id: product.category.id,
-                    name: product.category.name,
-                    slug: product.category.slug,
-                    count: 0
-                }
-                existing.count++
-                categoryMap.set(product.category.id, existing)
-            }
-        })
-
-        // Extract unique subcategories with counts
-        const subcategoryMap = new Map()
-        products.forEach(product => {
-            if (product.subCategory) {
-                const existing = subcategoryMap.get(product.subCategory.id) || {
-                    id: product.subCategory.id,
-                    name: product.subCategory.name,
-                    slug: product.subCategory.slug,
-                    count: 0
-                }
-                existing.count++
-                subcategoryMap.set(product.subCategory.id, existing)
-            }
-        })
-
-        // Extract unique purities from variants
-        const puritySet = new Set()
-        products.forEach(product => {
-            product.variants?.forEach(variant => {
-                if (variant.purity) {
-                    puritySet.add(variant.purity)
-                }
+        if (totalProducts === 0) {
+            return response(true, 200, 'No products found for filters', {
+                categories: [],
+                subcategories: [],
+                purities: [],
+                totalProducts: 0
             })
-        })
+        }
+
+        // Parallelize aggregation queries
+        const [categoryCounts, subcategoryCounts, variantGroups] = await Promise.all([
+            // 1. Category counts
+            prisma.product.groupBy({
+                by: ['categoryId'],
+                where: baseWhere,
+                _count: { _all: true }
+            }),
+            // 2. Subcategory counts
+            prisma.product.groupBy({
+                by: ['subCategoryId'],
+                where: baseWhere,
+                _count: { _all: true }
+            }),
+            // 3. Unique purities (via variants)
+            prisma.productVariant.groupBy({
+                by: ['purity'],
+                where: {
+                    product: baseWhere
+                },
+            })
+        ])
+
+        // Fetch display names for categories/subcategories
+        const [categories, subcategories] = await Promise.all([
+            prisma.category.findMany({
+                where: { id: { in: categoryCounts.map(c => c.categoryId) } },
+                select: { id: true, name: true, slug: true }
+            }),
+            prisma.subCategory.findMany({
+                where: { id: { in: subcategoryCounts.map(s => s.subCategoryId) } },
+                select: { id: true, name: true, slug: true }
+            })
+        ])
+
+        // Format result: Merge counts with display info
+        const formattedCategories = categories.map(cat => ({
+            ...cat,
+            count: categoryCounts.find(c => c.categoryId === cat.id)?._count?._all || 0
+        })).sort((a, b) => b.count - a.count)
+
+        const formattedSubcategories = subcategories.map(sub => ({
+            ...sub,
+            count: subcategoryCounts.find(s => s.subCategoryId === sub.id)?._count?._all || 0
+        })).sort((a, b) => b.count - a.count)
+
+        // Extract unique purities
+        const purities = variantGroups.map(v => v.purity).filter(Boolean).sort()
 
         return response(true, 200, 'Filter options fetched successfully', {
-            categories: Array.from(categoryMap.values()).sort((a, b) => b.count - a.count),
-            subcategories: Array.from(subcategoryMap.values()).sort((a, b) => b.count - a.count),
-            purities: Array.from(puritySet).sort(),
-            totalProducts: products.length
+            categories: formattedCategories,
+            subcategories: formattedSubcategories,
+            purities,
+            totalProducts
         })
 
     } catch (error) {

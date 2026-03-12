@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css"
 // ❌ REMOVED: Cron job should not be imported here - causes multiple instances
 import GlobalProvider from "@/components/Application/GlobalProvider";
 import ChatWidget from "@/components/Chatbot/ChatWidget";
+import NextTopLoader from 'nextjs-toploader';
 import { getServerSession } from "@/lib/serverSession";
 
 const spaceGrotesk = Space_Grotesk({
@@ -29,6 +30,17 @@ export default async function RootLayout({ children }) {
         className={`${spaceGrotesk.variable} ${spaceGrotesk.className} antialiased`}
       >
         <GlobalProvider initialSession={session}>
+          <NextTopLoader 
+            color="#92400e"
+            initialPosition={0.08}
+            crawlSpeed={200}
+            height={3}
+            crawl={true}
+            showSpinner={false}
+            easing="ease"
+            speed={200}
+            shadow="0 0 10px #92400e,0 0 5px #92400e"
+          />
           {children}
           <ToastContainer />
           <ChatWidget />

@@ -23,6 +23,7 @@ import Select from '@/components/Application/Select'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '@/store/reducer/cartReducer'
 import { MAX_UNIQUE_ITEMS, MAX_QTY_PER_ITEM, ADD_TO_CART_COOLDOWN_MS } from '@/lib/cartLimits'
+import SimilarProducts from "./SimilarProducts"
 
 const ProductDetails = ({
     product,
@@ -31,7 +32,8 @@ const ProductDetails = ({
     purities,
     sizes,
     weights,
-    media
+    media,
+    similarProducts
 }) => {
     const router = useRouter()
     const pathname = usePathname()
@@ -433,6 +435,8 @@ const ProductDetails = ({
                     </div>
                 </div>
             </div>
+            {/* Similar Products Section */}
+            <SimilarProducts products={similarProducts} />
         </div>
     )
 }
