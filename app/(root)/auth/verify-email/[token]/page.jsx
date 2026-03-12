@@ -18,104 +18,85 @@ const EmailVerificationLink = ({ params }) => {
   const { token } = use(params)
   const dispatch = useDispatch()
   const router = useRouter()
-  const [isVerified, setisVerified] = useState(null) // null = not checked yet
+  const [isVerified, setisVerified] = useState(null) // null = initial, 'verifying', true, false, 'already-verified'
   const [userRole, setUserRole] = useState(null)
   const [sessionToken, setSessionToken] = useState(null)
-  const hasVerified = useRef(false) // Prevent duplicate verification
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    // Prevent duplicate verification in React Strict Mode
-    if (hasVerified.current) return
+  const handleVerify = async () => {
+    if (loading || isVerified !== null) return
+    
+    setLoading(true)
+    setisVerified('verifying')
 
-    const verify = async () => {
-      hasVerified.current = true
+    try {
+      const { data: VerificationResponse } = await axios.post(
+        '/api/auth/verify-email',
+        { token }
+      )
 
-      try {
-        const { data: VerificationResponse } = await axios.post(
-          '/api/auth/verify-email',
-          { token }
-        )
-
-        if (VerificationResponse.success) {
-          if (VerificationResponse.data?.isAlreadyVerified) {
-            setisVerified('already-verified')
-            toast.info("Email is already verified. Please login.", {
-              autoClose: 3000,
-            })
-          } else {
-            setisVerified(true)
-            setUserRole(VerificationResponse.data.role)
-
-            if (VerificationResponse.data.token) {
-              setSessionToken(VerificationResponse.data.token)
-            }
-
-            // Dispatch login action to update Redux store
-            dispatch(login(VerificationResponse.data))
-
-            toast.success("Email verified successfully! You are now logged in 🎉", {
-              autoClose: 4000,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-            })
-          }
-
-
-
-          // No auto-redirect. User must choose manually.
-
+      if (VerificationResponse.success) {
+        if (VerificationResponse.data?.isAlreadyVerified) {
+          setisVerified('already-verified')
+          toast.info("Email is already verified. Please login.")
         } else {
-          setisVerified(false)
-          toast.error("Email verification failed ❌", {
-            autoClose: 4000,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-          })
+          setisVerified(true)
+          setUserRole(VerificationResponse.data.role)
+          if (VerificationResponse.data.token) {
+            setSessionToken(VerificationResponse.data.token)
+          }
+          dispatch(login(VerificationResponse.data))
+          toast.success("Email verified successfully! You are now logged in 🎉")
         }
-      } catch (error) {
+      } else {
         setisVerified(false)
-        toast.error("Something went wrong. Please try again later ⚠️", {
-          autoClose: 4000,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        })
+        toast.error("Email verification failed ❌")
       }
+    } catch (error) {
+      setisVerified(false)
+      toast.error("Something went wrong. Please try again later ⚠️")
+    } finally {
+      setLoading(false)
     }
-
-    verify()
-  }, [token, dispatch, router])
+  }
 
   const deepLink = sessionToken ? `mobile://auth-callback?token=${sessionToken}` : null;
 
   return (
-    <Card className="w-[400px]">
-      <CardContent>
-        {isVerified === true ? (
-          <div>
-            <div className="flex justify-center items-center text-green-800">
-              <Image
-                src={verified}
-                height={verified.height}
-                width={verified.width}
-                className="h-[100px] w-auto"
-                alt="Verification Success"
-              />
+    <div className="flex justify-center items-center min-h-[60vh] px-4">
+      <Card className="w-full max-w-[400px]">
+        <CardContent className="pt-6">
+          {isVerified === null ? (
+            <div className="text-center py-4">
+              <h1 className="text-2xl font-bold mb-4">Verify Your Email</h1>
+              <p className="text-gray-600 mb-6">Click the button below to complete your registration and log in.</p>
+              <Button onClick={handleVerify} className="w-full" size="lg">
+                Verify Email Now
+              </Button>
             </div>
+          ) : isVerified === 'verifying' ? (
+            <div className="flex flex-col justify-center items-center text-gray-600 gap-3 py-10">
+              <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <p>Verifying your email...</p>
+            </div>
+          ) : isVerified === true ? (
             <div className="text-center">
-              <h1 className="text-2xl font-bold mt-2 mb-2">
-                Email Verified Successfully!
-              </h1>
+              <div className="flex justify-center items-center mb-4">
+                <Image
+                  src={verified}
+                  height={100}
+                  width={100}
+                  className="h-[100px] w-auto"
+                  alt="Verification Success"
+                />
+              </div>
+              <h1 className="text-2xl font-bold mb-4">Email Verified Successfully!</h1>
               <div className="flex flex-col gap-3">
-                <Button asChild>
+                <Button asChild className="w-full">
                   <Link href={userRole === 'admin' ? ADMIN_DASHBOARD : WEBSITE_HOME}>
                     Continue to {userRole === 'admin' ? 'Dashboard' : 'Shopping'}
                   </Link>
                 </Button>
-
-                {/* Mobile Deep Link Button */}
                 {deepLink && (
                   <Button variant="outline" asChild className="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
                     <a href={deepLink}>Open in Mobile App</a>
@@ -123,53 +104,43 @@ const EmailVerificationLink = ({ params }) => {
                 )}
               </div>
             </div>
-          </div>
-        ) : isVerified === 'already-verified' ? (
-          <div>
-            <div className="flex justify-center items-center text-blue-800">
-              <Image
-                src={verified}
-                height={verified.height}
-                width={verified.width}
-                className="h-[100px] w-auto"
-                alt="Already Verified"
-              />
-            </div>
+          ) : isVerified === 'already-verified' ? (
             <div className="text-center">
-              <h1 className="text-2xl font-bold mt-2 mb-2">
-                Email Already Verified
-              </h1>
-            </div>
-          </div>
-        ) : isVerified === false ? (
-          <div>
-            <div className="flex justify-center items-center text-red-800">
-              <Image
-                src={fail}
-                height={fail.height}
-                width={fail.width}
-                className="h-[100px] w-auto"
-                alt="Verification Failed"
-              />
-            </div>
-            <div className="text-center">
-              <h1 className="text-2xl font-bold mt-2 mb-2">
-                Email Verification Failed !!
-              </h1>
-              <Button asChild>
-                <Link href={WEBSITE_HOME}>Continue Shopping</Link>
+              <div className="flex justify-center items-center mb-4">
+                <Image
+                  src={verified}
+                  height={100}
+                  width={100}
+                  className="h-[100px] w-auto"
+                  alt="Already Verified"
+                />
+              </div>
+              <h1 className="text-2xl font-bold mb-4">Email Already Verified</h1>
+              <Button asChild className="w-full">
+                <Link href={WEBSITE_HOME}>Go to Home</Link>
               </Button>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col justify-center items-center text-gray-600 gap-3">
-            {/* Spinner */}
-            <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p>Verifying your email...</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          ) : (
+            <div className="text-center">
+              <div className="flex justify-center items-center mb-4">
+                <Image
+                  src={fail}
+                  height={100}
+                  width={100}
+                  className="h-[100px] w-auto"
+                  alt="Verification Failed"
+                />
+              </div>
+              <h1 className="text-2xl font-bold mb-4">Verification Failed</h1>
+              <p className="text-gray-600 mb-6">The link might be expired or invalid.</p>
+              <Button asChild className="w-full">
+                <Link href={WEBSITE_HOME}>Return to Website</Link>
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
