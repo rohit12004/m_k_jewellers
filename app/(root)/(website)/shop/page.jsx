@@ -66,8 +66,13 @@ const ShopPage = () => {
         const newFilters = {
             ...filters,
             [filterType]: value,
-            page: 1, // Reset to page 1 when filters change
         }
+
+        // Reset to page 1 when applying other filters
+        if (filterType !== 'page') {
+            newFilters.page = 1
+        }
+
         setFilters(newFilters)
         updateURL(newFilters)
     }
