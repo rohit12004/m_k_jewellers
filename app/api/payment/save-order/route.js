@@ -107,7 +107,16 @@ export async function POST(request) {
                 orderDetailsUrl: `${getBaseUrl()}/order-details/${validatedData.razorpay_order_id}`
             }
 
+            // Send to Customer
             await sendMail('Order placed successfully.', validatedData.email, orderNotification(mailData))
+
+            // Send to Admin
+            await sendMail(
+                `🚨 New Order Received: ${validatedData.razorpay_order_id}`, 
+                process.env.ADMIN_EMAIL, 
+                orderNotification(mailData)
+            )
+            
         } catch (error) {
             console.error('Email notification failed:', error)
             // Don't fail the order if email fails

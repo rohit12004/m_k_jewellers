@@ -183,8 +183,10 @@ const MediaPage = () => {
               :
               <>
                 <div>
-                  {data.pages.flatMap(page => page.mediaData?.mediaData?.map(media => media.id).length == 0 &&
-                    <div className='text-center'>No media found</div>
+                  {data.pages[0]?.mediaData?.mediaData?.length === 0 && (
+                    <div className='text-center py-10 text-gray-500'>
+                      No media found in {deleteType === 'SD' ? 'library' : 'trash'}.
+                    </div>
                   )}
                 </div>
                 <div className="grid lg:grid-cols-5 sm:grid-cols-3 grid-cols-2 gap-2 mb-5">

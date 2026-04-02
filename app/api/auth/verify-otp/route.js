@@ -44,10 +44,10 @@ export async function POST(request) {
 
         const secret = new TextEncoder().encode(process.env.SECRET_KEY)
 
-        // Generate Access Token (1 day)
+        // Generate Access Token (15 minutes) - Industry standard
         const accessToken = await new SignJWT(loggedInUserData)
             .setIssuedAt()
-            .setExpirationTime('1d') // 1 day for better UX
+            .setExpirationTime('15m') // Short-lived
             .setProtectedHeader({ alg: 'HS256' })
             .sign(secret)
 
@@ -78,7 +78,7 @@ export async function POST(request) {
             path: '/',
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 24 * 60 * 60, // 1 day
+            maxAge: 15 * 60, // 15 minutes
         })
 
         // Set refresh token cookie (web)

@@ -23,12 +23,13 @@ export async function POST(request) {
             return response(false, 404, "User not found")
         }
 
+        let isAlreadyVerified = false;
         if (user.isEmailVerified) {
-            return response(true, 200, "Email verified successfully", { isAlreadyVerified: true })
+            isAlreadyVerified = true;
+        } else {
+            // Update email verification status
+            await updateUserEmailVerifiedStatus(userId)
         }
-
-        // Update email verification status
-        await updateUserEmailVerifiedStatus(userId)
 
         // Create user data for tokens
         const loggedInUserData = {
@@ -90,13 +91,15 @@ export async function POST(request) {
         })
 
         // Return tokens for mobile app
-        return response(true, 200, "Email verified successfully! You are now logged in.", {
+        return response(true, 200, isAlreadyVerified ? "Email already verified. Welcome back!" : "Email verified successfully! You are now logged in.", {
             ...loggedInUserData,
+            isAlreadyVerified,
             token: accessToken, // For mobile deep link compatibility
             accessToken,
             refreshToken,
         })
     } catch (error) {
+        console.error("CRITICAL: Email Verification Error:", error);
         return catchError(error)
     }
 }

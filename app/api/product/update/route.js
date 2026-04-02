@@ -29,6 +29,7 @@ export async function PUT(request) {
       description: true,
       media: true, // array of media IDs
       variants: true,
+      tryOnImage: true,
     });
 
     const validate = schema.safeParse(payload);
@@ -48,6 +49,7 @@ export async function PUT(request) {
       description,
       media,
       variants,
+      tryOnImage,
     } = validate.data;
 
     // ✅ Fetch existing product
@@ -64,6 +66,7 @@ export async function PUT(request) {
       description,
       media, // array of media IDs
       variants,
+      tryOnImage,
     };
 
     // ✅ Update product

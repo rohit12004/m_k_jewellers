@@ -19,14 +19,12 @@ const LogoutButton = () => {
                 throw new Error(logoutResponse.message)
             }
 
-            // Clear Redux state (auth is not persisted, so this is all we need)
             dispatch(logout())
-
-
             showToast('success', logoutResponse.message)
             router.push('/')
         } catch (error) {
-            showToast('error', error.message)
+            console.error('Admin logout error:', error)
+            showToast('error', error.response?.data?.message || error.message || 'Logout failed')
         }
     }
     return (

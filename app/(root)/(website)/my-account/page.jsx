@@ -147,20 +147,35 @@ const MyAccount = () => {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true)
-      const { data: logoutResponse } = await api.post('/api/auth/logout') // Use api service
+      const { data: logoutResponse } = await api.post('/api/auth/logout')
       if (!logoutResponse.success) {
         throw new Error(logoutResponse.message)
       }
 
-      // Clear Redux state (auth is not persisted, so this is all we need)
       dispatch(logout())
-
-
       showToast('success', logoutResponse.message)
       router.push(WEBSITE_HOME)
     } catch (error) {
       console.error('Logout error:', error)
       showToast('error', error.message || 'Failed to logout')
+      setIsLoggingOut(false)
+    }
+  }
+
+  const handleLogoutAll = async () => {
+    try {
+      setIsLoggingOut(true)
+      const { data: logoutResponse } = await api.post('/api/auth/logout-all')
+      if (!logoutResponse.success) {
+        throw new Error(logoutResponse.message || 'Failed to logout from all devices')
+      }
+
+      dispatch(logout())
+      showToast('success', logoutResponse.message)
+      router.push(WEBSITE_HOME)
+    } catch (error) {
+      console.error('Logout all error:', error)
+      showToast('error', error.response?.data?.message || error.message || 'Failed to logout from all devices')
       setIsLoggingOut(false)
     }
   }
@@ -187,15 +202,26 @@ const MyAccount = () => {
             <h1 className='text-xl sm:text-3xl font-bold text-gray-900'>My Account</h1>
             <p className='text-xs sm:text-gray-600 mt-0.5 sm:mt-1'>Manage your account and view your orders</p>
           </div>
-          <Button
-            variant='outline'
-            size="sm"
-            onClick={handleLogout}
-            className='flex items-center gap-2 cursor-pointer text-xs sm:text-sm'
-          >
-            <LogOut size={18} />
-            Logout
-          </Button>
+          <div className='flex flex-col sm:flex-row items-start sm:items-center gap-2'>
+            <Button
+              variant='outline'
+              size="sm"
+              onClick={handleLogout}
+              className='flex items-center gap-2 cursor-pointer text-xs sm:text-sm'
+            >
+              <LogOut size={16} />
+              Logout
+            </Button>
+            <Button
+              variant='ghost'
+              size="sm"
+              onClick={handleLogoutAll}
+              className='flex items-center gap-2 cursor-pointer text-xs sm:text-sm text-red-600 hover:text-red-700 hover:bg-red-50'
+            >
+              <LogOut size={16} className="rotate-180" />
+              Logout from All Devices
+            </Button>
+          </div>
         </div>
 
         {/* Tabs */}

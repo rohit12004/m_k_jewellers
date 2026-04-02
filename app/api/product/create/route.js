@@ -21,6 +21,7 @@ export async function POST(request) {
             description: true,
             media: true,
             variants: true,
+            tryOnImage: true,
         })
 
 

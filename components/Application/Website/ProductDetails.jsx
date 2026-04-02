@@ -24,6 +24,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '@/store/reducer/cartReducer'
 import { MAX_UNIQUE_ITEMS, MAX_QTY_PER_ITEM, ADD_TO_CART_COOLDOWN_MS } from '@/lib/cartLimits'
 import SimilarProducts from "./SimilarProducts"
+import VirtualTryOn from "./VirtualTryOn"
+import { ScanFace } from 'lucide-react'
 
 const ProductDetails = ({
     product,
@@ -41,6 +43,7 @@ const ProductDetails = ({
     // Store currently selected variant in state (client-side switching)
     const [currentVariant, setCurrentVariant] = useState(initialVariant)
     const [quantity, setQuantity] = useState(1)
+    const [tryOnOpen, setTryOnOpen] = useState(false)
 
     // Anti-bot: track last add-to-cart timestamp for cooldown
     const lastAddedAt = useRef(null)
@@ -221,9 +224,23 @@ const ProductDetails = ({
 
             {/* Main Product Section */}
             <div className="md:flex justify-between items-start lg:gap-10 gap-5 mb-10 md:mb-16">
-                {/* Image Gallery */}
+                {/* Image Gallery & Try On */}
                 <div className="md:w-1/2 md:sticky md:top-0">
                     <ProductImageGallery media={media} productName={product.name} />
+                    
+                    {/* Try It On Button */}
+                    {product.tryOnImage && (
+                        <div className="mt-4 flex justify-center">
+                            <Button 
+                                variant="outline" 
+                                className="w-full md:w-3/4 py-6 border-blue-500 text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 group"
+                                onClick={() => setTryOnOpen(true)}
+                            >
+                                <ScanFace className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                <span className="text-base font-medium">Virtual Try-On</span>
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Product Information */}
@@ -378,6 +395,13 @@ const ProductDetails = ({
                     </div>
                 </div>
             )}
+
+            {/* Virtual Try On Modal */}
+            <VirtualTryOn 
+                isOpen={tryOnOpen} 
+                onClose={setTryOnOpen} 
+                productImgUrl={product.tryOnImage} 
+            />
 
             {/* Product Specifications */}
             <div className="mb-10">

@@ -18,14 +18,20 @@ const EmailVerificationLink = ({ params }) => {
   const { token } = use(params)
   const dispatch = useDispatch()
   const router = useRouter()
-  const [isVerified, setisVerified] = useState(null) // null = initial, 'verifying', true, false, 'already-verified'
+  const [isVerified, setisVerified] = useState(null) // null, 'verifying', true, false, 'already-verified'
   const [userRole, setUserRole] = useState(null)
-  const [sessionToken, setSessionToken] = useState(null)
   const [loading, setLoading] = useState(false)
+  const verificationStarted = useRef(false)
+
+  // Automatically trigger verification on mount
+  useEffect(() => {
+    if (token && !verificationStarted.current) {
+      verificationStarted.current = true
+      handleVerify()
+    }
+  }, [token])
 
   const handleVerify = async () => {
-    if (loading || isVerified !== null) return
-    
     setLoading(true)
     setisVerified('verifying')
 
@@ -36,18 +42,23 @@ const EmailVerificationLink = ({ params }) => {
       )
 
       if (VerificationResponse.success) {
+        const role = VerificationResponse.data.role
+        setUserRole(role)
+        dispatch(login(VerificationResponse.data))
+        
         if (VerificationResponse.data?.isAlreadyVerified) {
           setisVerified('already-verified')
-          toast.info("Email is already verified. Please login.")
+          toast.info("Email is already verified. Redirecting...")
         } else {
           setisVerified(true)
-          setUserRole(VerificationResponse.data.role)
-          if (VerificationResponse.data.token) {
-            setSessionToken(VerificationResponse.data.token)
-          }
-          dispatch(login(VerificationResponse.data))
-          toast.success("Email verified successfully! You are now logged in 🎉")
+          toast.success("Email verified successfully! Redirecting...")
         }
+        
+        // Immediate redirect experience
+        setTimeout(() => {
+          router.push(role === 'admin' ? ADMIN_DASHBOARD : WEBSITE_HOME)
+        }, 1500)
+
       } else {
         setisVerified(false)
         toast.error("Email verification failed ❌")
@@ -60,65 +71,14 @@ const EmailVerificationLink = ({ params }) => {
     }
   }
 
-  const deepLink = sessionToken ? `mobile://auth-callback?token=${sessionToken}` : null;
-
   return (
     <div className="flex justify-center items-center min-h-[60vh] px-4">
       <Card className="w-full max-w-[400px]">
         <CardContent className="pt-6">
-          {isVerified === null ? (
-            <div className="text-center py-4">
-              <h1 className="text-2xl font-bold mb-4">Verify Your Email</h1>
-              <p className="text-gray-600 mb-6">Click the button below to complete your registration and log in.</p>
-              <Button onClick={handleVerify} className="w-full" size="lg">
-                Verify Email Now
-              </Button>
-            </div>
-          ) : isVerified === 'verifying' ? (
+          {(isVerified === null || isVerified === 'verifying' || isVerified === true || isVerified === 'already-verified') ? (
             <div className="flex flex-col justify-center items-center text-gray-600 gap-3 py-10">
               <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <p>Verifying your email...</p>
-            </div>
-          ) : isVerified === true ? (
-            <div className="text-center">
-              <div className="flex justify-center items-center mb-4">
-                <Image
-                  src={verified}
-                  height={100}
-                  width={100}
-                  className="h-[100px] w-auto"
-                  alt="Verification Success"
-                />
-              </div>
-              <h1 className="text-2xl font-bold mb-4">Email Verified Successfully!</h1>
-              <div className="flex flex-col gap-3">
-                <Button asChild className="w-full">
-                  <Link href={userRole === 'admin' ? ADMIN_DASHBOARD : WEBSITE_HOME}>
-                    Continue to {userRole === 'admin' ? 'Dashboard' : 'Shopping'}
-                  </Link>
-                </Button>
-                {deepLink && (
-                  <Button variant="outline" asChild className="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
-                    <a href={deepLink}>Open in Mobile App</a>
-                  </Button>
-                )}
-              </div>
-            </div>
-          ) : isVerified === 'already-verified' ? (
-            <div className="text-center">
-              <div className="flex justify-center items-center mb-4">
-                <Image
-                  src={verified}
-                  height={100}
-                  width={100}
-                  className="h-[100px] w-auto"
-                  alt="Already Verified"
-                />
-              </div>
-              <h1 className="text-2xl font-bold mb-4">Email Already Verified</h1>
-              <Button asChild className="w-full">
-                <Link href={WEBSITE_HOME}>Go to Home</Link>
-              </Button>
+              <p>{(isVerified === true || isVerified === 'already-verified') ? 'Redirecting...' : 'Verifying your email...'}</p>
             </div>
           ) : (
             <div className="text-center">

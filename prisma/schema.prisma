@@ -181,6 +181,7 @@ model Product {
   subCategory     SubCategory  @relation(fields: [subCategoryId], references: [id])
   gender          Gender
   description     String        // ✅ new field (required)
+  tryOnImage      String?       // ✅ new field for 2D Virtual Try-On transparent PNG
   
   // One Product has many Media
   media           Media[]       // ✅ new relation
@@ -303,6 +304,7 @@ model RefreshToken {
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt    DateTime
+  revoked      Boolean  @default(false)  // Soft-revoke flag (skill pattern: never hard-delete)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   

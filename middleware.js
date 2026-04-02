@@ -96,83 +96,30 @@ export async function middleware(request) {
             return addCorsHeaders(NextResponse.next(), request);
         }
 
-        // verify token 
-        const { payload } = await jwtVerify(access_token, new TextEncoder().encode(process.env.SECRET_KEY))
-        const role = payload.role
+        // ... verify token ...
+        let payload;
+        let role;
 
-        // Block logged-in users from accessing auth pages
-        if (pathname.startsWith('/auth')) {
-            // Exception: Allow email verification page even if logged in
-            if (pathname.startsWith('/auth/verify-email')) {
-                return NextResponse.next();
+        if (access_token) {
+            try {
+                const verified = await jwtVerify(access_token, new TextEncoder().encode(process.env.SECRET_KEY))
+                payload = verified.payload
+                role = payload.role
+            } catch (error) {
+                if (error.code !== 'ERR_JWT_EXPIRED') {
+                    throw error; // Re-throw to be caught by the main catch block
+                }
+                // Token expired - fall through to refresh logic below
             }
-
-            // Redirect logged-in users to their dashboard
-            return NextResponse.redirect(new URL(role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD, request.nextUrl));
         }
 
-        // Handle API auth routes separately
-        if (pathname.startsWith('/api/auth')) {
-            // Exception: Allow refresh endpoint even if logged in
-            if (pathname === '/api/auth/refresh') {
-                return NextResponse.next();
-            }
-
-            // Allow POST requests to auth endpoints even if logged in (e.g. switching accounts, or stale token)
-            // specifically for register/login/verify-otp/reset-password
-            if (request.method === 'POST') {
-                return NextResponse.next();
-            }
-
-            // Allow PUT requests for reset-password routes (update password)
-            if (request.method === 'PUT' && pathname.startsWith('/api/auth/reset-password')) {
-                return NextResponse.next();
-            }
-
-            // Allow GET request for session check
-            if (request.method === 'GET' && pathname === '/api/auth/session') {
-                return NextResponse.next();
-            }
-
-            // For other methods (GET, DELETE, etc.), block them or return JSON
-            return NextResponse.json({ success: false, message: "You are already logged in" }, { status: 400 });
-        }
-
-        // Protect Admin Routes
-        if (pathname.startsWith('/admin') && role !== 'admin') {
-            return forbiddenParams("Access denied: Admins only");
-        }
-
-        // Protect Admin API Routes (if you have specific /api/admin paths)
-        // Adjust this if your admin APIs follow a specific pattern like /api/admin
-        // The current file doesn't explicitly show /api/admin checks but let's be safe if they exist.
-
-        // Protect User Routes
-        if (pathname.startsWith('/my-account') && role !== 'user') {
-            return forbiddenParams("Access denied", WEBSITE_LOGIN);
-        }
-
-        // Protect Checkout and Order Details (require user to be logged in)
-        if ((pathname.startsWith('/checkout') || pathname.startsWith('/order-details')) && role !== 'user') {
-            return forbiddenParams("Please login to continue", WEBSITE_LOGIN);
-        }
-
-        return addCorsHeaders(NextResponse.next(), request);
-
-    } catch (error) {
-        // Check if it's a JWT expiration error
-        const isJWTExpired = error.code === 'ERR_JWT_EXPIRED';
-
-        if (isJWTExpired) {
-            console.log('🔄 [MIDDLEWARE] Access token expired, attempting refresh...');
-
-            // Try to refresh the token
+        // If no valid access token (missing or expired), try to refresh
+        if (!payload) {
             const refreshToken = request.cookies.get('refresh_token')?.value;
 
             if (refreshToken) {
-                console.log('✅ [MIDDLEWARE] Refresh token found, calling refresh endpoint...');
+                console.log('🔄 [MIDDLEWARE] Attempting session restoration via refresh token...');
                 try {
-                    // Call the refresh endpoint
                     const refreshResponse = await fetch(new URL('/api/auth/refresh', request.nextUrl).toString(), {
                         method: 'POST',
                         headers: {
@@ -184,63 +131,116 @@ export async function middleware(request) {
 
                     if (refreshResponse.ok) {
                         const refreshData = await refreshResponse.json();
-
                         if (refreshData.success && refreshData.data?.accessToken) {
-                            console.log('✅ [MIDDLEWARE] Token refreshed successfully');
+                            console.log('✅ [MIDDLEWARE] Session restored successfully');
 
-                            // Create response with new access token
+                            // Re-verify the new token to get the user info for the rest of the middleware
+                            const verified = await jwtVerify(refreshData.data.accessToken, new TextEncoder().encode(process.env.SECRET_KEY));
+                            payload = verified.payload;
+                            role = payload.role;
+
+                            // Create response and set new cookies
                             let response = NextResponse.next();
-
-                            // FIX: If user is on an auth page (login/register) and token refreshes successfully,
-                            // they are now logged in and should be redirected to dashboard
-                            if (request.nextUrl.pathname.startsWith('/auth')) {
-                                try {
-                                    // Verify new token to get role
-                                    const { payload } = await jwtVerify(refreshData.data.accessToken, new TextEncoder().encode(process.env.SECRET_KEY));
-                                    const role = payload.role;
-
-                                    const targetUrl = role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD;
-                                    response = NextResponse.redirect(new URL(targetUrl, request.nextUrl));
-                                    console.log(`🔀 [MIDDLEWARE] Redirecting refreshed user to ${targetUrl}`);
-                                } catch (e) {
-                                    console.error('❌ [MIDDLEWARE] Failed to decode new token for redirect:', e.message);
-                                }
+                            
+                            // Redirect if on auth pages
+                            if (pathname.startsWith('/auth')) {
+                                const targetUrl = role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD;
+                                response = NextResponse.redirect(new URL(targetUrl, request.nextUrl));
                             }
 
-                            // Set new access token cookie
                             response.cookies.set('access_token', refreshData.data.accessToken, {
                                 httpOnly: true,
                                 secure: process.env.NODE_ENV === 'production',
                                 sameSite: 'lax',
-                                maxAge: 24 * 60 * 60 // 1 day
+                                maxAge: 24 * 60 * 60
                             });
 
-                            // If new refresh token provided, update it
                             if (refreshData.data.refreshToken) {
                                 response.cookies.set('refresh_token', refreshData.data.refreshToken, {
                                     httpOnly: true,
                                     secure: process.env.NODE_ENV === 'production',
                                     sameSite: 'lax',
-                                    maxAge: 30 * 24 * 60 * 60 // 30 days
+                                    maxAge: 30 * 24 * 60 * 60
                                 });
+                            }
+
+                            // CONTINUE with the rest of the middleware logic using the NEW role/payload
+                            // We return early here with the modified response if we need to enforce role protection
+                            // BUT we must check role protection BEFORE returning.
+                            
+                            // Protect Admin Routes
+                            if (pathname.startsWith('/admin') && role !== 'admin') {
+                                return forbiddenParams("Access denied: Admins only");
+                            }
+                            // Protect User Routes
+                            if (pathname.startsWith('/my-account') && role !== 'user') {
+                                return forbiddenParams("Access denied", WEBSITE_LOGIN);
+                            }
+                            if ((pathname.startsWith('/checkout') || pathname.startsWith('/order-details')) && role !== 'user') {
+                                return forbiddenParams("Please login to continue", WEBSITE_LOGIN);
                             }
 
                             return addCorsHeaders(response, request);
                         }
-                    } else {
-                        console.log('❌ [MIDDLEWARE] Refresh failed:', refreshResponse.status);
                     }
                 } catch (refreshError) {
-                    console.error('❌ [MIDDLEWARE] Refresh error:', refreshError.message);
+                    console.error('❌ [MIDDLEWARE] Restoration error:', refreshError.message);
                 }
-            } else {
-                console.log('❌ [MIDDLEWARE] No refresh token found');
             }
+
+            // If we still have no payload after refresh attempt, handle as unauthorized
+            const publicWebsiteRoutes = ['/', '/shop', '/product', '/cart', '/about-us', '/privacy-policy'];
+            const isPublicWebsitePage = publicWebsiteRoutes.some(route => pathname === route || pathname.startsWith(route + '/'));
+
+            if (!isPublicWebsitePage && !pathname.startsWith('/auth') && !pathname.startsWith('/api/auth')) {
+                return unauthorizedParams("Please login to access this resource");
+            }
+            
+            return addCorsHeaders(NextResponse.next(), request);
         }
 
-        // If refresh failed or not a JWT expiration, redirect/return error
+        // --- NORMAL AUTHENTICATED FLOW (Payload exists) ---
+
+        // Block logged-in users from accessing auth pages
+        if (pathname.startsWith('/auth')) {
+            if (pathname.startsWith('/auth/verify-email')) {
+                return NextResponse.next();
+            }
+            return NextResponse.redirect(new URL(role === 'admin' ? ADMIN_DASHBOARD : USER_DASHBOARD, request.nextUrl));
+        }
+
+        // Handle API auth routes
+        if (pathname.startsWith('/api/auth')) {
+            if (pathname === '/api/auth/refresh' || pathname === '/api/auth/session' || pathname === '/api/auth/me') {
+                return NextResponse.next();
+            }
+            if (request.method === 'POST' || (request.method === 'PUT' && pathname.startsWith('/api/auth/reset-password'))) {
+                return NextResponse.next();
+            }
+            return NextResponse.json({ success: false, message: "You are already logged in" }, { status: 400 });
+        }
+
+        // Protect Admin Routes
+        if (pathname.startsWith('/admin') && role !== 'admin') {
+            return forbiddenParams("Access denied: Admins only");
+        }
+
+        // Protect User Routes
+        if (pathname.startsWith('/my-account') && role !== 'user') {
+            return forbiddenParams("Access denied", WEBSITE_LOGIN);
+        }
+
+        // Protect Checkout and Order Details
+        if ((pathname.startsWith('/checkout') || pathname.startsWith('/order-details')) && role !== 'user') {
+            return forbiddenParams("Please login to continue", WEBSITE_LOGIN);
+        }
+
+        return addCorsHeaders(NextResponse.next(), request);
+
+    } catch (error) {
+        console.error('❌ [MIDDLEWARE] Critical error:', error.message);
         if (pathname.startsWith('/api')) {
-            return NextResponse.json({ success: false, message: "Invalid or expired token" }, { status: 401 });
+            return NextResponse.json({ success: false, message: "Invalid session" }, { status: 401 });
         }
         return NextResponse.redirect(new URL(WEBSITE_LOGIN, request.nextUrl))
     }

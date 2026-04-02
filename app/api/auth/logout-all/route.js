@@ -1,6 +1,6 @@
 import { catchError, response } from "@/lib/helperFunction";
 import { cookies } from "next/headers";
-import { revokeRefreshToken } from "@/lib/refreshToken.service";
+import { revokeAllUserRefreshTokens, findRefreshToken } from "@/lib/refreshToken.service";
 
 export async function POST(request) {
     try {
@@ -15,24 +15,29 @@ export async function POST(request) {
                 const body = await request.json();
                 refreshToken = body.refreshToken;
             } catch (e) {
-                // No body provided, that's okay
+                // No body provided
             }
         }
 
-        // Soft-revoke the session (skill pattern: mark revoked=true, never hard-delete)
-        if (refreshToken) {
-            try {
-                await revokeRefreshToken(refreshToken);
-            } catch (error) {
-                // Token might not exist in DB, continue with logout
-            }
+        if (!refreshToken) {
+            return response(false, 400, "Refresh token required to logout from all devices.");
         }
 
-        // Clear cookies (web)
+        // Find session to get the userId
+        const session = await findRefreshToken(refreshToken);
+
+        if (!session) {
+            return response(false, 401, "Invalid or expired session.");
+        }
+
+        // Soft-revoke ALL sessions for this user (skill pattern: updateMany revoked=true)
+        await revokeAllUserRefreshTokens(session.userId);
+
+        // Clear cookies on this device
         cookieStore.delete('access_token')
         cookieStore.delete('refresh_token')
 
-        return response(true, 200, "Logout Successful.")
+        return response(true, 200, "Logged out from all devices successfully.")
     } catch (error) {
         return catchError(error)
     }

@@ -89,11 +89,15 @@ const AddProduct = () => {
   const { data: fetchSubCategory } = useSubcategories()
   const [subCategoryOption, setSubCategoryOption] = useState([])
 
-  // Track selected category
   const [selectedCategoryId, setSelectedCategoryId] = useState(null)
 
   const [open, setOpen] = useState(false)
   const [selectedMedia, setSelectedMedia] = useState([])
+  
+  // ✅ Try-On Media State
+  const [tryOnOpen, setTryOnOpen] = useState(false)
+  const [selectedTryOnMedia, setSelectedTryOnMedia] = useState([])
+
   const [editorKey, setEditorKey] = useState(0)
 
   // ✅ Convert Category list
@@ -146,13 +150,23 @@ const AddProduct = () => {
     try {
       setLoading(true)
 
+      // Regular Media
       values.media = selectedMedia.map(m => m.id)
+
+      // Try-On Media (URL instead of ID, or ID depending on how front-end needs it. We will store URL directly for easy access in frontend canvas)
+      if (selectedTryOnMedia.length > 0) {
+        const tryOnSrc = selectedTryOnMedia[0].url || selectedTryOnMedia[0].secure_url || selectedTryOnMedia[0];
+        values.tryOnImage = typeof tryOnSrc === 'string' ? tryOnSrc : null;
+      } else {
+        values.tryOnImage = null
+      }
 
       const { data: response } = await axios.post('/api/product/create', values)
       if (!response.success) throw new Error(response.message)
 
       form.reset()
       setSelectedMedia([])
+      setSelectedTryOnMedia([])
       setEditorKey(prev => prev + 1)
       showToast('success', response.message)
     } catch (error) {
@@ -369,6 +383,23 @@ const AddProduct = () => {
                 )}
                 <div onClick={() => setOpen(true)} className='cursor-pointer border p-3 rounded inline-block'>
                   Select Media <span className="text-red-500">*</span>
+                </div>
+              </div>
+
+              {/* Try On Image */}
+              <div className='md:col-span-2 border p-5 rounded text-center bg-blue-50/50'>
+                <h3 className="mb-2 font-medium">Virtual Try-On Image (Optional)</h3>
+                <p className="text-xs text-gray-500 mb-3">Upload a clean, background-free PNG for the 2D Virtual Try-On feature.</p>
+                <MediaModal open={tryOnOpen} setOpen={setTryOnOpen} selectedMedia={selectedTryOnMedia} setSelectedMedia={setSelectedTryOnMedia} isMultiple={false} />
+                {selectedTryOnMedia.length > 0 && (
+                  <div className='flex gap-2 justify-center my-3 flex-wrap'>
+                    {selectedTryOnMedia?.map(media => (
+                      <Image key={media.id} src={media.url} height={80} width={80} className='object-cover rounded border bg-[url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMklEQVQ4T2NkYOD4z8DAwMgQHwZQAx4NDAwMjB4wDHg0AI/GAIA8GI0BY/gBGI0BAAAA//9w4QMBCK4A1QAAAABJRU5ErkJggg==")]' alt="Transparent Preview" />
+                    ))}
+                  </div>
+                )}
+                <div onClick={() => setTryOnOpen(true)} className='cursor-pointer border border-blue-200 bg-white p-3 rounded inline-block text-blue-600 hover:bg-blue-50 transition-colors'>
+                  Select Transparent Image
                 </div>
               </div>
 

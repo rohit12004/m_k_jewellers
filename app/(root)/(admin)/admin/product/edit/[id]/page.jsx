@@ -80,6 +80,10 @@ const EditProduct = () => {
   const [subCategoryOption, setSubCategoryOption] = useState([])
   const [open, setOpen] = useState(false)
   const [selectedMedia, setSelectedMedia] = useState([])
+  
+  // ✅ Try-On Media State
+  const [tryOnOpen, setTryOnOpen] = useState(false)
+  const [selectedTryOnMedia, setSelectedTryOnMedia] = useState([])
 
   // ✅ Fetch product data and reset form including id
   useEffect(() => {
@@ -110,6 +114,10 @@ const EditProduct = () => {
           })) || [],
         })
         setSelectedMedia(p.media || [])
+        if (p.tryOnImage) {
+          // Wrap the URL in an object structure similar to what the modal handles
+          setSelectedTryOnMedia([{ url: p.tryOnImage, id: 'existing' }])
+        }
       } catch (error) {
         showToast('error', error.message)
       } finally {
@@ -152,6 +160,17 @@ const EditProduct = () => {
     try {
       setLoading(true)
       values.media = selectedMedia.map(m => m.id)
+      
+      // Try-On Media
+      if (selectedTryOnMedia.length > 0) {
+        // If it's a newly selected media from modal, it will have `.url` or `.secure_url`
+        // If it's an existing one we loaded locally, we mapped it to `.url`
+        const tryOnSrc = selectedTryOnMedia[0].url || selectedTryOnMedia[0].secure_url || selectedTryOnMedia[0];
+        values.tryOnImage = typeof tryOnSrc === 'string' ? tryOnSrc : null;
+      } else {
+        values.tryOnImage = null // Clear out if they removed it
+      }
+
       // now values will include the product id
       const { data: res } = await axios.put(`/api/product/update`, values)
       if (!res.success) throw new Error(res.message)
@@ -396,6 +415,23 @@ const EditProduct = () => {
                 )}
                 <div onClick={() => setOpen(true)} className="cursor-pointer border p-3 rounded inline-block">
                   Select Media <span className="text-red-500">*</span>
+                </div>
+              </div>
+
+              {/* Try On Image */}
+              <div className='md:col-span-2 border p-5 rounded text-center bg-blue-50/50'>
+                <h3 className="mb-2 font-medium">Virtual Try-On Image (Optional)</h3>
+                <p className="text-xs text-gray-500 mb-3">Upload a clean, background-free PNG for the 2D Virtual Try-On feature.</p>
+                <MediaModal open={tryOnOpen} setOpen={setTryOnOpen} selectedMedia={selectedTryOnMedia} setSelectedMedia={setSelectedTryOnMedia} isMultiple={false} />
+                {selectedTryOnMedia.length > 0 && (
+                  <div className='flex gap-2 justify-center my-3 flex-wrap'>
+                    {selectedTryOnMedia?.map((media, index) => (
+                      <Image key={media.id || index} src={media.url || media} height={80} width={80} className='object-cover rounded border bg-[url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMklEQVQ4T2NkYOD4z8DAwMgQHwZQAx4NDAwMjB4wDHg0AI/GAIA8GI0BY/gBGI0BAAAA//9w4QMBCK4A1QAAAABJRU5ErkJggg==")]' alt="Transparent Preview" />
+                    ))}
+                  </div>
+                )}
+                <div onClick={() => setTryOnOpen(true)} className='cursor-pointer border border-blue-200 bg-white p-3 rounded inline-block text-blue-600 hover:bg-blue-50 transition-colors'>
+                  Select Transparent Image
                 </div>
               </div>
 
