@@ -3,7 +3,8 @@ import { MAX_UNIQUE_ITEMS, MAX_QTY_PER_ITEM } from "@/lib/cartLimits";
 
 const initialState = {
     products: [],
-    count: 0
+    count: 0,
+    isOpen: false
 }
 
 const cartSlice = createSlice({
@@ -123,9 +124,13 @@ const cartSlice = createSlice({
         clearCart: (state) => {
             state.products = [];
             state.count = 0;
+        },
+
+        setCartOpen: (state, action) => {
+            state.isOpen = action.payload;
         }
     }
 });
 
-export const { addToCart, removeFromCart, updateCartQuantity, increaseQuantity, decreaseQuantity, clearCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, updateCartQuantity, increaseQuantity, decreaseQuantity, clearCart, setCartOpen } = cartSlice.actions;
 export default cartSlice.reducer;

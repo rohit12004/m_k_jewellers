@@ -95,9 +95,9 @@ const CartPage = () => {
                 :
                 <div className='lg:px-16 px-4'>
                     {/* Price Disclaimer - Industry Standard (Moved to top) */}
-                    <Alert className="mb-6">
-                        <Info className="h-3 w-3" />
-                        <AlertDescription className="text-xs">
+                    <Alert className="mb-6 flex items-center">
+                        <Info className="h-4 w-4" />
+                        <AlertDescription className="text-sm">
                             <strong>Note:</strong> Prices are subject to change based on current gold/silver rates. Final price will be confirmed at checkout.
                         </AlertDescription>
                     </Alert>
@@ -125,11 +125,16 @@ const CartPage = () => {
                                                 <div className='text-right'>
                                                     <p className='text-lg sm:text-2xl font-bold text-primary'>
                                                         {product.price > 0 ? (
-                                                            product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
+                                                            (product.price * product.qty).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })
                                                         ) : (
                                                             <span className="text-gray-400">Loading...</span>
                                                         )}
                                                     </p>
+                                                    {product.qty > 1 && (
+                                                        <p className='text-xs text-gray-500 mt-1'>
+                                                            {product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })} per unit
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
 

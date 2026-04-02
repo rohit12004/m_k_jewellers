@@ -10,7 +10,16 @@ import { login } from '@/store/reducer/authReducer';
 import api from '@/lib/api';
 import { usePathname } from 'next/navigation';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 5 * 60 * 1000, // Data fresh for 5 minutes (Industry Standard for e-commerce)
+            gcTime: 24 * 60 * 60 * 1000, // Cache persists for 24 hours
+            refetchOnWindowFocus: false, // Prevents layout shifts on tab switch
+            retry: 1, // Be faster on initial failure
+        },
+    },
+});
 
 // Session restoration component - Optimized with server-side session
 const SessionRestoration = ({ children, initialSession }) => {

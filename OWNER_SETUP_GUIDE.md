@@ -43,7 +43,7 @@ To ensure you have full ownership and security for **M.K. Jewellers**, please fo
 1.  Log in to your business Gmail account.
 2.  Go to **Google Account Settings > Security**.
 3.  Turn ON **2-Step Verification**.
-4.  Search for **"App Passwords"** in the top search bar. 
+4.  Search for **"App Passwords"** in the top search bar.
     - Select App: `Other (Custom name)` -> Enter `MK Jewellers Website`.
     - Generate and **copy the 16-character code**. (This is the password the website uses to send emails).
 

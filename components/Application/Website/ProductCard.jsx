@@ -27,7 +27,7 @@ const ProductCard = ({ product }) => {
                             fill
                             alt={imageAlt}
                             title={product.name}
-                            className='object-cover transition-opacity duration-300 group-hover:opacity-30'
+                            className='object-contain transition-opacity duration-300 group-hover:opacity-30'
                             sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 20vw, 15vw"
                         />
 

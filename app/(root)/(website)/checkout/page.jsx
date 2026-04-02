@@ -358,7 +358,7 @@ const CheckoutPage = () => {
                                 <CardTitle className="text-lg sm:text-2xl">Your Details</CardTitle>
                                 <CardDescription className="text-xs sm:text-sm">Required to Save Cart and Send Order Updates</CardDescription>
                             </CardHeader>
-                            <CardContent className="p-4 sm:p-6 pt-3 sm:pt-6">
+                            <CardContent className="p-4 sm:p-6">
                                 <div className='space-y-3 sm:space-y-4'>
                                     {/* Email */}
                                     <div className='space-y-1.5 sm:space-y-2'>
@@ -493,7 +493,16 @@ const CheckoutPage = () => {
                                                     </p>
                                                     <p className='text-sm font-semibold mt-1'>
                                                         {product.price > 0 ? (
-                                                            `${product.qty} × ${product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}`
+                                                            <>
+                                                                <span className="text-primary">
+                                                                    {(product.price * product.qty).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
+                                                                </span>
+                                                                {product.qty > 1 && (
+                                                                    <span className="text-xs text-gray-500 font-normal ml-2">
+                                                                        ({product.qty} × {product.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })})
+                                                                    </span>
+                                                                )}
+                                                            </>
                                                         ) : (
                                                             <span className="text-gray-400">Loading...</span>
                                                         )}
@@ -522,7 +531,7 @@ const CheckoutPage = () => {
                                         {placingOrder || savingOrder ? (
                                             <>
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                {savingOrder ? 'Saving Order...' : 'Processing...'}
+                                                {savingOrder ? 'DO NOT CLOSE THE PAGE' : 'Processing...'}
                                             </>
                                         ) : (
                                             'PROCEED TO PAYMENT'

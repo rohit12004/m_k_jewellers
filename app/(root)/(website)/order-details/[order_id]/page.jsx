@@ -241,7 +241,7 @@ const OrderDetailsPage = () => {
                     <CardHeader className='p-3 sm:p-6 pb-2 sm:pb-3'>
                         <CardTitle className='text-base sm:text-lg'>Customer Information</CardTitle>
                     </CardHeader>
-                    <CardContent className='p-3 sm:p-6 pt-1 sm:pt-6'>
+                    <CardContent className='pt-1 sm:pt-3'>
                         <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4'>
                             <div className='flex items-center gap-2'>
                                 <Mail size={16} className='text-gray-500 shrink-0' />
