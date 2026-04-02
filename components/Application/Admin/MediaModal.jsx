@@ -9,7 +9,6 @@ import MediaGridSkeleton from './MediaGridSkeleton'
 import { showToast } from '@/lib/showToast'
 import ButtonLoading from '../ButtonLoading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import UploadMedia from './UploadMedia'
 
 const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple }) => {
 
@@ -53,16 +52,6 @@ const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple
         setOpen(false)
     }
 
-    const onUploadSuccess = (newMedia) => {
-        if (isMultiple) {
-            setSelectedMedia((prev) => [...prev, ...newMedia])
-            setActiveTab('library')
-        } else {
-            const uploadedItem = newMedia[0]
-            setSelectedMedia([uploadedItem])
-            handleSelect([uploadedItem]) // Pass directly to avoid stale state issues
-        }
-    }
 
     return (
         <Dialog
@@ -79,9 +68,8 @@ const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple
                         <DialogHeader className="h-14 border-b flex-shrink-0">
                             <div className='flex justify-between items-center w-full'>
                                 <DialogTitle>Media Selection</DialogTitle>
-                                <TabsList className="grid w-[300px] grid-cols-2 h-9">
+                                <TabsList className="grid w-[150px] grid-cols-1 h-9">
                                     <TabsTrigger value="library">Library</TabsTrigger>
-                                    <TabsTrigger value="upload">Upload</TabsTrigger>
                                 </TabsList>
                             </div>
                         </DialogHeader>
@@ -127,18 +115,6 @@ const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple
 
                                         </>
                                 }
-                            </TabsContent>
-                            <TabsContent value="upload" className="h-full flex flex-col justify-center items-center gap-4 m-0 mt-0 border-0 focus-visible:ring-0">
-                                <div className='border-2 border-dashed border-gray-300 rounded-lg p-12 text-center w-full max-w-md'>
-                                    <UploadMedia 
-                                        isMultiple={isMultiple} 
-                                        queryClient={queryClient} 
-                                        onUploadSuccess={onUploadSuccess}
-                                    />
-                                    <p className='mt-4 text-sm text-gray-500'>
-                                        Upload your images to the media library and they will be automatically selected.
-                                    </p>
-                                </div>
                             </TabsContent>
                         </div>
                     </Tabs>

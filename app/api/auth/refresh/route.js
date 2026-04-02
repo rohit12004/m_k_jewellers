@@ -78,10 +78,11 @@ export async function POST(request) {
             maxAge: 30 * 24 * 60 * 60, // 30 days
         });
 
-        // Return new tokens for mobile
+        // Return new tokens and user data
         return response(true, 200, "Token refreshed successfully", {
             accessToken: newAccessToken,
             refreshToken: newRefreshToken,
+            user: userData,
         });
 
     } catch (error) {

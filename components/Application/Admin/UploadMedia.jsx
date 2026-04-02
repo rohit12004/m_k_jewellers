@@ -8,7 +8,9 @@ import { FiPlus } from 'react-icons/fi'
 const UploadMedia = ({ isMultiple, queryClient, onUploadSuccess }) => {
 
   const handleError = (error) => {
-    showToast('error', error.statusText)
+    console.error("Cloudinary Widget Error:", error);
+    const message = error?.statusText || error?.message || (typeof error === 'string' ? error : 'Failed to load Cloudinary Widget. Check your internet/DNS.');
+    showToast('error', message);
   }
 
   const handleOnQueueEnd = async (results) => {
@@ -17,8 +19,8 @@ const UploadMedia = ({ isMultiple, queryClient, onUploadSuccess }) => {
       asset_id: file.uploadInfo.asset_id,
       public_id: file.uploadInfo.public_id,
       secure_url: file.uploadInfo.secure_url,
-      path: file.uploadInfo.path,
-      thumbnail: file.uploadInfo.thumbnail,
+      path: file.uploadInfo.public_id, // Map path to public_id
+      thumbnail: file.uploadInfo.thumbnail_url, // Use thumbnail_url for thumbnail
       thumbnail_url: file.uploadInfo.thumbnail_url,
     }))
 
@@ -33,7 +35,7 @@ const UploadMedia = ({ isMultiple, queryClient, onUploadSuccess }) => {
         queryClient.invalidateQueries(['MediaModal']); // Also invalidate MediaModal query
         
         if (onUploadSuccess) {
-          onUploadSuccess(mediaUploadResponse.mediaData)
+          onUploadSuccess(mediaUploadResponse.data) // Use .data instead of .mediaData
         }
         
         showToast('success', mediaUploadResponse.message)

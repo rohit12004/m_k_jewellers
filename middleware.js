@@ -53,6 +53,7 @@ export async function middleware(request) {
         const refreshToken = request.cookies.get('refresh_token')?.value;
         if (refreshToken) {
             try {
+                // Call external-facing refresh API using full URL
                 const refreshRes = await fetch(new URL('/api/auth/refresh', request.nextUrl), {
                     method: 'POST',
                     headers: { 'Cookie': `refresh_token=${refreshToken}` }
@@ -62,10 +63,24 @@ export async function middleware(request) {
                 if (refreshData.success && refreshData.data?.accessToken) {
                     const { payload: newPayload } = await jwtVerify(refreshData.data.accessToken, secret);
                     payload = newPayload;
-                    newResponse = NextResponse.next();
+
+                    // Update request cookies so Server Components (like Root Layout) 
+                    // see the new session immediately in the same request.
+                    request.cookies.set('access_token', refreshData.data.accessToken);
+                    if (refreshData.data.refreshToken) {
+                        request.cookies.set('refresh_token', refreshData.data.refreshToken);
+                    }
+
+                    newResponse = NextResponse.next({
+                        request: {
+                            headers: request.headers,
+                        },
+                    });
                     setAuthCookies(newResponse, refreshData.data);
                 }
-            } catch (e) { console.error('Refresh Error:', e.message); }
+            } catch (e) { 
+                console.error('Middleware Refresh Error:', e.message); 
+            }
         }
     }
 
@@ -90,14 +105,58 @@ export async function middleware(request) {
         if (isUserPath && role !== 'user') return forbiddenResponse(request, "Access denied");
     }
 
-    return addCorsHeaders(newResponse || NextResponse.next(), request);
+    // 6. Return response with security headers and updated cookies
+    const finalResponse = newResponse || NextResponse.next();
+    
+    // Add Security Headers
+    addSecurityHeaders(finalResponse);
+    
+    return addCorsHeaders(finalResponse, request);
 }
 
 // Helpers
+function addSecurityHeaders(res) {
+    const isProd = process.env.NODE_ENV === 'production';
+    
+    // Content Security Policy
+    const cspHeader = `
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://upload-widget.cloudinary.com https://checkout.razorpay.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        img-src 'self' blob: data: res.cloudinary.com images.unsplash.com;
+        font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' https://api.cloudinary.com https://api.razorpay.com;
+        frame-src 'self' https://upload-widget.cloudinary.com https://checkout.razorpay.com;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+        frame-ancestors 'none';
+        ${isProd ? 'upgrade-insecure-requests;' : ''}
+    `.replace(/\s{2,}/g, ' ').trim();
+
+    res.headers.set('Content-Security-Policy', cspHeader);
+    res.headers.set('X-Frame-Options', 'DENY');
+    res.headers.set('X-Content-Type-Options', 'nosniff');
+    res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocations=()');
+    
+    if (isProd) {
+        res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
+}
+
 function setAuthCookies(res, data) {
-    const common = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' };
-    res.cookies.set('access_token', data.accessToken, { ...common, maxAge: 24 * 60 * 60 });
-    if (data.refreshToken) res.cookies.set('refresh_token', data.refreshToken, { ...common, maxAge: 30 * 24 * 60 * 60 });
+    const common = { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: 'lax',
+        path: '/'
+    };
+    // Access token matches the 15m lifetime
+    res.cookies.set('access_token', data.accessToken, { ...common, maxAge: 15 * 60 });
+    if (data.refreshToken) {
+        res.cookies.set('refresh_token', data.refreshToken, { ...common, maxAge: 30 * 24 * 60 * 60 });
+    }
 }
 
 function unauthorizedResponse(req, path) {
@@ -105,8 +164,15 @@ function unauthorizedResponse(req, path) {
     return NextResponse.redirect(new URL(WEBSITE_LOGIN, req.nextUrl));
 }
 
-function forbiddenResponse(req, msg) {
-    if (req.nextUrl.pathname.startsWith('/api')) return NextResponse.json({ success: false, message: msg }, { status: 403 });
+function forbiddenResponse(req, error, errorObj = {}) {
+    if (req.nextUrl.pathname.startsWith('/api')) {
+        const statusCode = error.statusCode || (error.code === 'P2002' ? 409 : 500);
+        return NextResponse.json({
+            success: false,
+            statusCode: statusCode,
+            ...errorObj
+        }, { status: statusCode })
+    }
     return NextResponse.redirect(new URL(WEBSITE_LOGIN, req.nextUrl));
 }
 
