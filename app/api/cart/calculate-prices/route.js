@@ -6,10 +6,11 @@ export async function POST(request) {
         const { cartItems } = await request.json();
 
         // Calculate fresh prices using current metal rates
-        const { verifiedItems } = await verifyCartPrices(cartItems);
+        const { verifiedItems, invalidItems } = await verifyCartPrices(cartItems);
 
         return response(true, 200, 'Prices calculated successfully', {
-            items: verifiedItems
+            items: verifiedItems,
+            invalidItems: invalidItems || []
         });
 
     } catch (error) {
