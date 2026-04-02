@@ -5,33 +5,40 @@ import axios from 'axios'
 import { CldUploadWidget } from 'next-cloudinary'
 import { FiPlus } from 'react-icons/fi'
 
-const UploadMedia = ({ isMultiple, queryClient }) => {
+const UploadMedia = ({ isMultiple, queryClient, onUploadSuccess }) => {
 
   const handleError = (error) => {
-    showToast('error',error.statusText)
+    showToast('error', error.statusText)
   }
 
   const handleOnQueueEnd = async (results) => {
     const files = results.info.files
-    const uploadedFiles = files.filter(file=>file.uploadInfo).map(file=>({
+    const uploadedFiles = files.filter(file => file.uploadInfo).map(file => ({
       asset_id: file.uploadInfo.asset_id,
       public_id: file.uploadInfo.public_id,
       secure_url: file.uploadInfo.secure_url,
       path: file.uploadInfo.path,
+      thumbnail: file.uploadInfo.thumbnail,
       thumbnail_url: file.uploadInfo.thumbnail_url,
     }))
 
-    if(uploadedFiles.length > 0){
+    if (uploadedFiles.length > 0) {
       try {
-        const {data: mediaUploadResponse} = await axios.post('/api/media/create', uploadedFiles)
-        if(!mediaUploadResponse.success){
+        const { data: mediaUploadResponse } = await axios.post('/api/media/create', uploadedFiles)
+        if (!mediaUploadResponse.success) {
           throw new Error(mediaUploadResponse.message)
         }
 
         queryClient.invalidateQueries(['media-data']);
+        queryClient.invalidateQueries(['MediaModal']); // Also invalidate MediaModal query
+        
+        if (onUploadSuccess) {
+          onUploadSuccess(mediaUploadResponse.mediaData)
+        }
+        
         showToast('success', mediaUploadResponse.message)
       } catch (error) {
-        showToast('error',error.message)
+        showToast('error', error.message)
       }
     }
   }
@@ -45,7 +52,7 @@ const UploadMedia = ({ isMultiple, queryClient }) => {
       onQueuesEnd={handleOnQueueEnd}
       config={
         {
-          cloud:{
+          cloud: {
             cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
             apiKey: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
           }
@@ -61,7 +68,7 @@ const UploadMedia = ({ isMultiple, queryClient }) => {
     >
       {({ open }) => {
         return (
-          <Button onClick={()=>open()}>
+          <Button onClick={() => open()}>
             <FiPlus />
             Upload Media
           </Button>

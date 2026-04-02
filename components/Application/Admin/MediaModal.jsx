@@ -1,16 +1,21 @@
+'use client'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import Image from 'next/image'
 import React, { useState } from 'react'
 import ModalMediaBlock from './ModalMediaBlock'
 import MediaGridSkeleton from './MediaGridSkeleton'
 import { showToast } from '@/lib/showToast'
 import ButtonLoading from '../ButtonLoading'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import UploadMedia from './UploadMedia'
+
 const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple }) => {
 
     const [previouslySelected, setPreviouslySelected] = useState([])
+    const [activeTab, setActiveTab] = useState('library')
+    const queryClient = useQueryClient()
 
     const fetchMedia = async (page) => {
         const { data: response } = await axios.get(`/api/media?page=${page}&&limit=18&&deleteType=SD`)
@@ -38,13 +43,25 @@ const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple
         setSelectedMedia(previouslySelected)
         setOpen(false)
     }
-    const handleSelect = () => {
-        if (selectedMedia.length <= 0) {
+    const handleSelect = (overriddenMedia = null) => {
+        const mediaToSelect = overriddenMedia || selectedMedia;
+        if (mediaToSelect.length <= 0) {
             return showToast('error', 'Please select a media.')
         }
 
-        setPreviouslySelected(selectedMedia)
+        setPreviouslySelected(mediaToSelect)
         setOpen(false)
+    }
+
+    const onUploadSuccess = (newMedia) => {
+        if (isMultiple) {
+            setSelectedMedia((prev) => [...prev, ...newMedia])
+            setActiveTab('library')
+        } else {
+            const uploadedItem = newMedia[0]
+            setSelectedMedia([uploadedItem])
+            handleSelect([uploadedItem]) // Pass directly to avoid stale state issues
+        }
     }
 
     return (
@@ -57,55 +74,77 @@ const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple
             >
                 <DialogDescription className="hidden"></DialogDescription>
 
-                <div className='h-[90vh] bg-white dark:bg-card p-3 rounded shadow'>
-                    <DialogHeader className="h-8 border-b">
-                        <DialogTitle>Media Selection</DialogTitle>
-                    </DialogHeader>
+                <div className='h-[90vh] bg-white dark:bg-card p-3 rounded shadow flex flex-col'>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
+                        <DialogHeader className="h-14 border-b flex-shrink-0">
+                            <div className='flex justify-between items-center w-full'>
+                                <DialogTitle>Media Selection</DialogTitle>
+                                <TabsList className="grid w-[300px] grid-cols-2 h-9">
+                                    <TabsTrigger value="library">Library</TabsTrigger>
+                                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                                </TabsList>
+                            </div>
+                        </DialogHeader>
 
-                    <div className='h-[calc(100%-80px)] overflow-auto py-2'>
-                        {isPending ?
-                            <MediaGridSkeleton />
-                            :
-                            isError ?
-                                <div className='size-full flex justify-center items-center'>
-                                    <span className='text-red-500'>{error.message}</span>
-                                </div>
-                                :
-                                <>
-                                    <div className='grid lg:grid-cols-6 grid-cols-3 gap-2'>
-                                        {
-                                            data?.pages?.map((page, index) => (
-                                                <React.Fragment key={index}>
-                                                    {
-                                                        page?.mediaData?.mediaData?.map((media) => (
-                                                            <ModalMediaBlock
-                                                                key={media.id}
-                                                                media={media}
-                                                                selectedMedia={selectedMedia}
-                                                                setSelectedMedia={setSelectedMedia}
-                                                                isMultiple={isMultiple}
-                                                            />
-                                                        ))
-                                                    }
-                                                </React.Fragment>
-                                            ))
-                                        }
-                                    </div>
-
-                                    {hasNextPage ?
-                                        <div className='flex justify-center py-5'>
-                                            <ButtonLoading type="button" onClick={() => fetchNextPage()} loading={isFetching} text="Load More" />
+                        <div className='flex-grow overflow-hidden'>
+                            <TabsContent value="library" className="h-full overflow-auto py-2 m-0 mt-0 border-0 focus-visible:ring-0">
+                                {isPending ?
+                                    <MediaGridSkeleton />
+                                    :
+                                    isError ?
+                                        <div className='size-full flex justify-center items-center'>
+                                            <span className='text-red-500'>{error.message}</span>
                                         </div>
                                         :
-                                        <p className='text-center py-5'>Nothing more to load.</p>
-                                    }
+                                        <>
+                                            <div className='grid lg:grid-cols-6 grid-cols-3 gap-2'>
+                                                {
+                                                    data?.pages?.map((page, index) => (
+                                                        <React.Fragment key={index}>
+                                                            {
+                                                                page?.mediaData?.mediaData?.map((media) => (
+                                                                    <ModalMediaBlock
+                                                                        key={media.id}
+                                                                        media={media}
+                                                                        selectedMedia={selectedMedia}
+                                                                        setSelectedMedia={setSelectedMedia}
+                                                                        isMultiple={isMultiple}
+                                                                    />
+                                                                ))
+                                                            }
+                                                        </React.Fragment>
+                                                    ))
+                                                }
+                                            </div>
 
-                                </>
-                        }
-                    </div>
+                                            {hasNextPage ?
+                                                <div className='flex justify-center py-5'>
+                                                    <ButtonLoading type="button" onClick={() => fetchNextPage()} loading={isFetching} text="Load More" />
+                                                </div>
+                                                :
+                                                <p className='text-center py-5 text-sm text-gray-500'>Nothing more to load.</p>
+                                            }
+
+                                        </>
+                                }
+                            </TabsContent>
+                            <TabsContent value="upload" className="h-full flex flex-col justify-center items-center gap-4 m-0 mt-0 border-0 focus-visible:ring-0">
+                                <div className='border-2 border-dashed border-gray-300 rounded-lg p-12 text-center w-full max-w-md'>
+                                    <UploadMedia 
+                                        isMultiple={isMultiple} 
+                                        queryClient={queryClient} 
+                                        onUploadSuccess={onUploadSuccess}
+                                    />
+                                    <p className='mt-4 text-sm text-gray-500'>
+                                        Upload your images to the media library and they will be automatically selected.
+                                    </p>
+                                </div>
+                            </TabsContent>
+                        </div>
+                    </Tabs>
 
 
-                    <div className='h-10 pt-3 border-t flex justify-between'>
+                    <div className='h-14 pt-3 border-t flex justify-between items-center flex-shrink-0'>
                         <div>
                             <Button type="button" variant="destructive" onClick={handleClear} >
                                 Clear All
@@ -115,8 +154,8 @@ const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple
                             <Button type="button" variant="secondary" onClick={handleClose} >
                                 Close
                             </Button>
-                            <Button type="button" onClick={handleSelect} >
-                                Select
+                            <Button type="button" onClick={() => handleSelect()} >
+                                Select {selectedMedia.length > 0 && `(${selectedMedia.length})`}
                             </Button>
                         </div>
                     </div>
@@ -128,4 +167,4 @@ const MediaModal = ({ open, setOpen, selectedMedia, setSelectedMedia, isMultiple
     )
 }
 
-export default MediaModal
+export default MediaModal
