@@ -43,18 +43,31 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        console.error("❌ [CHATBOT API] Full error:", error);
-        console.error("❌ [CHATBOT API] Error message:", error.message);
-        console.error("❌ [CHATBOT API] Error name:", error.name);
+        console.error("❌ [CHATBOT API] Error details:", {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
 
-        // Check if it's a configuration error
-        if (error.message && (error.message.includes("not configured") || error.message.includes("API key"))) {
-            return response(false, 503, "Chatbot is not configured. Please contact support.", {
-                error: "API_KEY_MISSING"
+        const isTimeout = error.message?.includes("DEADLINE_EXCEEDED") || error.name === "AbortError";
+        const isAuthError = error.message?.includes("not configured") || error.message?.includes("API key");
+
+        if (isAuthError) {
+            return response(false, 503, "Chatbot is not configured properly in this environment. Please check GOOGLE_API_KEY.", {
+                error: "CONFIG_ERROR"
             });
         }
 
-        return response(false, 500, error.message || "An error occurred. Please try again.");
+        if (isTimeout) {
+            return response(false, 504, "The request took too long to complete. This is usually due to deployment timeout limits.", {
+                error: "TIMEOUT"
+            });
+        }
+
+        return response(false, 500, `Chatbot error: ${error.message || "An unexpected error occurred. Please try again."}`, {
+            type: error.name,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 }
 

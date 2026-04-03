@@ -45,13 +45,12 @@ export default function ChatWidget() {
             })
 
             const data = await res.json()
-
             if (data.success) {
                 setMessages(prev => [...prev, {
                     role: 'assistant',
                     content: data.data.reply,
-                    products: data.data.products || [], // Add products from agent
-                    toolsUsed: data.data.toolsUsed || [] // Track which tools were used
+                    products: data.data.products || [],
+                    toolsUsed: data.data.toolsUsed || []
                 }])
 
                 if (!conversationId) {
@@ -60,14 +59,14 @@ export default function ChatWidget() {
             } else {
                 setMessages(prev => [...prev, {
                     role: 'assistant',
-                    content: 'My apologies, I encountered an issue. Please try again.'
+                    content: `My apologies, I encountered an issue: ${data.message || 'Please try again.'}`
                 }])
             }
         } catch (error) {
             console.error('Chat error:', error)
             setMessages(prev => [...prev, {
                 role: 'assistant',
-                content: 'I apologize for the inconvenience. Please try again.'
+                content: `I apologize for the inconvenience: ${error.message || 'Please try again.'}`
             }])
         } finally {
             setIsTyping(false)

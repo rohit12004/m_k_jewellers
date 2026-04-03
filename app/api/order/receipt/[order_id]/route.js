@@ -2,6 +2,8 @@ import { catchError, response } from "@/lib/helperFunction";
 import { getUserSession } from "@/lib/authentication";
 import { getOrderByRazorpayId } from "@/lib/order.service";
 import PDFDocument from "pdfkit";
+import path from "path";
+import fs from "fs";
 
 export async function GET(request, { params }) {
     try {
@@ -29,60 +31,50 @@ export async function GET(request, { params }) {
             return response(false, 403, 'Unauthorized to access this order');
         }
 
-
-
-        // Create PDF document with default settings
-        // Webpack externalization allows PDFKit to access its font files
+        // Create PDF document
         const doc = new PDFDocument({
-            margin: 50,
+            margin: 40,
             size: 'A4',
+            info: {
+                Title: `MK_Jewellers_Receipt_${order.orderId}`,
+                Author: 'M.K. Jewellers',
+            }
         });
 
-        // Collect PDF chunks
         const chunks = [];
+        doc.on('data', (chunk) => chunks.push(chunk));
 
-        // Listen for data chunks
-        doc.on('data', (chunk) => {
-            chunks.push(chunk);
-        });
+        // Generate the modernized luxury PDF content
+        await generateModernReceiptPDF(doc, order);
 
-        // Generate PDF content BEFORE ending
-        generateReceiptPDF(doc, order);
-
-        // End the document
         doc.end();
 
-        // Wait for PDF generation to complete
         const pdfBuffer = await new Promise((resolve, reject) => {
-            doc.on('end', () => {
-                resolve(Buffer.concat(chunks));
-            });
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
             doc.on('error', reject);
         });
 
-
-
-        // Set response headers for PDF download
         const headers = new Headers();
         headers.set('Content-Type', 'application/pdf');
         headers.set('Content-Disposition', `inline; filename="MK_Jewellers_Receipt_${order.orderId}.pdf"`);
         headers.set('Content-Length', pdfBuffer.length.toString());
         headers.set('Cache-Control', 'no-cache');
 
-        // Return PDF as response
-        return new Response(pdfBuffer, {
-            status: 200,
-            headers
-        });
+        return new Response(pdfBuffer, { status: 200, headers });
 
     } catch (error) {
         console.error('Receipt generation error:', error);
-        console.error('Error stack:', error.stack);
         return catchError(error);
     }
 }
 
-function generateReceiptPDF(doc, order) {
+async function generateModernReceiptPDF(doc, order) {
+    const primaryColor = '#7c3aed';
+    const darkGray = '#333333';
+    const lightGray = '#666666';
+    const borderFill = '#f9fafb';
+    const tableHeaderColor = '#7c3aed';
+
     // Parse address
     let address = {};
     try {
@@ -91,223 +83,175 @@ function generateReceiptPDF(doc, order) {
         address = { street: order.address || 'N/A' };
     }
 
-    // Header - Company Info
-    doc.fontSize(26)
-        .fillColor('#7c3aed')
-        .text('M.K. JEWELLERS', { align: 'center' })
-        .fillColor('#000000');
+    // 1. Header with Logo and Brand
+    const logoPath = path.join(process.cwd(), 'public', 'assets', 'mk_logo.jpg');
+    if (fs.existsSync(logoPath)) {
+        doc.image(logoPath, 257.5, 25, { width: 80 }); // Moved up from 40 to 25
+        doc.y = 115; // Set cursor explicitly below the image to prevent overlap
+    } else {
+        doc.moveDown(2);
+    }
+
+    doc.fontSize(28)
+        .font('Helvetica-Bold')
+        .fillColor(darkGray)
+        .text('M. K. JEWELLERS', { align: 'center', characterSpacing: 1 })
+        .moveDown(0.2);
 
     doc.fontSize(10)
-        .text('Premium Gold & Diamond Jewelry', { align: 'center' })
-        .text('Arihant Mall, Main Road, Ratnagiri, Maharashtra - 415612', { align: 'center' })
-        .text('Phone: +91-9881339944 | Email: mkjew@rediffmail.com', { align: 'center' })
-        .text('GSTIN: 27XXXXX1234X1ZX', { align: 'center' })
-        .moveDown(2);
-
-    // Horizontal line
-    doc.moveTo(50, doc.y)
-        .lineTo(550, doc.y)
-        .stroke()
-        .moveDown(1);
-
-    // Title
-    doc.fontSize(22)
-        .fillColor('#7c3aed')
-        .text('PAYMENT RECEIPT', { align: 'center' })
-        .fillColor('#000000')
-        .moveDown(0.5);
-
-    doc.fontSize(9)
-        .fillColor('#666666')
-        .text(`Receipt No: RCP-${order.orderId}`, { align: 'center' })
-        .fillColor('#000000')
+        .font('Helvetica-Bold')
+        .fillColor(primaryColor)
+        .text('EXQUISITE CRAFTSMANSHIP', { align: 'center', characterSpacing: 4 })
         .moveDown(1.5);
 
-    // Order Information Section
+    // 2. Tax Invoice Box
+    const boxTop = doc.y;
+    doc.rect(150, boxTop, 300, 30)
+        .fillAndStroke(borderFill, primaryColor + '33'); // Transparent primary color stroke
+
     doc.fontSize(14)
-        .fillColor('#7c3aed')
-        .text('Order Information', { underline: true })
-        .fillColor('#000000')
-        .moveDown(0.5);
+        .font('Helvetica-Bold')
+        .fillColor(darkGray)
+        .text('TAX INVOICE / RECEIPT', 150, boxTop + 8, { align: 'center', width: 300 });
 
-    doc.fontSize(10);
+    doc.moveDown(3);
 
-    const orderInfoY = doc.y;
+    // 3. Metadata Grid
+    const gridTop = doc.y;
+    const colWidth = 130;
 
-    // Left column
-    doc.text(`Order ID: ${order.orderId}`, 50, orderInfoY);
-    doc.text(`Payment ID: ${order.paymentId}`, 50, orderInfoY + 15);
-    doc.text(`Payment Method: Online (Razorpay)`, 50, orderInfoY + 30);
-    doc.text(`Order Date: ${new Date(order.createdAt).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    })}`, 50, orderInfoY + 45);
+    const metadata = [
+        { label: 'Order ID', value: `#${order.orderId.split('_')[1] || order.orderId}` },
+        { label: 'Invoice Date', value: new Date(order.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }) },
+        { label: 'Payment ID', value: order.paymentId || 'N/A' },
+        { label: 'Status', value: order.orderStatus.toUpperCase() }
+    ];
 
-    // Right column
-    doc.text(`Payment Status: ${order.paymentStatus.toUpperCase()}`, 300, orderInfoY);
-    doc.text(`Order Status: ${order.orderStatus.toUpperCase()}`, 300, orderInfoY + 15);
-
-    doc.moveDown(4);
-
-    // Customer Information Section
-    doc.fontSize(14)
-        .fillColor('#7c3aed')
-        .text('Customer Information', { underline: true })
-        .fillColor('#000000')
-        .moveDown(0.5);
-
-    doc.fontSize(10)
-        .text(`Name: ${order.user?.name || 'N/A'}`)
-        .text(`Email: ${order.email}`)
-        .text(`Phone: ${order.phone}`)
-        .text(`PAN Card: ${order.panCard}`)
-        .moveDown(0.5);
-
-    doc.fontSize(10)
-        .fillColor('#666666')
-        .text('Delivery Address:', { underline: true })
-        .fillColor('#000000')
-        .moveDown(0.3);
-
-    doc.fontSize(9)
-        .text(`${address.street || ''}`)
-        .text(`${address.street2 || ''}`)
-        .text(`${address.city || ''}, ${address.state || ''} - ${address.postalCode || ''}`)
-        .moveDown(2);
-
-    // Order Items Section
-    doc.fontSize(14)
-        .fillColor('#7c3aed')
-        .text('Order Items', { underline: true })
-        .fillColor('#000000')
-        .moveDown(0.5);
-
-    // Table header
-    const tableTop = doc.y;
-    const itemX = 50;
-    const qtyX = 320;
-    const priceX = 390;
-    const totalX = 480;
-
-    // Table header with background
-    doc.fontSize(10)
-        .fillColor('#000000')
-        .text('Item', itemX, tableTop, { bold: true })
-        .text('Qty', qtyX, tableTop, { bold: true })
-        .text('Price', priceX, tableTop, { bold: true })
-        .text('Total', totalX, tableTop, { bold: true });
-
-    // Draw line under header
-    doc.moveTo(50, tableTop + 15)
-        .lineTo(550, tableTop + 15)
-        .stroke();
-
-    // Table rows
-    let yPosition = tableTop + 25;
-
-    order.products.forEach((item, index) => {
-        // Check if we need a new page
-        if (yPosition > 700) {
-            doc.addPage();
-            yPosition = 50;
-        }
-
-        const itemName = `${item.name}${item.color ? ` (${item.color})` : ''}${item.weight ? ` - ${item.weight}g` : ''}`;
-
-        doc.fontSize(9)
-            .fillColor('#000000')
-            .text(itemName, itemX, yPosition, { width: 260 })
-            .text(item.qty.toString(), qtyX, yPosition, { width: 60 })
-            .text(`Rs. ${Number(item.unitPrice).toFixed(2)}`, priceX, yPosition, { width: 80 })
-            .text(`Rs. ${Number(item.totalPrice).toFixed(2)}`, totalX, yPosition, { width: 70, align: 'right' });
-
-        yPosition += 25;
+    metadata.forEach((item, i) => {
+        const x = 40 + (i * colWidth);
+        doc.fontSize(8).fillColor(lightGray).font('Helvetica-Bold').text(item.label.toUpperCase(), x, gridTop);
+        doc.fontSize(10).fillColor(darkGray).font('Helvetica-Bold').text(item.value, x, gridTop + 12);
     });
 
+    doc.moveDown(3);
 
-    // Draw line before totals
-    doc.moveTo(50, yPosition)
-        .lineTo(550, yPosition)
-        .stroke();
+    // 4. Billed To & Shipped To Columns
+    const addrTop = doc.y;
+    doc.fontSize(9).fillColor(primaryColor).font('Helvetica-Bold').text('BILLED TO', 40, addrTop, { characterSpacing: 1 });
+    doc.fontSize(9).fillColor(primaryColor).font('Helvetica-Bold').text('SHIPPED TO', 300, addrTop, { characterSpacing: 1 });
 
-    yPosition += 15;
+    doc.moveTo(40, addrTop + 12).lineTo(250, addrTop + 12).stroke(primaryColor + '33');
+    doc.moveTo(300, addrTop + 12).lineTo(550, addrTop + 12).stroke(primaryColor + '33');
 
-    // Calculate subtotal and tax (assuming 18% GST for jewelry)
-    const subtotal = order.total / 1.18; // Reverse calculate if total includes tax
-    const gstAmount = order.total - subtotal;
+    const addrContentTop = addrTop + 20;
 
-    // Subtotal
-    doc.fontSize(10)
-        .fillColor('#000000')
-        .text('Subtotal:', 400, yPosition)
-        .text(`Rs. ${subtotal.toFixed(2)}`, 480, yPosition, { align: 'right' });
+    // Billed To Content
+    doc.fontSize(12).fillColor(darkGray).font('Helvetica-Bold').text(order.user?.name || 'Customer', 40, addrContentTop);
+    doc.fontSize(9).font('Helvetica').fillColor(lightGray)
+        .text(order.email, 40, addrContentTop + 15)
+        .text(order.phone, 40, addrContentTop + 27)
+        .font('Helvetica-Bold').fillColor(darkGray)
+        .text(`PAN: ${order.panCard}`, 40, addrContentTop + 42);
 
-    yPosition += 20;
+    // Shipped To Content
+    doc.fontSize(10).fillColor(darkGray).font('Helvetica-Bold').text(address.street || '', 300, addrContentTop);
+    doc.fontSize(9).font('Helvetica').fillColor(lightGray)
+        .text(address.street2 || '', 300, addrContentTop + 15)
+        .text(`${address.city || ''}, ${address.state || ''} - ${address.postalCode || ''}`, 300, addrContentTop + 27)
+        .font('Helvetica-Oblique')
+        .text('Certified & Insured Delivery', 300, addrContentTop + 45);
 
-    // GST
-    doc.fontSize(10)
-        .text('GST (18%):', 400, yPosition)
-        .text(`Rs. ${gstAmount.toFixed(2)}`, 480, yPosition, { align: 'right' });
+    doc.moveDown(6);
 
-    yPosition += 20;
+    // 5. Items Table
+    doc.fontSize(9).fillColor(primaryColor).font('Helvetica-Bold').text('ITEMIZED BREAKDOWN', 40, doc.y, { characterSpacing: 1 });
+    doc.moveDown(0.5);
 
-    // Draw line before grand total
-    doc.moveTo(400, yPosition)
-        .lineTo(550, yPosition)
-        .stroke();
+    const tableTop = doc.y;
+    const itemCol = 40;
+    const descCol = 80;
+    const rateCol = 320;
+    const qtyCol = 420;
+    const amountCol = 480;
 
-    yPosition += 10;
+    // Header Background
+    doc.rect(40, tableTop, 515, 25).fill(tableHeaderColor);
+    doc.fillColor('#FFFFFF').fontSize(9).font('Helvetica-Bold');
+    doc.text('SR.', itemCol + 5, tableTop + 8);
+    doc.text('PRODUCT DESCRIPTION', descCol, tableTop + 8);
+    doc.text('RATE', rateCol, tableTop + 8, { width: 80, align: 'center' });
+    doc.text('QTY', qtyCol, tableTop + 8, { width: 40, align: 'center' });
+    doc.text('AMOUNT', amountCol, tableTop + 8, { width: 75, align: 'right' });
 
-    // Total Amount
-    doc.fontSize(12)
-        .fillColor('#000000')
-        .text('Total Amount Paid:', 370, yPosition)
-        .fontSize(16)
-        .fillColor('#7c3aed')
-        .text(`Rs. ${Number(order.total).toFixed(2)}`, 480, yPosition, { align: 'right' })
-        .fillColor('#000000');
+    let y = tableTop + 25;
 
+    order.products.forEach((item, index) => {
+        // Stripe background
+        if (index % 2 !== 0) {
+            doc.rect(40, y, 515, 30).fill(borderFill);
+        }
 
-    // Footer
-    const footerY = 730;
-
-    // Horizontal line before footer
-    doc.moveTo(50, footerY)
-        .lineTo(550, footerY)
-        .stroke();
-
-    doc.fontSize(9)
-        .fillColor('#000000')
-        .text(
-            'Thank you for your purchase!',
-            50,
-            footerY + 10,
-            { align: 'center', width: 500 }
+        doc.fillColor(darkGray).fontSize(9).font('Helvetica');
+        doc.text((index + 1).toString(), itemCol + 5, y + 10);
+        
+        // Item Details
+        doc.font('Helvetica-Bold').text(item.name.toUpperCase(), descCol, y + 5, { width: 230 });
+        doc.fontSize(7).font('Helvetica').fillColor(lightGray).text(
+            `${item.purity || ''} • ${item.weight}g ${item.color ? `• ${item.color}` : ''} ${item.size ? `• Size: ${item.size}` : ''}`,
+            descCol, y + 18
         );
 
-    doc.fontSize(8)
-        .fillColor('#666666')
-        .text(
-            'For any queries, please contact us at +91-9881339944 or mkjew@rediffmail.com',
-            50,
-            footerY + 25,
-            { align: 'center', width: 500 }
+        doc.fontSize(9).fillColor(darkGray).text(
+            Number(item.unitPrice).toLocaleString('en-IN'), 
+            rateCol, y + 10, { width: 80, align: 'center' }
+        );
+        doc.font('Helvetica-Bold').text(
+            item.qty.toString(), 
+            qtyCol, y + 10, { width: 40, align: 'center' }
+        );
+        doc.text(
+            Number(item.totalPrice).toLocaleString('en-IN', { minimumFractionDigits: 2 }), 
+            amountCol, y + 10, { width: 75, align: 'right' }
         );
 
-    doc.fontSize(7)
-        .fillColor('#999999')
-        .text(
-            'This is a computer-generated receipt and does not require a signature.',
-            50,
-            footerY + 40,
-            { align: 'center', width: 500 }
-        )
-        .text(
-            'Terms & Conditions apply. Please visit our website for more details.',
-            50,
-            footerY + 52,
-            { align: 'center', width: 500 }
-        )
-        .fillColor('#000000');
+        y += 30;
+    });
+
+    // 6. Totals
+    doc.moveDown(2);
+    const totalsY = doc.y;
+    const totalsLabelX = 380;
+    const totalsValueX = 480;
+
+    doc.fontSize(9).font('Helvetica').fillColor(lightGray);
+    doc.text('Subtotal', totalsLabelX, totalsY);
+    doc.fillColor(darkGray).font('Helvetica-Bold').text(`₹${Number(order.total).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`, totalsValueX, totalsY, { align: 'right' });
+
+    doc.fillColor(lightGray).text('GST (Inclusive)', totalsLabelX, totalsY + 15); // Adjust offset after removing shipping
+    doc.fillColor(darkGray).text('-', totalsValueX, totalsY + 15, { align: 'right' });
+
+    doc.moveTo(380, totalsY + 30).lineTo(555, totalsY + 30).stroke(primaryColor + '33');
+
+    doc.fontSize(12).fillColor(darkGray).font('Helvetica-Bold').text('Total Paid', totalsLabelX, totalsY + 40);
+    doc.fontSize(20).fillColor(primaryColor).text(
+        Number(order.total).toLocaleString('en-IN', { style: 'currency', currency: 'INR' }),
+        totalsValueX - 50, totalsY + 40, { align: 'right', width: 125 }
+    );
+
+
+    // 7. Footer
+    const footerY = 700;
+    doc.moveTo(40, footerY).lineTo(555, footerY).stroke('#eee');
+
+    // Badges
+    doc.fontSize(7).font('Helvetica-Bold').fillColor(lightGray);
+    doc.text('AUTHENTIC', 250, footerY + 15);
+    doc.text('SECURE', 310, footerY + 15);
+
+    doc.fontSize(8).fillColor(lightGray).font('Helvetica-Bold')
+        .text('M.K. JEWELLERS — SINCE 2004', 40, footerY + 40, { align: 'center', width: 515, characterSpacing: 2 });
+
+    doc.fontSize(7).font('Helvetica').fillColor(lightGray)
+        .text('Arihant Mall, Main Road, Ratnagiri, Maharashtra, 415612', 40, footerY + 55, { align: 'center', width: 515 })
+        .text('This is a computer generated invoice and does not require a signature.', 40, footerY + 65, { align: 'center', width: 515 });
 }
