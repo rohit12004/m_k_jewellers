@@ -8,7 +8,18 @@ export async function GET(request) {
         const searchParams = request.nextUrl.searchParams;
 
         // Get filter parameters
-        const subcategorySlugs = searchParams.get("subcategory")?.split(',').filter(Boolean) || [];
+        // Get filter parameters and ensure they are singular for DB matching
+        const subcategorySlugsRaw = searchParams.get("subcategory")?.split(',').filter(Boolean) || [];
+        
+        const singularize = (str) => {
+            if (!str) return str;
+            const lower = str.toLowerCase().trim();
+            if (lower.endsWith('ies')) return lower.slice(0, -3) + 'y';
+            if (lower.endsWith('s') && !lower.endsWith('ss')) return lower.slice(0, -1);
+            return lower;
+        };
+        
+        const subcategorySlugs = subcategorySlugsRaw.map(singularize);
         const categorySlugs = searchParams.get("category")?.split(',').filter(Boolean) || [];
         const gender = searchParams.get("gender");
         const purities = searchParams.get("purity")?.split(',').filter(Boolean) || [];

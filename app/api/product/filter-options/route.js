@@ -10,7 +10,17 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url)
 
         // Parse current filters to show relevant options
-        const subcategorySlug = searchParams.get('subcategory')
+        const subcategorySlugRaw = searchParams.get('subcategory')
+        
+        const singularize = (str) => {
+            if (!str) return str;
+            const lower = str.toLowerCase().trim();
+            if (lower.endsWith('ies')) return lower.slice(0, -3) + 'y';
+            if (lower.endsWith('s') && !lower.endsWith('ss')) return lower.slice(0, -1);
+            return lower;
+        };
+        
+        const subcategorySlug = singularize(subcategorySlugRaw);
         const categorySlug = searchParams.get('category')
 
         // Build base where clause
