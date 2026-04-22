@@ -22,9 +22,10 @@ const InitialLayout = () => {
     useEffect(() => {
         if (isLoading || !navigationState?.key) return;
 
-        const inAuthGroup = segments[0] === "(auth)";
+        const inAuthGroup = segments[0] === "(auth)" || segments[0] === "login" || segments[0] === "signup";
         const isAuthCallback = segments[0] === "auth-callback";
-        const inTabsGroup = segments[0] === "(tabs)";
+        const inTabsGroup = segments[0] === "(tabs)" || segments[0] === "home" || segments[0] === "shop";
+        const inRootGroup = ["product", "checkout", "order"].includes(segments[0]);
 
         console.log(`🔍 [LAYOUT] isLoading: ${isLoading}, hasAuth: ${!!auth}, navReady: ${!!navigationState.key}, segment: ${segments[0]}`);
 
@@ -32,8 +33,9 @@ const InitialLayout = () => {
         if (auth && (inAuthGroup || isAuthCallback)) {
             router.replace("/(tabs)/home");
         } 
-        // 🏠 Guest at root → redirect to home
-        else if (!inAuthGroup && !isAuthCallback && !inTabsGroup) {
+        // 🏠 Only redirect to home if we are truly at an "unhandled" root path
+        // (excluding valid pages in (tabs), (auth), or our (root) detail pages)
+        else if (!inAuthGroup && !isAuthCallback && !inTabsGroup && !inRootGroup && segments.length === 0) {
             router.replace("/(tabs)/home");
         }
     }, [auth, isLoading, navigationState?.key, segments]);

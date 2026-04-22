@@ -151,13 +151,13 @@ export default function VerifyOtp() {
                     <View className="items-center mt-6 space-y-3">
                         <TouchableOpacity
                             onPress={handleResendOtp}
-                            disabled={countdown > 0 || isResendingOtp}
-                            className={countdown > 0 || isResendingOtp ? 'opacity-50' : ''}
+                            disabled={countdown > 0 || isResending}
+                            className={countdown > 0 || isResending ? 'opacity-50' : ''}
                         >
                             <Text className="text-blue-600 underline font-medium">
                                 {countdown > 0
                                     ? `Resend OTP in ${countdown}s`
-                                    : isResendingOtp
+                                    : isResending
                                         ? "Sending..."
                                         : "Resend OTP"}
                             </Text>

@@ -1,20 +1,28 @@
 import { NextResponse } from "next/server";
 import { SignJWT } from "jose";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { findRefreshToken, rotateRefreshToken } from "@/lib/refreshToken.service";
 import { response, catchError } from "@/lib/helperFunction";
 
 export async function POST(request) {
     try {
-        let refreshToken;
-
-        // Get refresh token from cookie (web) or body (mobile)
         const cookieStore = await cookies();
-        if (cookieStore.has('refresh_token')) {
-            refreshToken = cookieStore.get('refresh_token').value;
-        } else {
-            const body = await request.json();
-            refreshToken = body.refreshToken;
+        const headersList = await headers();
+        let refreshToken = cookieStore.get('refresh_token')?.value;
+
+        // 1. Try to get from headers (for mobile/middleware)
+        if (!refreshToken) {
+            refreshToken = headersList.get('x-refresh-token');
+        }
+
+        // 2. Try to get from body (fallback for some mobile implementations)
+        if (!refreshToken) {
+            try {
+                const body = await request.json();
+                refreshToken = body.refreshToken;
+            } catch (e) {
+                // Body is not JSON or empty, ignore
+            }
         }
 
         if (!refreshToken) {

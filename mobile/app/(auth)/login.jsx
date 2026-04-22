@@ -10,6 +10,7 @@ import { ROUTES } from "../../constants/routes";
 import { showToast } from "../../utils/toast";
 
 export default function Login() {
+    const router = useRouter();
     const { login } = useAuthContext();
     const [isLoading, setIsLoading] = useState(false);
 

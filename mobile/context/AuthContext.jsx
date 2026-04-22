@@ -37,7 +37,19 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (response.data?.success && response.data?.data) {
-                console.log('✅ [AUTH] Session restored:', response.data.data.email);
+                const { accessToken, refreshToken: newRefreshToken, ...userData } = response.data.data;
+                
+                // If tokens were rotated (mobile specific), save them
+                if (accessToken) {
+                    console.log('🔄 [AUTH] Persisting new access token');
+                    await SecureStore.setItemAsync('access_token', accessToken);
+                }
+                if (newRefreshToken) {
+                    console.log('🔄 [AUTH] Persisting new refresh token');
+                    await SecureStore.setItemAsync('refresh_token', newRefreshToken);
+                }
+
+                console.log('✅ [AUTH] Session restored:', userData.email);
                 dispatch(loginAction(response.data.data));
             } else {
                 console.log('⚠️ [AUTH] Session invalid, clearing tokens');

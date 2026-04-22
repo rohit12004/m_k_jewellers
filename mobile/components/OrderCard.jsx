@@ -49,13 +49,24 @@ export default function OrderCard({ order }) {
 
             // Try to refresh the token first to ensure it's valid
             try {
-                const refreshResponse = await api.post('/api/auth/refresh');
-                if (refreshResponse.data.success && refreshResponse.data.data.access_token) {
-                    token = refreshResponse.data.data.access_token;
-                    await SecureStore.setItemAsync("access_token", token);
+                const refreshToken = await SecureStore.getItemAsync("refresh_token");
+                if (refreshToken) {
+                    const refreshResponse = await api.post('/api/auth/refresh', { refreshToken });
+                    if (refreshResponse.data.success && refreshResponse.data.data.accessToken) {
+                        token = refreshResponse.data.data.accessToken;
+                        // SecureStore update is already handled by api.js interceptor if it triggered,
+                        // but let's be sure we have the latest.
+                        await SecureStore.setItemAsync("access_token", token);
+                    }
                 }
             } catch (refreshError) {
-                // Continue with existing token, might still work
+                // If refresh fails, try one last time with current token from SecureStore
+                token = await SecureStore.getItemAsync("access_token");
+            }
+
+            if (!token) {
+                showToast("error", "Authentication Error", "Please login again");
+                return;
             }
 
             // Use cache directory for better sharing compatibility

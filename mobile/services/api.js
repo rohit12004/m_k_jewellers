@@ -2,7 +2,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { API_BASE_URL, API_ROUTES } from "../constants/routes";
 import { store } from "../store";
-import { logout } from "../store/slices/authSlice";
+import { login, logout } from "../store/slices/authSlice";
 import { showToast } from "../utils/toast";
 
 const api = axios.create({
@@ -74,11 +74,17 @@ api.interceptors.response.use(
                 });
 
                 if (response.data.success) {
-                    const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+                    const { accessToken, refreshToken: newRefreshToken, user: userData } = response.data.data;
                     
                     await SecureStore.setItemAsync("access_token", accessToken);
                     if (newRefreshToken) {
                         await SecureStore.setItemAsync("refresh_token", newRefreshToken);
+                    }
+
+                    // Sync fresh user data to Redux if returned
+                    if (userData) {
+                        console.log('🔄 [API] Syncing fresh user data to Redux');
+                        store.dispatch(login(userData));
                     }
 
                     console.log('✅ [API] Refresh successful');

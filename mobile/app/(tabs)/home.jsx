@@ -6,6 +6,7 @@ import SubcategoriesGrid from "../../components/home/SubcategoriesGrid";
 import PromotionalBanner from "../../components/home/PromotionalBanner";
 
 import { VideoBanner } from "../../components/home/VideoBanner";
+import Editorial from "../../components/home/Editorial";
 
 export default function Home() {
     const [refreshing, setRefreshing] = useState(false);
@@ -25,7 +26,9 @@ export default function Home() {
     };
 
     return (
+
         <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+
             <ScrollView
                 className="flex-1"
                 showsVerticalScrollIndicator={false}
@@ -43,8 +46,10 @@ export default function Home() {
                 ) : (
                     <View style={{ height: 200, backgroundColor: "#f3f4f6" }} />
                 )}
+
                 <SubcategoriesGrid />
 
+                <Editorial />
                 {/* Design Image - matches website layout */}
                 <View className="px-4 pt-2 pb-4">
                     <Image
@@ -54,7 +59,6 @@ export default function Home() {
                         style={{ height: 150 }}
                     />
                 </View>
-
                 <PromotionalBanner />
                 <View className="h-4" />
             </ScrollView>

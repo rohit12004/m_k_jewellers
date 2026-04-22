@@ -16,11 +16,11 @@ export async function GET(request) {
 
         // Access token is missing or expired, check for refresh token
         const cookieStore = await cookies();
+        const headersList = await headers();
         let refreshToken = cookieStore.get('refresh_token')?.value;
 
         // If no cookie, check headers (for mobile/native clients)
         if (!refreshToken) {
-            const headersList = await headers();
             refreshToken = headersList.get('x-refresh-token');
         }
 
@@ -86,8 +86,13 @@ export async function GET(request) {
             maxAge: 30 * 24 * 60 * 60, // 30 days
         });
 
-        // Return session data with refreshed tokens
-        return response(true, 200, 'Session restored', userData);
+        // Return session data. For mobile clients, we also return the new tokens in the body.
+        const isMobile = !!headersList.get('x-refresh-token');
+
+        return response(true, 200, 'Session restored', {
+            ...userData,
+            ...(isMobile && { accessToken: newAccessToken, refreshToken: newRefreshToken })
+        });
 
     } catch (error) {
         console.error("❌ [SESSION API] Error:", error);

@@ -1,4 +1,4 @@
-import { getProductBySlug } from '@/lib/product.service'
+import { getProductBySlug, getSimilarProducts } from '@/lib/product.service'
 import { NextResponse } from 'next/server'
 
 export async function GET(request, { params }) {
@@ -13,7 +13,7 @@ export async function GET(request, { params }) {
         }
 
         const response = await getProductBySlug(slug, filters)
-
+        
         if (!response.success) {
             return NextResponse.json(
                 { success: false, message: response.message },
@@ -21,7 +21,19 @@ export async function GET(request, { params }) {
             )
         }
 
-        return NextResponse.json(response)
+        // Fetch similar products based on subcategory
+        const similarProductsResponse = await getSimilarProducts(
+            response.data.product.subCategory?.id,
+            response.data.product.id
+        )
+
+        return NextResponse.json({
+            ...response,
+            data: {
+                ...response.data,
+                similarProducts: similarProductsResponse.success ? similarProductsResponse.data : []
+            }
+        })
 
     } catch (error) {
         console.error('Error fetching product details API:', error)

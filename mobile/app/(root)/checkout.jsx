@@ -241,13 +241,12 @@ export default function Checkout() {
                     }
                 })
                 .catch((error) => {
-                    console.error("Razorpay Error:", error);
-
                     let errorMessage = "Payment was cancelled";
                     let isCancellation = false;
 
                     // Parse the error object/description
                     try {
+                        // Razorpay code 0 is typically cancellation
                         if (error.code === 0 || error.code === 'PAYMENT_CANCELLED') {
                             isCancellation = true;
                         }
@@ -261,6 +260,11 @@ export default function Checkout() {
                                 } else if (descObj.error && descObj.error.reason) {
                                     errorMessage = descObj.error.reason;
                                 }
+
+                                // Additional cancellation detection from parsed object
+                                if (descObj.error?.reason === "payment_error" && descObj.error?.source === "customer") {
+                                    isCancellation = true;
+                                }
                             } catch (e) {
                                 // If not JSON, use the description as is
                                 errorMessage = error.description;
@@ -271,10 +275,11 @@ export default function Checkout() {
                     }
 
                     // If it's a cancellation or unrelated 'undefined' error during cancel, show info
-                    // The error {"code": 0, "description": "undefined"...} is typically a cancellation
-                    if (isCancellation || errorMessage === "undefined" || errorMessage.includes("payment_error")) {
+                    if (isCancellation || errorMessage === "undefined" || errorMessage === "payment_error") {
+                        console.log("💳 [Razorpay] Payment cancelled by user");
                         showToast("info", "Payment Cancelled", "You cancelled the payment process");
                     } else {
+                        console.error("❌ [Razorpay] Payment Error:", error);
                         showToast("error", "Payment Failed", errorMessage);
                     }
 

@@ -8,6 +8,7 @@ import { useProductDetail } from "../../../hooks/useProductDetail";
 import QuantitySelector from "../../../components/product/QuantitySelector";
 import PriceBreakdown from "../../../components/product/PriceBreakdown";
 import SizeSelector from "../../../components/product/SizeSelector";
+import SimilarProducts from "../../../components/product/SimilarProducts";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../../store/slices/cartSlice";
 
@@ -332,9 +333,11 @@ export default function ProductDetail() {
 
                     {/* Description */}
                     {product.description && (
-                        <View className="mb-4">
-                            <Text className="text-base font-semibold text-gray-900 mb-2">Description</Text>
-                            <Text className="text-gray-700 leading-6">{product.description}</Text>
+                        <View className="mb-6">
+                            <Text className="text-base font-semibold text-gray-900 mb-3">Description</Text>
+                            <View className="bg-gray-50 rounded-xl p-4">
+                                <Text className="text-gray-700 leading-6">{product.description}</Text>
+                            </View>
                         </View>
                     )}
 
@@ -375,6 +378,9 @@ export default function ProductDetail() {
                         </View>
                     </View>
                 </View>
+
+                {/* Similar Products */}
+                <SimilarProducts products={data?.similarProducts} />
             </ScrollView>
 
             {/* Add to Cart Button */}
