@@ -18,6 +18,7 @@ export async function GET() {
                         id: true,
                         secure_url: true,
                     },
+                    orderBy: { order: "asc" },
                 },
             },
         })

@@ -5,46 +5,45 @@ import AuthLayout from "../../components/AuthLayout";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation } from "@tanstack/react-query";
-import api from "../../services/api";
-import { API_ROUTES, ROUTES } from "../../constants/routes";
+import { useAuthContext } from "../../context/AuthContext";
+import { ROUTES } from "../../constants/routes";
 import { showToast } from "../../utils/toast";
 
 export default function Login() {
-    const router = useRouter();
+    const { login } = useAuthContext();
+    const [isLoading, setIsLoading] = useState(false);
 
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ email: "", password: "" });
 
-    // Login Mutation
-    const loginMutation = useMutation({
-        mutationFn: async (data) => {
-            const response = await api.post(API_ROUTES.LOGIN, data);
-            return response.data;
-        },
-        onSuccess: (data) => {
+    const handleLogin = async () => {
+        if (!formData.email || !formData.password) {
+            showToast("error", "Validation", "Please fill in all fields");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const data = await login({ 
+                email: formData.email, 
+                password: formData.password 
+            });
+
             if (data.success) {
-                // Navigate to Verify OTP Page
+                // Redirect to OTP verification
                 router.push({
                     pathname: ROUTES.VERIFY_OTP,
                     params: { email: formData.email }
                 });
             } else {
-                showToast("error", "Error", data.message || "Login failed");
+                showToast("error", "Login Failed", data.message || "Invalid credentials");
             }
-        },
-        onError: (error) => {
-            const msg = error.response?.data?.message || error.message || "Login failed. Please try again.";
+        } catch (error) {
+            const msg = error.response?.data?.message || error.message || "An error occurred during login";
             showToast("error", "Error", msg);
-        },
-    });
-
-    const handleLogin = () => {
-        if (!formData.email || !formData.password) {
-            showToast("error", "Validation", "Please fill in all fields");
-            return;
+        } finally {
+            setIsLoading(false);
         }
-        loginMutation.mutate(formData);
     };
 
     return (
@@ -81,7 +80,7 @@ export default function Login() {
                 <Button
                     text="Login"
                     onPress={handleLogin}
-                    loading={loginMutation.isPending}
+                    loading={isLoading}
                 />
             </View>
 

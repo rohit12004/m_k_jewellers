@@ -135,6 +135,7 @@ export async function GET(request) {
                             alt: true,
                             title: true,
                         },
+                        orderBy: { order: "asc" },
                     },
                     variants: {
                         select: {

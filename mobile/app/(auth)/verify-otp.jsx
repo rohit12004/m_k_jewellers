@@ -2,19 +2,17 @@ import { View, Text, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvo
 import { useState, useRef, useEffect } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
-import * as SecureStore from "expo-secure-store";
-import api from "../../services/api";
+import { useAuthContext } from "../../context/AuthContext";
 import { API_ROUTES, ROUTES } from "../../constants/routes";
-import { login } from "../../store/slices/authSlice";
 import AuthLayout from "../../components/AuthLayout";
 import { showToast } from "../../utils/toast";
 
 export default function VerifyOtp() {
     const { email } = useLocalSearchParams();
     const router = useRouter();
-    const dispatch = useDispatch();
+    const { verifyOtp, resendOtp } = useAuthContext();
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [isResending, setIsResending] = useState(false);
 
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [countdown, setCountdown] = useState(0);
@@ -69,64 +67,50 @@ export default function VerifyOtp() {
         }
     };
 
-    // Verify OTP Mutation
-    const verifyOtpMutation = useMutation({
-        mutationFn: async (otpString) => {
-            const response = await api.post(API_ROUTES.VERIFY_OTP, { email, otp: otpString });
-            return response.data;
-        },
-        onSuccess: async (response) => {
-            if (response.success && response.data?.accessToken) {
-                // Store both access token and refresh token
-                await SecureStore.setItemAsync("access_token", response.data.accessToken);
-                await SecureStore.setItemAsync("refresh_token", response.data.refreshToken);
-                dispatch(login(response.data));
+    const handleVerify = async () => {
+        const otpString = otp.join("");
+        if (otpString.length !== 6) {
+            showToast("error", "Error", "Please enter a valid 6-digit OTP");
+            return;
+        }
 
-                // Auto-redirect handled by RootLayout based on auth state
+        setIsVerifying(true);
+        try {
+            const data = await verifyOtp({ email, otp: otpString });
+            if (data.success) {
+                showToast("success", "Success", "Logged in successfully");
+                // The root layout will automatically redirect to home based on AuthContext state
             } else {
-                showToast("error", "Error", response.message || "Invalid OTP");
+                showToast("error", "Verification Failed", data.message || "Invalid OTP");
             }
-        },
-        onError: (error) => {
+        } catch (error) {
             const msg = error.response?.data?.message || error.message || "Verification failed";
             showToast("error", "Error", msg);
-        },
-    });
+        } finally {
+            setIsVerifying(false);
+        }
+    };
 
-    // Resend OTP Mutation
-    const resendOtpMutation = useMutation({
-        mutationFn: async () => {
-            const response = await api.post(API_ROUTES.RESEND_OTP, { email });
-            return response.data;
-        },
-        onSuccess: (data) => {
+    const handleResendOtp = async () => {
+        if (countdown > 0 || isResending) return;
+
+        setIsResending(true);
+        try {
+            const data = await resendOtp(email);
             if (data.success) {
                 showToast("success", "OTP Sent", "A new OTP has been sent to your email");
                 setCountdown(30); // 30 second cooldown
                 setOtp(["", "", "", "", "", ""]); // Clear OTP inputs
                 inputRefs.current[0]?.focus();
             } else {
-                showToast("error", "Error", data.message || "Failed to resend OTP");
+                showToast("error", "Failed", data.message || "Could not resend OTP");
             }
-        },
-        onError: (error) => {
+        } catch (error) {
             const msg = error.response?.data?.message || error.message || "Failed to resend OTP";
             showToast("error", "Error", msg);
-        },
-    });
-
-    const handleVerify = () => {
-        const otpString = otp.join("");
-        if (otpString.length === 6) {
-            verifyOtpMutation.mutate(otpString);
-        } else {
-            showToast("error", "Error", "Please enter a valid 6-digit OTP");
+        } finally {
+            setIsResending(false);
         }
-    };
-
-    const handleResendOtp = () => {
-        if (countdown > 0) return; // Prevent spam
-        resendOtpMutation.mutate();
     };
 
     return (
@@ -155,10 +139,10 @@ export default function VerifyOtp() {
 
                     <TouchableOpacity
                         onPress={handleVerify}
-                        disabled={verifyOtpMutation.isPending}
-                        className={`w-full bg-blue-600 py-4 rounded-xl items-center flex-row justify-center shadow-lg shadow-blue-200 ${verifyOtpMutation.isPending ? 'opacity-70' : ''}`}
+                        disabled={isVerifying}
+                        className={`w-full bg-blue-600 py-4 rounded-xl items-center flex-row justify-center shadow-lg shadow-blue-200 ${isVerifying ? 'opacity-70' : ''}`}
                     >
-                        {verifyOtpMutation.isPending ? <ActivityIndicator color="#fff" className="mr-2" /> : null}
+                        {isVerifying ? <ActivityIndicator color="#fff" className="mr-2" /> : null}
                         <Text className="text-white font-bold">
                             Verify
                         </Text>
@@ -167,13 +151,13 @@ export default function VerifyOtp() {
                     <View className="items-center mt-6 space-y-3">
                         <TouchableOpacity
                             onPress={handleResendOtp}
-                            disabled={countdown > 0 || resendOtpMutation.isPending}
-                            className={countdown > 0 || resendOtpMutation.isPending ? 'opacity-50' : ''}
+                            disabled={countdown > 0 || isResendingOtp}
+                            className={countdown > 0 || isResendingOtp ? 'opacity-50' : ''}
                         >
                             <Text className="text-blue-600 underline font-medium">
                                 {countdown > 0
                                     ? `Resend OTP in ${countdown}s`
-                                    : resendOtpMutation.isPending
+                                    : isResendingOtp
                                         ? "Sending..."
                                         : "Resend OTP"}
                             </Text>

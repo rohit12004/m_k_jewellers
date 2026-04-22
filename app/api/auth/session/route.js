@@ -1,6 +1,6 @@
 import { catchError, response } from "@/lib/helperFunction";
 import { getUserSession } from "@/lib/authentication";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { findRefreshToken, rotateRefreshToken } from "@/lib/refreshToken.service";
 import { SignJWT } from "jose";
 
@@ -16,7 +16,13 @@ export async function GET(request) {
 
         // Access token is missing or expired, check for refresh token
         const cookieStore = await cookies();
-        const refreshToken = cookieStore.get('refresh_token')?.value;
+        let refreshToken = cookieStore.get('refresh_token')?.value;
+
+        // If no cookie, check headers (for mobile/native clients)
+        if (!refreshToken) {
+            const headersList = await headers();
+            refreshToken = headersList.get('x-refresh-token');
+        }
 
         if (!refreshToken) {
             // No refresh token, user needs to login

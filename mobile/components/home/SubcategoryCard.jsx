@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, TouchableOpacity, Dimensions, Image } from "react-native";
+import { View, Text, TouchableOpacity, Dimensions } from "react-native";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -7,6 +7,15 @@ const cardWidth = (screenWidth - 48) / 3; // 3 columns with 16px padding on side
 
 const SubcategoryCard = ({ category }) => {
     const router = useRouter();
+
+    // Safely extract secure_url and ensure it has a protocol
+    let imageUrl = category.media && category.media.length > 0 && category.media[0].secure_url
+        ? category.media[0].secure_url
+        : null;
+
+    if (imageUrl && imageUrl.startsWith('//')) {
+        imageUrl = `https:${imageUrl}`;
+    }
 
     const handlePress = () => {
         router.push({
@@ -23,21 +32,24 @@ const SubcategoryCard = ({ category }) => {
             style={{ flex: 1, maxWidth: cardWidth }}
         >
             <View
-                className="bg-white rounded-2xl shadow-sm mb-2 overflow-hidden"
+                className="bg-white rounded-2xl shadow-sm mb-2 overflow-hidden border border-gray-100"
                 style={{
                     width: cardWidth - 8,
                     height: cardWidth - 8,
                 }}
             >
-                {category.media && category.media.length > 0 && category.media[0].secure_url ? (
+                {imageUrl ? (
                     <Image
-                        source={{ uri: category.media[0].secure_url }}
+                        source={{ uri: imageUrl }}
                         style={{ width: '100%', height: '100%' }}
-                        resizeMode="cover"
+                        contentFit="cover"
+                        transition={200}
                     />
                 ) : (
-                    <View className="w-full h-full bg-gray-200 rounded-lg items-center justify-center">
-                        <Text className="text-gray-400 text-xs">No Image</Text>
+                    <View className="w-full h-full bg-gray-100 items-center justify-center">
+                        <View className="bg-gray-200 p-2 rounded-full">
+                            <Text className="text-gray-400 text-[10px] font-bold">MK</Text>
+                        </View>
                     </View>
                 )}
             </View>

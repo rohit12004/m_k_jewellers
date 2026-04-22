@@ -18,6 +18,7 @@ export async function GET() {
                         alt: true,
                         title: true,
                     },
+                    orderBy: { order: "asc" },
                 },
             },
         })

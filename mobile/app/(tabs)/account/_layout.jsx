@@ -3,83 +3,33 @@ import { View, Text, TouchableOpacity, ActivityIndicator, Image } from "react-na
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withLayoutContext } from "expo-router";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
-import api from "../../../services/api";
-import { login, logout } from "../../../store/slices/authSlice";
-import { showToast } from "../../../utils/toast";
+import { useAuthContext } from "../../../context/AuthContext";
 import { ROUTES } from "../../../constants/routes";
 
+// Material Top Tabs Setup
 const { Navigator } = createMaterialTopTabNavigator();
 const MaterialTopTabs = withLayoutContext(Navigator);
 
 export default function AccountLayout() {
-    const auth = useSelector((store) => store.authStore.auth);
-    const dispatch = useDispatch();
-    const router = useRouter();
+    const { user: auth, logout, isLoading } = useAuthContext();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
-    const [isCheckingSession, setIsCheckingSession] = useState(true);
-
-    // Session restoration - only if user is already logged in
-    useEffect(() => {
-        const checkSession = async () => {
-            if (auth) {
-                // User is logged in, no need to check session
-                setIsCheckingSession(false);
-                return;
-            }
-
-            // Not logged in - check if we have a token to restore session
-            try {
-                const token = await SecureStore.getItemAsync("access_token");
-                if (token) {
-                    // Try to restore session from token
-                    const { data } = await api.get("/api/auth/session");
-                    if (data.success && data.data) {
-                        dispatch(login(data.data));
-                        setIsCheckingSession(false);
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.error("Session check error:", error);
-            }
-
-            // No valid session - show login prompt (don't auto-redirect)
-            setIsCheckingSession(false);
-        };
-
-        checkSession();
-    }, [auth, dispatch]);
+    const router = useRouter();
 
     // Logout handler
     const handleLogout = async () => {
+        setIsLoggingOut(true);
         try {
-            setIsLoggingOut(true);
-            const { data } = await api.post("/api/auth/logout");
-
-            if (!data.success) {
-                throw new Error(data.message);
-            }
-
-            // Clear both tokens and Redux state
-            await SecureStore.deleteItemAsync("access_token");
-            await SecureStore.deleteItemAsync("refresh_token");
-            dispatch(logout());
-
-            showToast("success", "Success", "Logged out successfully");
-        } catch (error) {
-            console.error("Logout error:", error);
-            showToast("error", "Error", error.message || "Failed to logout");
+            await logout();
         } finally {
             setIsLoggingOut(false);
         }
     };
 
     // Show loading while checking session
-    if (isCheckingSession) {
+    if (isLoading) {
         return (
             <SafeAreaView className="flex-1 bg-gray-50">
                 <View className="flex-1 items-center justify-center">

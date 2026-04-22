@@ -13,15 +13,22 @@ const SubcategoriesGrid = () => {
             try {
                 console.log('🔍 Fetching subcategories from:', API_ROUTES.GET_ALL_SUBCATEGORIES);
                 const response = await api.get(API_ROUTES.GET_ALL_SUBCATEGORIES);
-                console.log('✅ Subcategories response:', response.data);
 
                 if (!response.data.success) {
                     throw new Error(response.data.message || "Failed to fetch subcategories");
                 }
-                return response.data.data;
+
+                const subcategories = response.data.data || [];
+                console.log(`✅ Fetched ${subcategories.length} subcategories`);
+
+                // Log the first item's media to verify structure
+                if (subcategories.length > 0) {
+                    console.log('📸 Sample Subcategory Media:', JSON.stringify(subcategories[0].media, null, 2));
+                }
+
+                return subcategories;
             } catch (err) {
                 console.error('❌ Subcategories error:', err);
-                console.error('❌ Error details:', err.response?.data || err.message);
                 throw err;
             }
         },

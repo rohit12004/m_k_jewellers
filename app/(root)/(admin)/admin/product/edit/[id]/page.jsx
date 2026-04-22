@@ -10,7 +10,7 @@ import ButtonLoading from '@/components/Application/ButtonLoading'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useEffect, useState } from 'react'
-import { FiPlus } from "react-icons/fi"
+import { FiPlus, FiArrowLeft, FiArrowRight } from "react-icons/fi"
 import slugify from 'slugify'
 import { showToast } from '@/lib/showToast'
 import axios from 'axios'
@@ -80,6 +80,17 @@ const EditProduct = () => {
   const [subCategoryOption, setSubCategoryOption] = useState([])
   const [open, setOpen] = useState(false)
   const [selectedMedia, setSelectedMedia] = useState([])
+
+  // ✅ Move Media Helper
+  const moveMedia = (index, direction) => {
+    const newMedia = [...selectedMedia];
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= newMedia.length) return;
+    const temp = newMedia[index];
+    newMedia[index] = newMedia[newIndex];
+    newMedia[newIndex] = temp;
+    setSelectedMedia(newMedia);
+  }
   
   // ✅ Try-On Media State
   const [tryOnOpen, setTryOnOpen] = useState(false)
@@ -177,7 +188,8 @@ const EditProduct = () => {
       showToast('success', res.message)
       router.push(ADMIN_PRODUCT_SHOW)
     } catch (error) {
-      showToast('error', error.message)
+      const msg = error.response?.data?.message || error.message || "An unexpected error occurred";
+      showToast('error', msg)
     } finally {
       setLoading(false)
     }
@@ -400,16 +412,48 @@ const EditProduct = () => {
                   isMultiple={true}
                 />
                 {selectedMedia.length > 0 && (
-                  <div className="flex gap-2 justify-center my-3 flex-wrap">
-                    {selectedMedia.map(media => (
-                      <Image
-                        key={media.id}
-                        src={media.secure_url || media.url}
-                        height={80}
-                        width={80}
-                        className="object-cover rounded border"
-                        alt=""
-                      />
+                  <div className="flex gap-4 justify-center my-3 flex-wrap">
+                    {selectedMedia.map((media, index) => (
+                      <div key={media.id} className="relative group">
+                        <Image
+                          src={media.secure_url || media.url}
+                          height={80}
+                          width={80}
+                          className="object-cover rounded border h-20 w-20"
+                          alt=""
+                        />
+
+                        {/* Reorder Controls */}
+                        <div className="absolute inset-x-0 bottom-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 p-1 transition-opacity">
+                          {index > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => moveMedia(index, -1)}
+                              className="p-1 bg-white rounded-full text-black hover:bg-gray-200 transition-colors"
+                              title="Move Left"
+                            >
+                              <FiArrowLeft size={12} />
+                            </button>
+                          )}
+                          {index < selectedMedia.length - 1 && (
+                            <button
+                              type="button"
+                              onClick={() => moveMedia(index, 1)}
+                              className="p-1 bg-white rounded-full text-black hover:bg-gray-200 transition-colors"
+                              title="Move Right"
+                            >
+                              <FiArrowRight size={12} />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Cover Badge */}
+                        {index === 0 && (
+                          <div className="absolute -top-2 -left-2 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm z-10">
+                            Cover
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}

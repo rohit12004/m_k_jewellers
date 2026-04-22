@@ -1,19 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Link, useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import AuthLayout from "../../components/AuthLayout";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation } from "@tanstack/react-query";
-import api from "../../services/api";
+import { useAuthContext } from "../../context/AuthContext";
 import { API_ROUTES, ROUTES } from "../../constants/routes";
 import { showToast } from "../../utils/toast";
 
-import * as SecureStore from 'expo-secure-store';
-import { useEffect } from 'react';
-
 export default function Signup() {
+    const { signup } = useAuthContext();
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const router = useRouter();
 
     // Clear stale token on mount to prevent "Already logged in" errors
@@ -21,7 +20,6 @@ export default function Signup() {
         SecureStore.deleteItemAsync("access_token");
     }, []);
 
-    const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
@@ -31,28 +29,7 @@ export default function Signup() {
         confirmPassword: "",
     });
 
-    const registerMutation = useMutation({
-        mutationFn: async (data) => {
-            const response = await api.post(API_ROUTES.REGISTER, data);
-            return response.data;
-        },
-        onSuccess: (data) => {
-            if (data.success) {
-                showToast("success", "Account Created", "Please check your email to verify your account");
-                setTimeout(() => {
-                    router.replace(ROUTES.LOGIN);
-                }, 2000);
-            } else {
-                showToast("error", "Error", data.message || "Registration failed");
-            }
-        },
-        onError: (error) => {
-            const msg = error.response?.data?.message || error.message || "Registration failed";
-            showToast("error", "Error", msg);
-        }
-    });
-
-    const handleSignup = () => {
+    const handleSignup = async () => {
         const { name, email, password, confirmPassword } = formData;
 
         if (!name || !email || !password || !confirmPassword) {
@@ -76,7 +53,21 @@ export default function Signup() {
             return;
         }
 
-        registerMutation.mutate({ name, email, password });
+        setIsSubmitting(true);
+        try {
+            const data = await signup({ name, email, password });
+            if (data.success) {
+                showToast("success", "Account Created", "Please check your email to verify your account");
+                router.replace(ROUTES.LOGIN);
+            } else {
+                showToast("error", "Signup Failed", data.message || "Could not create account");
+            }
+        } catch (error) {
+            const msg = error.response?.data?.message || error.message || "Signup failed";
+            showToast("error", "Error", msg);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -139,7 +130,7 @@ export default function Signup() {
                 <Button
                     text="Create Account"
                     onPress={handleSignup}
-                    loading={registerMutation.isPending}
+                    loading={isSubmitting}
                 />
             </View>
 

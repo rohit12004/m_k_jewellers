@@ -1,27 +1,22 @@
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 
-const { width } = Dimensions.get('window');
 const VIDEO_HEIGHT = 200; // Adjust height as needed
 
 export const VideoBanner = () => {
+    const { width } = useWindowDimensions();
     const videoSource = require('../../assets/videos/banner.mp4');
     
-    const player = useVideoPlayer(videoSource, player => {
-        player.loop = true;
-        player.muted = true;
-        player.play();
+    const player = useVideoPlayer(videoSource, (playerInstance) => {
+        playerInstance.loop = true;
+        playerInstance.muted = true;
+        playerInstance.play();
     });
 
-    useEffect(() => {
-        // Ensure video plays when component mounts
-        player.play();
-    }, [player]);
-
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { width }]}>
             <VideoView
                 style={styles.video}
                 player={player}
@@ -49,7 +44,6 @@ export const VideoBanner = () => {
 
 const styles = StyleSheet.create({
     container: {
-        width: width,
         height: VIDEO_HEIGHT,
         position: 'relative',
         marginBottom: 20,
